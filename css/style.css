@@ -3,6 +3,7 @@
     justify-content: space-between;
     padding: 10px 35px 8px 35px;
     background-color: white;
+    user-select: none;
 }
 
 .icons{
@@ -18,8 +19,12 @@ img{
 }
 html{
     padding: 0px;
-    margin: -8px;
+    margin: 0px;
     background-color: #EAEAE8;
+}
+body {
+  margin: 0px;
+  padding: 0px;
 }
 .sb-container{
     display: flex;
