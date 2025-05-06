@@ -5,6 +5,9 @@
     background-color: white;
     user-select: none;
 }
+footer {
+  background-color: white;
+}
 
 .icons{
     display: flex;
