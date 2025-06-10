@@ -34,13 +34,16 @@ footer .social img {
 }
  
 .icons{
+  margin-right: 0%;
     display: flex;
+    border-radius: 50%;
     justify-content: space-between;
     align-items: center;
     gap: 10px;
+    transition: ease 0.3s;
 }
 .icons:hover {
-  background-color: greenyellow;
+  background-color: rgb(162, 204, 99);
   border-radius: 50%;
 }
 a {
