@@ -1,1 +1,31 @@
 # HandinHand
+# Biografía de Angel Agustín Alemán Sánchez
+# “Soñar no cuesta nada, pero construir los sueños... eso es un arte.”
+
+# Angel Agustín Alemán Sánchez nació el 14 de diciembre en Montevideo, Uruguay, una ciudad donde el viento del Río de la Plata sopla historias en cada esquina y el espíritu latino vibra entre avenidas, ferias, y paseos costeros. Desde sus primeros años, Angel demostró una sensibilidad especial por el mundo que lo rodeaba, una curiosidad despierta y una imaginación que nunca parecía agotarse. En su infancia, como muchos niños, le gustaba jugar, pero él no solo jugaba: también creaba.
+
+# Angel no tardó en descubrir que dentro de su mente no solo habitaban mundos posibles, sino también imposibles, fantásticos, complejos y profundamente emocionantes. Mientras otros se conformaban con vivir las historias que otros escribían, él soñaba con inventarlas. No era raro encontrarlo dibujando mapas imaginarios, bocetando personajes con poderes únicos o ideando reglas para juegos que nadie más conocía… aún.
+
+# Estudiante del Liceo Impulso, una institución que promueve la creatividad y el aprendizaje activo, Angel encontró un ambiente propicio para cultivar su identidad, tanto personal como académica. Su paso por el liceo no solo le brindó conocimientos formales, sino que también afianzó su sentido de propósito. Entre clases, proyectos, amistades y momentos de reflexión, empezó a moldear lo que luego se transformaría en una pasión definitiva: el diseño de videojuegos.
+
+# Pero Angel no se conforma con jugar videojuegos. Aunque disfruta con especial cariño de los roguelikes —ese género desafiante donde la muerte no es el final, sino una lección—, su visión va mucho más allá del rol de jugador. Para él, los videojuegos son una forma de arte, una vía de expresión, una herramienta para transmitir emociones, historias y experiencias humanas. Sueña con crear mundos en los que otras personas puedan perderse, encontrarse, emocionarse y crecer.
+
+# Lo que muchos no saben es que crear videojuegos no es solo programar. Es contar historias, diseñar sistemas, entender emociones, conocer al jugador y traducir una visión abstracta en una experiencia concreta e interactiva. Angel lo sabe. Por eso no se limita a una sola faceta: le gusta escribir tramas, imaginar mecánicas, pensar en la estética de los mundos, en cómo se sienten, se ven, y se viven.
+
+# También hay un costado muy humano en Angel. Le gusta la tranquilidad de una buena comida casera, como su plato favorito: pollo al horno con verduras, una combinación cálida que representa perfectamente su equilibrio entre lo sencillo y lo sabroso. Esa misma combinación se refleja en su carácter: sereno pero determinado, soñador pero con los pies en la tierra, creativo pero con una fuerte ética del esfuerzo.
+
+# Su historia no está escrita aún, y eso es precisamente lo que la hace poderosa. Angel se encuentra en ese momento especial de la vida en el que los sueños comienzan a tomar forma, donde las ideas que antes parecían meras fantasías empiezan a convertirse en proyectos, en planes, en desafíos concretos. No es fácil. Emprender un camino creativo —como el desarrollo de videojuegos— implica horas de aprendizaje técnico, momentos de frustración, y también el miedo constante a no estar “a la altura”.
+
+# Pero si hay algo que define a Angel es su resiliencia. No teme empezar de nuevo, como en los roguelikes que tanto disfruta. Cada error es una semilla de experiencia, cada caída una nueva oportunidad de levantarse mejor preparado. Él sabe que para llegar a donde quiere, hay que fallar muchas veces, y está dispuesto a fallar… y seguir.
+
+# Además, Angel entiende que los sueños no se logran solos. Por eso valora profundamente los vínculos, el trabajo en equipo, la inspiración mutua. Sabe que crear un videojuego es como construir una sinfonía: se necesita de muchas mentes y muchos corazones latiendo al mismo ritmo. Su capacidad para conectar con otros, para compartir ideas y recibirlas con humildad, lo convierte en un líder en potencia.
+
+# Aunque aún está en etapa de formación académica, su preparación va mucho más allá de las aulas. Angel está constantemente aprendiendo de forma autodidacta, explorando herramientas digitales, investigando sobre diseño narrativo, experimentando con mecánicas, prototipos y motores gráficos. Su motivación no nace de una obligación externa, sino de una llama interna: una pasión verdadera.
+
+# Pero más allá del desarrollo profesional, lo que realmente hace especial a Angel es su deseo de crear con propósito. No quiere hacer juegos vacíos, repetitivos o simplemente comerciales. Quiere contar algo, transmitir algo. Quiere que sus juegos tengan alma. Que quien juegue uno de sus títulos, sienta algo que no pueda explicar del todo, como cuando uno termina un libro que le cambia la vida, o escucha una canción que le conmueve el pecho.
+
+# En un mundo cada vez más digital, donde millones de voces compiten por atención, Angel está construyendo su lugar con paciencia, autenticidad y determinación. Y lo está haciendo desde Montevideo, desde el corazón del sur de América, demostrando que el talento no tiene fronteras y que los sueños, por más lejanos que parezcan, se alcanzan paso a paso.
+
+# El futuro de Angel Agustín Alemán Sánchez está en construcción. No sabemos qué título llevará su primer videojuego, ni cuántas personas jugarán sus historias. Pero lo que sí sabemos es que, con su talento, su visión y su pasión, el impacto será real. Y lo mejor de todo es que él no está esperando que el futuro llegue. Lo está construyendo, línea por línea, píxel por píxel, idea por idea.
+
+# Cuando ese primer videojuego salga al mundo, no será solo un producto: será el reflejo de una vida soñando, aprendiendo, cayendo, levantándose y creyendo en el poder de crear. Y quizás, ese juego inspire a otra persona a hacer lo mismo. Porque ese es el poder de los soñadores como Angel: no solo hacen realidad sus propios sueños… también siembran la posibilidad en los corazones de los demás.
