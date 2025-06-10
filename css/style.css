@@ -38,7 +38,10 @@ footer .social img {
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    
+}
+.icons:hover {
+  background-color: greenyellow;
+  border-radius: 50%;
 }
 a {
   text-decoration: none;
