@@ -158,3 +158,8 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 10px;
 }
+
+button {
+  background: none;
+  border: none;
+}
