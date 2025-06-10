@@ -63,13 +63,8 @@ body {
   padding: 20px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
+  border-radius: 12px;
   gap: 20px;
-}
-
-.product{
-  width: 100px;
-  height: 150px;
-  background-color: #8ca764;
 }
 
 .sb-container{
@@ -136,16 +131,6 @@ body {
 .sombra {
     text-shadow: -4px 4px 5px rgba(0, 0, 0, 0.5);
   }
-
-.product-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: 20px ;
-  padding: 30px;
-  border-radius: 12px;
-  gap: 20px;
-}
 
 .product {
   justify-content: space-evenly;
