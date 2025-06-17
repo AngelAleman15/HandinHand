@@ -263,6 +263,9 @@ button {
   border-radius: 10px;
   transition: ease 0.3;
 }
+#categorias h1 {
+  color: rgb(119, 117, 56);
+}
 
 #sesion {
   padding-bottom: 20px;
