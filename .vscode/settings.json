@@ -1,3 +1,4 @@
 {
-    "clock.active": true
+    "clock.active": true,
+    "liveServer.settings.port": 5501
 }
