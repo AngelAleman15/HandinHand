@@ -1,16 +1,3 @@
-button {
-  background: none;
-  border: none;
-}
-
-.header{
-    height:50px;
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 15px 8px 35px;
-    background-color: white;
-    user-select: none;
-}
 footer {
   background-color: white;
   display: flex;
@@ -20,7 +7,6 @@ footer {
   height: 10%;
   margin-top: 10%;
 }
-
 footer .social {
   padding-left: 5%;
   display: flex;
@@ -31,14 +17,48 @@ footer .social {
   font-weight: bolder;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
 footer .social img {
   width: 100%;
   object-fit: contain;
   aspect-ratio: 1 / 1;
   height: 30%;
 }
- 
+
+button {
+  background: none;
+  border: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+img{
+    width: 35px;
+    height: auto;
+}
+
+html{
+    padding: 0px;
+    margin: 0px;
+    background-color: #EAEAE8;
+}
+
+body {
+  margin: 0px;
+  padding: 0px;
+  height: auto;
+}
+
+.header{
+    height:50px;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px 8px 35px;
+    background-color: white;
+    user-select: none;
+}
+
 .icons-container {
   display: flex;
   justify-content: flex-end;
@@ -63,23 +83,6 @@ footer .social img {
   background-color: #3c680795;
   border-radius: 50%;
 }
-a {
-  text-decoration: none;
-}
-img{
-    width: 35px;
-    height: auto;
-}
-html{
-    padding: 0px;
-    margin: 0px;
-    background-color: #EAEAE8;
-}
-body {
-  margin: 0px;
-  padding: 0px;
-  height: auto;
-}
 
 .container{
   align-items: center;
@@ -100,7 +103,6 @@ body {
   user-select: none
 }
 
-
 .sb-container-bars {
   display: flex;
   justify-content: center;
@@ -118,7 +120,6 @@ body {
   color: black;
   transition: ease 0.3s;
 }
-
 .search-bar-btn {
   padding: 1%;
   border-radius: 10px;
@@ -180,11 +181,6 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-button {
-  background: none;
-  border: none;
-}
-
 .sidebar {
     margin: 1%;
     width: 15%;
@@ -200,7 +196,6 @@ button {
 .sidebar img {
     width: 100%;
 }
-
 .sidebar:hover {
   margin-top: auto;
   backdrop-filter: blur(30px);
@@ -213,6 +208,7 @@ button {
 .sidebar:hover img {
   display: none;
 }
+
 .menu {
   display: none;
   flex-direction: column;
@@ -248,26 +244,26 @@ button {
 }
 
 #categorias {
-  padding: 5px;
+  padding: 5%;
   background-color: #c4be8e;
   border-radius: 10px;
   transition: ease 0.3;
-}
-#nyc {
-  width: auto;
-  height: auto;
-  padding: 5px;
-  background-color: #c4be8e;
-  border-radius: 10px;
-  transition: ease 0.3;
-
 }
 #categorias h1 {
   color: rgb(119, 117, 56);
 }
 
+#nyc {
+  width: auto;
+  height: auto;
+  padding: 5%;
+  background-color: #c4be8e;
+  border-radius: 10px;
+  transition: ease 0.3;
+}
+
 #sesion {
-  padding-bottom: 20px;
+  padding-bottom: 5%;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -285,6 +281,7 @@ button {
   width: 150px;
   height: 50px;
 }
+
 #option {
   padding: 3%;
   border-radius: 10px;
