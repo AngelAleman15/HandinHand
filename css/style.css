@@ -190,10 +190,10 @@ body {
     position: relative;
     transition: ease 0.3s;
 }
-.sidebar img {
+.sidebar, .sidebar_active img{
     width: 100%;
 }
-.sidebar:hover {
+.sidebar_active {
   margin-top: auto;
   backdrop-filter: blur(30px);
   width: 50%;
@@ -201,9 +201,7 @@ body {
   border-radius: 5px;
   display: flex;
   flex-direction: column;
-}
-.sidebar:hover img {
-  display: none;
+  background-color: #3c680795;
 }
 
 .menu {
@@ -218,10 +216,7 @@ body {
   border-radius: 10px;
 }
 
-.sidebar:hover .menu {
-    display: flex;
-}
-.sidebar:hover .menu img {
+.sidebar_active .menu img {
     display: flex;
     position: relative;
 }
