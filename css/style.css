@@ -8,20 +8,18 @@ footer {
   margin-top: 10%;
 }
 footer .social {
-  padding-left: 5%;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 10px;
   font-weight: bolder;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 footer .social img {
-  width: 100%;
+  width: 25%;
   object-fit: contain;
   aspect-ratio: 1 / 1;
-  height: 30%;
+  height: 100%;
 }
 
 button {
@@ -316,7 +314,7 @@ body {
     width: 100%;
   }
   .sb-container {
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .header {
@@ -373,4 +371,20 @@ body {
   .sb-container-bars {
     flex-direction: column;
   }
+  footer .social {
+  margin: 1%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-weight: bolder;
+  gap: 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+footer .social img {
+  width: 50%;
+  object-fit: contain;
+  aspect-ratio: 1 / 1;
+  height: 100%;
+}
 }
