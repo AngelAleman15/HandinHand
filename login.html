@@ -47,6 +47,61 @@
             padding-left: 5%;
             margin-bottom: 4%;
         }
+                @media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+    margin: 5%;
+    width: 100%;
+    gap: 30px;
+  }
+
+  .card {
+    width: 100%;
+    height: auto;
+    padding: 5%;
+  }
+
+  .card img {
+    width: 100%;
+    height: auto;
+  }
+
+  p {
+    font-size: large;
+    padding: 10px;
+  }
+
+  input {
+    width: 400px;
+    height: 45px;
+    font-size: 1rem;
+  }
+  #btn-confirm {
+            color: white;
+            border-radius: 5px; 
+            text-align:center; 
+            background-color:  #36372C; 
+            width: 50%; 
+            height: 35px;
+            font-size: 20px; 
+            display: flex; 
+            justify-content: 
+            center; 
+            align-items: center; 
+            font-weight: 500;
+    }
+#txt-register  {
+            color: #36372C; 
+            font-size: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: 
+            center; 
+            font-weight: 500; 
+            margin: 0%;
+    }
+}
     </style>
     
     <header class="header">
@@ -70,8 +125,8 @@
             <p>Inicia sesión Hand In Hand</p>
             <input type="text" name="text" placeholder="Nombre y apellido">
             <input type="text" name="text" placeholder="Contraseña">
-            <p style="color: white;border-radius: 5px; text-align:center; background-color:  #36372C; width: 30%; height: 35px;font-size: 20px; display: flex; justify-content: center; align-items: center; font-weight: 500;" draggable="false">Confirmar</p>
-            <p style="color: #36372C; font-size: 20px; display: flex; justify-content: center; align-items: center; font-weight: 500; margin: 0%;">¿Olvidaste tu contraseña?</p>
+            <p id="btn-confirm" draggable="false">Confirmar</p>
+            <p id="txt-register">¿Olvidaste tu contraseña?</p>
         </form>
     </div>
     

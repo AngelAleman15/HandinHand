@@ -47,6 +47,73 @@
             padding-left: 3%;
             margin-bottom: 4%;
         }
+        #btn-registrar {
+            color: white;
+            border-radius: 5px; 
+            text-align:center; 
+            background-color:  #36372C; 
+            width: 25%; 
+            height: 40px;
+            font-size: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-weight: 500;
+        }
+        #txt-login  {
+            color: #345C04; 
+            font-size: 20px;
+        }
+        @media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+    margin: 5%;
+    width: 100%;
+    gap: 30px;
+  }
+
+  .card {
+    width: 100%;
+    height: auto;
+    padding: 5%;
+  }
+
+  .card img {
+    width: 100%;
+    height: auto;
+  }
+
+  p {
+    font-size: large;
+    padding: 10px;
+  }
+
+  input {
+    width: 400px;
+    height: 45px;
+    font-size: 1rem;
+  }
+  #btn-registrar {
+            color: white;
+            border-radius: 5px; 
+            text-align:center; 
+            background-color:  #36372C; 
+            width: 50%; 
+            height: 35px;
+            font-size: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-weight: 500;
+    }
+#txt-login  {
+            color: #345C04; 
+            font-size: 20px;
+            text-align: center;
+    }
+}
+
     </style>
     
     <header class="header">
@@ -73,8 +140,8 @@
             <input type="text" name="text" placeholder="Correo Electronico">
             <input type="text" name="text" placeholder="Contraseña">
             <input type="text" name="text" placeholder="Telefono">
-            <p style="color: white;border-radius: 5px; text-align:center; background-color:  #36372C; width: 25%; height: 40px;font-size: 20px; display: flex; justify-content: center; align-items: center; font-weight: 500;">Registrar</p>
-            <p style="color: #345C04; font-size: 20px;">¿Ya sos parte de nosotros?</p>
+            <p id="btn-registrar">Registrar</p>
+            <p id="txt-login">¿Ya sos parte de nosotros?</p>
         </form>
     </div>
     
