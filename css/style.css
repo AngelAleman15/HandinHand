@@ -299,6 +299,7 @@ body {
   background-color: #555135;
 }
 
+/*Media para tablet*/
 @media (max-width: 1024px) {
   .container {
     grid-template-columns: repeat(3, 1fr);
@@ -309,14 +310,17 @@ body {
     flex-direction: row;
     overflow-x: scroll;
   }
-
+  .sidebar_active {
+    margin-top: 120%;
+    width: 100%;
+  }
   .sb-container {
     flex-direction: column;
   }
 
   .header {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items:center;
   }
 }
 
@@ -361,7 +365,6 @@ body {
   }
 
   .sidebar_active {
-    margin: 5%;
     margin-top: 140%;
     width: 100%;
   }
