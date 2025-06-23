@@ -114,15 +114,15 @@ body {
   height: 35%;
   padding: 1%;
   margin: 1%;
-  background-color: rgb(255, 255, 255);
-  border-radius: 10px;
-  border-style: solid;
-  color: black;
-  transition: ease 0.3s;
+  background-color: rgba(255, 255, 255, 0);
+  border-style: none none solid none;
+  border-width: 5px;
+  color: rgb(255, 255, 255);
+  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  transition: ease-in 0.3s;
 }
-.search-bar:hover {
-  background-color: lightgray;
-  
+.search-bar:focus {
+  outline-style: none;
 }
 .search-bar-btn {
   padding: 1%;
