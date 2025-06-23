@@ -49,12 +49,12 @@ body {
 }
 
 .header{
-    height:50px;
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 15px 8px 35px;
-    background-color: white;
-    user-select: none;
+  height:50px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px 8px 35px;
+  background-color: white;
+  user-select: none;
 }
 
 .icons-container {
@@ -137,9 +137,9 @@ body {
   background-color: rgb(5, 24, 5);
 }
 .sb{   
-    flex-direction: column;  
-    display: flex;
-    align-items: center;
+  flex-direction: column;  
+  display: flex;
+  align-items: center;
 }
 .input-container {
   width: 360px;
@@ -148,10 +148,10 @@ body {
   }
   
 .icon {
-    position: absolute;
-    right: 8px;
-    top: calc(50% + 5px);
-    transform: translateY(calc(-50% - 5px));
+  position: absolute;
+  right: 8px;
+  top: calc(50% + 5px);
+  transform: translateY(calc(-50% - 5px));
   }
 
 .product {
@@ -184,18 +184,18 @@ body {
 }
 
 .sidebar {
-    margin: 1%;
-    width: 15%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    transition: ease 0.3s;
+  margin: 1%;
+  width: 15%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: ease 0.3s;
 }
 .sidebar, .sidebar_active img{
-    width: 100%;
+  width: 100%;
 }
 .sidebar_active {
   margin-top: auto;
@@ -221,8 +221,8 @@ body {
 }
 
 .sidebar_active .menu img {
-    display: flex;
-    position: relative;
+  display: flex;
+  position: relative;
 }
 
 .item {
@@ -244,7 +244,7 @@ body {
   background-color: #c4be8e;
   border-radius: 10px;
   transition: ease 0.3s;
-}
+  }
 #categorias h1 {
   color: rgb(119, 117, 56);
 }
@@ -372,19 +372,19 @@ body {
     flex-direction: column;
   }
   footer .social {
-  margin: 1%;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-weight: bolder;
-  gap: 10px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 1%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    font-weight: bolder;
+    gap: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 footer .social img {
-  width: 50%;
-  object-fit: contain;
-  aspect-ratio: 1 / 1;
-  height: 100%;
+    width: 50%;
+    object-fit: contain;
+    aspect-ratio: 1 / 1;
+    height: 100%;
 }
 }
