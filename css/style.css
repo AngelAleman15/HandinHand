@@ -1,10 +1,8 @@
-.header{
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 15px 8px 35px;
-    background-color: white;
-    user-select: none;
+* {
+  box-sizing: border-box;
+  user-select: none;
 }
+
 footer {
   background-color: white;
   display: flex;
@@ -12,9 +10,8 @@ footer {
   flex-direction: row;
   width: 100%;
   height: 10%;
-  margin-top: 100%;
+  margin-top: 10%;
 }
-
 footer .social {
   padding-left: 5%;
   display: flex;
@@ -25,74 +22,132 @@ footer .social {
   font-weight: bolder;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
 footer .social img {
   width: 100%;
   object-fit: contain;
   aspect-ratio: 1 / 1;
   height: 30%;
 }
- 
-.icons{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    
+
+button {
+  background: none;
+  border: none;
 }
+
 a {
   text-decoration: none;
 }
+
 img{
     width: 35px;
     height: auto;
 }
+
 html{
     padding: 0px;
     margin: 0px;
     background-color: #EAEAE8;
 }
+
 body {
   margin: 0px;
   padding: 0px;
   height: auto;
 }
 
+.header{
+    height:50px;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px 8px 35px;
+    background-color: white;
+    user-select: none;
+}
+
+.icons-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+
+.icons{
+  display: flex;
+  width: 45px;
+  height: 45px;
+  margin-right: 0%;
+  display: flex;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: ease 0.3s;
+}
+.icons:hover {
+  position:relative;
+  background-color: #3c680795;
+  border-radius: 50%;
+}
+
 .container{
+  align-items: center;
   justify-items: center;
   padding: 20px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
+  border-radius: 12px;
   gap: 20px;
-}
-
-.product{
-  width: 100px;
-  height: 150px;
-  background-color: #8ca764;
 }
 
 .sb-container{
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 300px;
+  height: 170px;
   background-image: url(../img/fondito.jpg);
-  user-select: none;
+  user-select: none
 }
 
+.sb-container-bars {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
+}
+.search-bar {
+  height: 35%;
+  padding: 1%;
+  margin: 1%;
+  background-color: rgb(255, 255, 255);
+  border-radius: 10px;
+  border-style: solid;
+  color: black;
+  transition: ease 0.3s;
+}
+.search-bar-btn {
+  padding: 1%;
+  border-radius: 10px;
+  border-style: none;
+  width: 10%;
+  height: auto;
+  background-color: rgb(11, 68, 11);
+  color: aliceblue;
+  transition: ease 0.3s;
+}
+.search-bar-btn:active {
+  background-color: rgb(5, 24, 5);
+}
+.sb{   
+    flex-direction: column;  
+    display: flex;
+    align-items: center;
+}
 .input-container {
   width: 360px;
   position: relative;
   padding-right: 17px;
   }
-
-.sb{   
-    flex-direction: column;  
-    display: flex;
-    align-items: center;
-    margin-top: 50px;
-}
   
 .icon {
     position: absolute;
@@ -100,56 +155,12 @@ body {
     top: calc(50% + 5px);
     transform: translateY(calc(-50% - 5px));
   }
-  
-.input {
-    width: 100%;
-    height: 15px;
-    padding: 7px;
-    transition: .2s linear;
-    border: 2.5px solid black;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
-  
-  .input:focus {
-    outline: none;
-    border: 0.5px solid black;
-    box-shadow: -5px -5px 0px black;
-  }
-  
-  .input-container:hover > .icon {
-    animation: anim 1s linear infinite;
-  }
-  
-  @keyframes anim {
-    0%,
-    100% {
-      transform: translateY(calc(-50% - 5px)) scale(1);
-    }
-  
-    50% {
-      transform: translateY(calc(-50% - 5px)) scale(1.1);
-    }
-  }
-
-.sombra {
-    text-shadow: -4px 4px 5px rgba(0, 0, 0, 0.5);
-  }
-
-.product-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: 20px ;
-  padding: 30px;
-  border-radius: 12px;
-  gap: 20px;
-}
 
 .product {
   justify-content: space-evenly;
   align-items: center;
+  display: flex;
+  flex-direction: column;
   width: 200px;
   height: 250px;
   background-color: #8ca764;
@@ -160,7 +171,6 @@ body {
 .product:hover {
   transform: scale(1.03);
 }
-
 .product img {
   width: 90%;
   height: auto;
@@ -172,10 +182,107 @@ body {
   color: #ffffff;
   text-align: center;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding: 10px;
 }
 
-button {
-  background: none;
-  border: none;
+.sidebar {
+    margin: 1%;
+    width: 15%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: ease 0.3s;
+}
+.sidebar, .sidebar_active img{
+    width: 100%;
+}
+.sidebar_active {
+  margin-top: auto;
+  backdrop-filter: blur(30px);
+  width: 50%;
+  height: auto;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  background-color: #3c680795;
+}
+
+.menu {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10%;
+  color: white;
+  font-family: sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.sidebar_active .menu img {
+    display: flex;
+    position: relative;
+}
+
+.item {
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.item h1 {  
+  font-weight: 1;
+  font-size: 1rem;
+  margin: 0;
+  color: white;
+  text-align: center;
+}
+
+#categorias {
+  padding: 5%;
+  background-color: #c4be8e;
+  border-radius: 10px;
+  transition: ease 0.3;
+}
+#categorias h1 {
+  color: rgb(119, 117, 56);
+}
+
+#nyc {
+  width: auto;
+  height: auto;
+  padding: 5%;
+  background-color: #c4be8e;
+  border-radius: 10px;
+  transition: ease 0.3;
+}
+
+#sesion {
+  padding-bottom: 5%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+#iniciar-sesion {
+  background-color: transparent;
+}
+
+#registro {
+  background-color: #1e3100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 50px;
+}
+
+#option {
+  padding: 3%;
+  border-radius: 10px;
+  border-style: solid;
+  border-color: #555135;
+  border-width: 2px;
 }
