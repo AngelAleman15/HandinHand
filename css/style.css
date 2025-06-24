@@ -7,6 +7,18 @@ footer {
   height: 10%;
   margin-top: 10%;
 }
+
+.copy{
+  font-weight: bolder;
+  font-size: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding-left: 5%;
+  padding-right: 5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 footer .social {
   display: flex;
   flex-direction: row;
@@ -545,4 +557,63 @@ footer {
   width: 100%;
   height: 10%;
 }
+}
+
+/* Responsividad para login.html */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column !important;
+    gap: 40px !important;
+    width: 98% !important;
+    margin: 2% auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    display: flex !important;
+  }
+  .card {
+    width: 90% !important;
+    height: auto !important;
+    min-width: 220px;
+    margin-bottom: 20px;
+  }
+  #loginForm {
+    width: 90% !important;
+    margin-left: 0 !important;
+    min-width: 220px;
+  }
+}
+
+@media (max-width: 500px) {
+  .container {
+    flex-direction: column !important;
+    gap: 20px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .card {
+    width: 98% !important;
+    height: auto !important;
+    padding: 10px 0;
+  }
+  .card img {
+    width: 90% !important;
+    height: auto !important;
+  }
+  #loginForm {
+    width: 98% !important;
+    margin-left: 0 !important;
+    padding: 0 1%;
+  }
+  #loginForm button {
+    width: 70% !important;
+    font-size: 1rem !important;
+  }
+  #loginForm input {
+    font-size: 1rem !important;
+    height: 40px !important;
+  }
+  #loginForm p {
+    font-size: 1rem !important;
+  }
 }
