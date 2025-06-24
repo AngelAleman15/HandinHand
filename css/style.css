@@ -617,3 +617,62 @@ footer {
     font-size: 1rem !important;
   }
 }
+
+/* Responsividad para register.html */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column !important;
+    gap: 40px !important;
+    width: 98% !important;
+    margin: 2% auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    display: flex !important;
+  }
+  .card {
+    width: 90% !important;
+    height: auto !important;
+    min-width: 220px;
+    margin-bottom: 20px;
+  }
+  #registerForm {
+    width: 90% !important;
+    margin-left: 0 !important;
+    min-width: 220px;
+  }
+}
+
+@media (max-width: 500px) {
+  .container {
+    flex-direction: column !important;
+    gap: 20px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .card {
+    width: 98% !important;
+    height: auto !important;
+    padding: 10px 0;
+  }
+  .card img {
+    width: 90% !important;
+    height: auto !important;
+  }
+  #registerForm {
+    width: 98% !important;
+    margin-left: 0 !important;
+    padding: 0 1%;
+  }
+  #registerForm button {
+    width: 70% !important;
+    font-size: 1rem !important;
+  }
+  #registerForm input {
+    font-size: 1rem !important;
+    height: 40px !important;
+  }
+  #registerForm p {
+    font-size: 1rem !important;
+  }
+}
