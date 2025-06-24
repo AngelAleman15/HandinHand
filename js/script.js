@@ -22,7 +22,7 @@ function sidebar() {
 // Creacion dinámica de los productos
 const products = [
     {
-        img: 'img/MaquinadeCafe.jpg',
+        img: 'img/QCYH2PRO.png',
         title: "Auriculares QCY H2 PRO",
         description: "Auriculares inalámbricos de alta calidad con cancelación de ruido y sonido estéreo premium."
     },
