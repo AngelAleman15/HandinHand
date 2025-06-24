@@ -37,6 +37,8 @@ img{
 }
 
 html{
+    width: fit-content;
+    height: fit-content;
     padding: 0px;
     margin: 0px;
     background-color: #EAEAE8;
@@ -298,35 +300,99 @@ body {
   background-color: #555135;
 }
 
-/*Media para tablet*/
-@media (max-width: 1024px) {
+/* Estilos para telefonos */
+@media (max-width: 428px) {
+  html {
+    width: fit-content;
+    height: fit-content;
+  }
+  body {
+    width: fit-content;
+    height: fit-content;
+  }
   .container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    overflow-x: scroll;
-  }
-  .sidebar_active {
-    margin-top: 120%;
-    width: 100%;
-  }
-  .sb-container {
-    flex-direction: row;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 10px;
   }
 
   .header {
     flex-direction: row;
-    align-items:center;
+    align-items: center;
+    padding: 10px;
   }
+
+  .icons-container {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .search-bar {
+    width: 50%;
+    height: auto;
+    font-size: 1rem;
+  }
+  .search-bar-btn {
+    width: 30%;
+    height: auto;
+  }
+  .input-container {
+    width: 100%;
+  }
+
+  .product {
+    width: auto;
+    height: 100%;
+  }
+
+  .sidebar_active {
+    margin-top: 190%;
+    width: 100%;
+  }
+
+  .sb-container-bars {
+    flex-direction: column;
+  }
+  footer .social {
+    margin: 1%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    font-weight: bolder;
+    gap: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+footer .social img {
+    width: 30%;
+    object-fit: contain;
+    aspect-ratio: 1 / 1;
+    height: auto;
+}
+footer {
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  width: 100%;
+  height: 10%;
+}
 }
 
-/* Estilos para telefonos */
-@media (max-width: 768px) {
+@media (max-width: 375px) {
+  html {
+    width: fit-content;
+    height: fit-content;
+  }
   .container {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     padding: 10px;
   }
 
@@ -348,12 +414,96 @@ body {
     gap: 20px;
   }
 
-  .search-bar, .search-bar-btn {
+  .search-bar {
     width: 50%;
     height: auto;
     font-size: 1rem;
   }
+  .search-bar-btn {
+    width: 50%;
+    height: auto;
+  }
+  .input-container {
+    width: 100%;
+  }
 
+  .product {
+    width: auto;
+    height: 100%;
+  }
+
+  .sidebar_active {
+    margin-top: 100%;
+    width: 80%;
+  }
+
+  .sb-container-bars {
+    flex-direction: column;
+  }
+  footer .social {
+    margin: 1%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    font-weight: bolder;
+    gap: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+footer .social img {
+    width: 30%;
+    object-fit: contain;
+    aspect-ratio: 1 / 1;
+    height: auto;
+}
+footer {
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  width: 100%;
+  height: 10%;
+}
+}
+
+@media (max-width: 360px) {
+  html {
+    width: min-content;
+    height: fit-content;
+  }
+  .container {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 10px;
+  }
+
+  .header {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .icons-container {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .search-bar {
+    width: 50%;
+    height: auto;
+    font-size: 1rem;
+  }
+  .search-bar-btn {
+    width: 30%;
+    height: auto;
+  }
   .input-container {
     width: 100%;
   }
@@ -382,9 +532,17 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 footer .social img {
-    width: 50%;
+    width: 30%;
     object-fit: contain;
     aspect-ratio: 1 / 1;
-    height: 100%;
+    height: auto;
+}
+footer {
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  width: 100%;
+  height: 10%;
 }
 }
