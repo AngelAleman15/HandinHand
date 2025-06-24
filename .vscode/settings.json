@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 {
     "clock.active": true,
     "liveServer.settings.port": 5501
+=======
+{
+    "clock.active": true,
+    "liveServer.settings.port": 5501
+>>>>>>> angelito
 }
