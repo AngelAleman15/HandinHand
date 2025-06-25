@@ -53,7 +53,7 @@ html, body {
     height: 100%;
     padding: 0;
     margin: 0;
-    background-color: #EAEAE8;
+    background-color: #fff; /* Cambiado a blanco */
 }
 
 body {
@@ -66,6 +66,17 @@ body {
 }
 
 .container {
+  flex: 1 0 auto;
+  align-items: center;
+  justify-items: center;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-radius: 12px;
+  gap: 20px;
+}
+
+.products-container {
   flex: 1 0 auto;
   align-items: center;
   justify-items: center;
@@ -316,247 +327,93 @@ body {
   background-color: #555135;
 }
 
-/* Estilos para telefonos */
-@media (max-width: 428px) {
-  html, body {
-    width: 100%;
-    height: 100%;
-  }
-  .container {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 10px;
-  }
-
-  .header {
-    flex-direction: row;
-    align-items: center;
-    padding: 10px;
-  }
-
-  .icons-container {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .search-bar {
-    width: 50%;
-    height: auto;
-    font-size: 1rem;
-  }
-  .search-bar-btn {
-    width: 30%;
-    height: auto;
-  }
-  .input-container {
-    width: 100%;
-  }
-
-  .product {
-    width: auto;
-    height: 100%;
-  }
-
-  .sidebar_active {
-    margin-top: 190%;
-    width: 100%;
-  }
-
-  .sb-container-bars {
-    flex-direction: column;
-  }
-  footer .social {
-    margin: 1%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    font-weight: bolder;
-    gap: 10px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* Estilos para el registro y login */
+.container {
+  margin: 2% 0% 0% 2%;
+  width: 80%;
+  height: 80%;
+  display: flex;
+  flex-direction: row;
+  gap: 200px;
 }
-footer .social img {
-    width: 30%;
-    object-fit: contain;
-    aspect-ratio: 1 / 1;
-    height: auto;
-}
-footer {
+
+.card {
+  border-radius: 5%;
   background-color: white;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  flex-direction: row;
+  align-items: center;
+  text-align: center;
+  width: 40%;
+  height: 560px;
+  gap: 35px;
+  padding: 160px 20px;
+}
+
+.card img {
+  max-width: 250px;
+  width: 250px;
+  height: 90px;
+}
+
+.card p {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+#registerForm, #loginForm {
+  width: 50%;
+  margin-left: 20%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#registerForm p, #loginForm p {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: x-large;
+  font-weight: 600;
+  text-align: center;
+}
+
+#registerForm input, #loginForm input {
+  border: none;
+  border-radius: 5px;
   width: 100%;
-  height: 10%;
+  height: 50px;
+  background-color: #597a3083;
+  color: #3c6807;
+  padding-left: 3%;
+  margin-bottom: 4%;
 }
+
+#registerForm input:focus, #loginForm input:focus {
+  outline-style: none;
 }
 
-@media (max-width: 375px) {
-  html, body {
-    width: 100%;
-    height: 100%;
-  }
-  .container {
-    grid-template-columns: repeat(3, 1fr);
-    padding: 10px;
-  }
-
-  .header {
-    flex-direction: row;
-    align-items: center;
-    padding: 10px;
-  }
-
-  .icons-container {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .footer {
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .search-bar {
-    width: 50%;
-    height: auto;
-    font-size: 1rem;
-  }
-  .search-bar-btn {
-    width: 50%;
-    height: auto;
-  }
-  .input-container {
-    width: 100%;
-  }
-
-  .product {
-    width: auto;
-    height: 100%;
-  }
-
-  .sidebar_active {
-    margin-top: 100%;
-    width: 80%;
-  }
-
-  .sb-container-bars {
-    flex-direction: column;
-  }
-  footer .social {
-    margin: 1%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    font-weight: bolder;
-    gap: 10px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-footer .social img {
-    width: 30%;
-    object-fit: contain;
-    aspect-ratio: 1 / 1;
-    height: auto;
-}
-footer {
-  background-color: white;
+#btn-registrar, #loginForm button[type="submit"] {
+  color: white;
+  border-radius: 5px;
+  text-align: center;
+  background-color: #36372C;
+  width: 70%;
+  height: 40px;
+  font-size: 20px;
   display: flex;
   justify-content: center;
-  flex-direction: row;
-  width: 100%;
-  height: 10%;
-}
+  align-items: center;
+  font-weight: 500;
 }
 
-@media (max-width: 360px) {
-  html, body {
-    width: 100%;
-    height: 100%;
-  }
-  .container {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 10px;
-  }
-
-  .header {
-    flex-direction: row;
-    align-items: center;
-    padding: 10px;
-  }
-
-  .icons-container {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .search-bar {
-    width: 50%;
-    height: auto;
-    font-size: 1rem;
-  }
-  .search-bar-btn {
-    width: 30%;
-    height: auto;
-  }
-  .input-container {
-    width: 100%;
-  }
-
-  .product {
-    width: auto;
-    height: 100%;
-  }
-
-  .sidebar_active {
-    margin-top: 140%;
-    width: 100%;
-  }
-
-  .sb-container-bars {
-    flex-direction: column;
-  }
-  footer .social {
-    margin: 1%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    font-weight: bolder;
-    gap: 10px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-footer .social img {
-    width: 30%;
-    object-fit: contain;
-    aspect-ratio: 1 / 1;
-    height: auto;
-}
-footer {
-  background-color: white;
-  display: flex;
-  justify-content: center;
-  flex-direction: row;
-  width: 100%;
-  height: 10%;
-}
+#txt-login {
+  text-align: center;
+  color: #345C04;
+  font-size: 20px;
+  cursor: pointer;
 }
 
 /* Responsividad solo para login.html */
@@ -584,18 +441,26 @@ body:has(#loginForm) #loginForm {
   padding: 0 2% !important;
 }
 
+@media (max-width: 1100px) {
+  .card {
+    padding: 80px 10px;
+  }
+  .card p {
+    font-size: 1.6rem;
+  }
+}
+
 @media (max-width: 900px) {
-  body:has(#loginForm) .container {
-    flex-direction: column !important;
-    gap: 40px !important;
-    width: 98% !important;
-    margin: 2% auto !important;
-  }
-  body:has(#loginForm) .card {
+  .card {
     width: 90% !important;
+    height: auto !important;
+    min-width: 220px;
+    margin-bottom: 20px;
+    padding: 60px 8px;
+    gap: 25px;
   }
-  body:has(#loginForm) #loginForm {
-    width: 90% !important;
+  .card p {
+    font-size: 1.3rem;
   }
 }
 
@@ -648,6 +513,11 @@ body:has(#loginForm) #loginForm {
     height: auto !important;
     min-width: 220px;
     margin-bottom: 20px;
+    padding: 80px 10px;
+    gap: 25px;
+  }
+  .card p {
+    font-size: 1.5rem;
   }
   #registerForm {
     width: 90% !important;
@@ -667,7 +537,8 @@ body:has(#loginForm) #loginForm {
   .card {
     width: 98% !important;
     height: auto !important;
-    padding: 10px 0;
+    padding: 40px 5px;
+    gap: 15px;
   }
   .card img {
     width: 90% !important;
@@ -750,3 +621,21 @@ footer .social img {
     padding: 0 5px;
   }
 }
+
+@media (max-width: 1200px) {
+  .products-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  .products-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .products-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mantén los estilos de .container para login/register como están */
