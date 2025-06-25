@@ -48,11 +48,11 @@ img{
     height: auto;
 }
 
-html{
-    width: fit-content;
-    height: fit-content;
-    padding: 0px;
-    margin: 0px;
+html, body {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
     background-color: #EAEAE8;
 }
 
@@ -60,6 +60,20 @@ body {
   margin: 0px;
   padding: 0px;
   height: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1 0 auto;
+  align-items: center;
+  justify-items: center;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-radius: 12px;
+  gap: 20px;
 }
 
 .header{
@@ -94,16 +108,6 @@ body {
   position:relative;
   background-color: #3c680795;
   border-radius: 50%;
-}
-
-.container{
-  align-items: center;
-  justify-items: center;
-  padding: 20px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  border-radius: 12px;
-  gap: 20px;
 }
 
 .sb-container{
@@ -314,13 +318,9 @@ body {
 
 /* Estilos para telefonos */
 @media (max-width: 428px) {
-  html {
-    width: fit-content;
-    height: fit-content;
-  }
-  body {
-    width: fit-content;
-    height: fit-content;
+  html, body {
+    width: 100%;
+    height: 100%;
   }
   .container {
     grid-template-columns: repeat(2, 1fr);
@@ -399,9 +399,9 @@ footer {
 }
 
 @media (max-width: 375px) {
-  html {
-    width: fit-content;
-    height: fit-content;
+  html, body {
+    width: 100%;
+    height: 100%;
   }
   .container {
     grid-template-columns: repeat(3, 1fr);
@@ -479,9 +479,9 @@ footer {
 }
 
 @media (max-width: 360px) {
-  html {
-    width: min-content;
-    height: fit-content;
+  html, body {
+    width: 100%;
+    height: 100%;
   }
   .container {
     grid-template-columns: repeat(2, 1fr);
@@ -559,61 +559,75 @@ footer {
 }
 }
 
-/* Responsividad para login.html */
+/* Responsividad solo para login.html */
+body:has(#loginForm) .container {
+  margin: 4% 0 0 0 !important;
+  width: 98% !important;
+  gap: 40px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+body:has(#loginForm) .card {
+  width: 40% !important;
+  min-width: 220px !important;
+  height: auto !important;
+  margin-bottom: 20px !important;
+}
+
+body:has(#loginForm) #loginForm {
+  width: 60% !important;
+  min-width: 220px !important;
+  margin-left: 0 !important;
+  padding: 0 2% !important;
+}
+
 @media (max-width: 900px) {
-  .container {
+  body:has(#loginForm) .container {
     flex-direction: column !important;
     gap: 40px !important;
     width: 98% !important;
     margin: 2% auto !important;
-    align-items: center !important;
-    justify-content: center !important;
-    display: flex !important;
   }
-  .card {
+  body:has(#loginForm) .card {
     width: 90% !important;
-    height: auto !important;
-    min-width: 220px;
-    margin-bottom: 20px;
   }
-  #loginForm {
+  body:has(#loginForm) #loginForm {
     width: 90% !important;
-    margin-left: 0 !important;
-    min-width: 220px;
   }
 }
 
 @media (max-width: 500px) {
-  .container {
+  body:has(#loginForm) .container {
     flex-direction: column !important;
     gap: 20px !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
   }
-  .card {
+  body:has(#loginForm) .card {
     width: 98% !important;
-    height: auto !important;
-    padding: 10px 0;
+    padding: 10px 0 !important;
   }
-  .card img {
+  body:has(#loginForm) .card img {
     width: 90% !important;
     height: auto !important;
   }
-  #loginForm {
+  body:has(#loginForm) #loginForm {
     width: 98% !important;
-    margin-left: 0 !important;
-    padding: 0 1%;
+    padding: 0 1% !important;
   }
-  #loginForm button {
+  body:has(#loginForm) #loginForm button {
     width: 70% !important;
     font-size: 1rem !important;
   }
-  #loginForm input {
+  body:has(#loginForm) #loginForm input {
     font-size: 1rem !important;
     height: 40px !important;
   }
-  #loginForm p {
+  body:has(#loginForm) #loginForm p {
     font-size: 1rem !important;
   }
 }
@@ -674,5 +688,65 @@ footer {
   }
   #registerForm p {
     font-size: 1rem !important;
+  }
+}
+
+/* Footer responsivo */
+footer {
+  background-color: white;
+  width: 100%;
+  padding: 20px 0 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.footer-socials {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+footer .social {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+footer .social img {
+  width: 28px;
+  height: 28px;
+}
+
+.copy {
+  font-size: 16px;
+  padding: 0 10px;
+  word-break: break-word;
+  text-align: center;
+}
+
+/* Responsive para footer */
+@media (max-width: 600px) {
+  .footer-socials {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+  footer .social {
+    width: 100%;
+    justify-content: center;
+    min-width: unset;
+  }
+  .copy {
+    font-size: 13px;
+    padding: 0 5px;
   }
 }
