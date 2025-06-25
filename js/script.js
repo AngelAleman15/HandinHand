@@ -53,7 +53,7 @@ const products = [
 ];
 
 function renderProductsWithoutDescription() {
-    const productsContainer = document.querySelector('.container');
+    const productsContainer = document.querySelector('.products-container');
     productsContainer.innerHTML = '';
     products.forEach(product => {
         productsContainer.innerHTML += `
