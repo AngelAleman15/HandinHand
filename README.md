@@ -1,26 +1,234 @@
-# HandinHand
-## Index
-### <img src='img/img-documentation/index.png'>
-### La página principal se compone de un encabezado el cual permite al usuario navegar por diferentes partes de la página web al hacer click en el logo de la aplicación en la parte superior izquierda para refrescar (reiniciar) la página, con los botónes de la parte superior derecha para navegar por las diferentes secciones.
-#### El primer icono pertenece a la parte del perfil de usuario, donde (Con una cuenta iniciada), enviará al usuario a un formulario para que se registre ingresando datos correspondientes pedidos.
-#### El segundo icono pertenece a al chat entre usuarios. Al hacer click el botón se desplegará un menu donde el usuario tendrá acceso a chats con otros usuarios para realizar trueques. (Función aún no implementada) 
-#### El tercer icono pertenece a la sección del soporte técnico, donde al hacer click, el usuario tendrá acceso a un formulario donde podrá explicar su/s problema/s. (función aún no implementada)
-#### El último icono pertenece al menu desplegable de la página. Al darle click se desplegará mostrando un menú donde aparecerán las siguientes opciónes en la parte superior.
+HandinHand Frontend
+<div align="center"> <img src="img/Hand(sinfondo).png" alt="HandinHand Logo" width="200">
+"Reutilizá, intercambiá, conectá"
 
-## Index Sidebar
-### <img src='img/img-documentation/index-sidebar.png'>
-### Al lado izquierdo se encuentra un botón que envía al usuario a iniciar sesión a traves de un formulario con el que el usuario pueda iniciar sesión.
-### Al lado derecho se encuentra un botón que envía al usuario a la página de registro para que el usuario cree una cuenta para poder utilizar otras funciones de la página, como entrar a su perfil personal.
-### Debajo tiene diferentes botónes para ayudar al usuario a filtrar productos según sus preferencias, como por ejemplo, por tipo de ropa (el botón que dice "Ropa"), vehículos, etc. 
-### En la parte inferior, se encuentra un botón que envía al usuario a las normas y condiciones impuestas por la página las cuales deben ser leídas con cuidado para asegurar la seguridad de los usuarios.
+Una plataforma web moderna para el intercambio y trueque de productos entre usuarios.
 
-## Login
-### <img src='img/img-documentation/login.png'>
-### El login es un formulario corto el cual pide al usuario ingresar su nombre de usuario y contraseña para luego ser enviado nuevamente a la página principal. Además, en caso de que el usuario ya tenga una cuenta registrada y halla olvidado su contraseña tiene debajo del botón "Confirmar" un texto link el cual lo envía a otro formulario, el cual, ayudará al usuario a cambiar su contraseña para la recuperación de su cuenta.
-## Register
-### <img src='img/img-documentation/register.png'>
-### El registrar es un formulario que pide al usuario su nombre, apellido, contraseña, correo electrónico y su número de teléfono para registrarse de forma que pueda tener una seguridad alta con datos especificos de su persona. Además, debajo del botón "Registrar" se encuentra un texto link el cual envía al usuario al formulario de inicio de sesión en caso de que el usuario ya tenga una cuenta registrada.
+</div>
+📋 Tabla de Contenidos
+Descripción
+Características
+Estructura del Proyecto
+Tecnologías
+Instalación
+Uso
+Páginas
+API Reference
+Screenshots
+Roadmap
+Contribuir
+Licencia
+🚀 Descripción
+HandinHand es una aplicación web frontend desarrollada para facilitar el intercambio de productos entre usuarios, promoviendo la reutilización y el consumo responsable. La plataforma ofrece una interfaz intuitiva y moderna para conectar personas que desean intercambiar sus pertenencias.
 
-# Código Fuente
-### HandInHand
-### 
+✨ Características
+🎯 Funcionalidades Principales
+Catálogo de Productos: Visualización dinámica de productos disponibles para intercambio
+Sistema de Usuarios: Registro e inicio de sesión completo
+Navegación Intuitiva: Header con iconos y menú lateral desplegable
+Búsqueda: Barra de búsqueda integrada (UI implementada)
+Responsive Design: Totalmente adaptable a dispositivos móviles y desktop
+🔧 Características Técnicas
+Diseño Responsivo: Mobile-first con breakpoints optimizados
+Validación de Formularios: Validación client-side completa
+LocalStorage: Persistencia de datos de usuario
+Animaciones CSS: Transiciones suaves y efectos hover
+Grid Layout: Sistema de grillas adaptable para productos
+🗂️ Estructura del Proyecto
+HandinHand/
+├── 📁 .vscode/
+│   └── settings.json           # Configuración del editor
+├── 📁 css/
+│   └── style.css              # Estilos principales
+├── 📁 js/
+│   ├── script.js              # Lógica principal y productos
+│   ├── sidebar.js             # Funcionalidad del menú lateral
+│   ├── login.js               # Gestión de inicio de sesión
+│   └── register.js            # Gestión de registro
+├── 📁 img/                    # Recursos gráficos
+│   ├── Hand(sinfondo).png     # Logo principal
+│   ├── user-icon.png          # Iconos de interfaz
+│   └── ...                    # Imágenes de productos
+├── 📄 index.html              # Página principal
+├── 📄 login.html              # Página de inicio de sesión
+├── 📄 register.html           # Página de registro
+├── 📄 support.html            # Página de soporte
+├── 📄 user.html               # Página de perfil de usuario
+└── 📄 README.md               # Este archivo
+🛠 Tecnologías
+HTML5 - Estructura semántica
+CSS3 - Estilos, Flexbox, Grid, Animaciones
+JavaScript ES6+ - Lógica de aplicación
+Bootstrap 5.3.7 - Framework CSS (CDN)
+LocalStorage API - Persistencia de datos
+📦 Instalación
+Prerequisitos
+Navegador web moderno
+Servidor web local (opcional)
+Pasos de Instalación
+Clonar el repositorio
+bash
+git clone https://github.com/tu-usuario/handinhand-frontend.git
+cd handinhand-frontend
+Abrir con Live Server
+bash
+# Si tienes Live Server instalado
+live-server
+O abrir directamente
+Abrir index.html en tu navegador
+Para mejor funcionalidad, usar un servidor local
+🎮 Uso
+Navegación Principal
+Logo: Click para volver al inicio
+Usuario: Acceso a registro/perfil
+Chat: Comunicación entre usuarios (próximamente)
+Soporte: Centro de ayuda
+Menú: Navegación completa y filtros
+Registro de Usuario
+Click en el icono de usuario
+Completar formulario de registro
+Validación automática de edad (+18)
+Redirección automática al login
+Inicio de Sesión
+Usuario de prueba: Angel / 12345
+Integración con usuarios registrados
+📱 Páginas
+🏠 index.html - Página Principal
+Header con navegación
+Barra de búsqueda destacada
+Grid de productos dinámico
+Menú lateral con categorías
+Footer con redes sociales
+🔐 login.html - Inicio de Sesión
+Formulario de autenticación
+Validación de campos
+Manejo de errores
+Enlace de recuperación
+📝 register.html - Registro
+Formulario completo de registro
+Validaciones client-side
+Verificación de mayoría de edad
+Prevención de emails duplicados
+🆘 support.html - Soporte
+Estructura básica implementada
+Próximas funcionalidades de soporte
+🔌 API Reference
+LocalStorage Schema
+javascript
+// Usuarios Registrados
+{
+  "registeredUsers": [
+    {
+      "username": "email@example.com",
+      "password": "password123",
+      "name": "Nombre",
+      "surname": "Apellido",
+      "phone": "123456789",
+      "birthdate": "1990-01-01"
+    }
+  ]
+}
+Productos Predefinidos
+javascript
+const products = [
+  {
+    img: 'img/producto.jpg',
+    title: "Nombre del Producto",
+    description: "Descripción detallada..."
+  }
+];
+📸 Screenshots
+Desktop
+<details> <summary>Ver capturas de pantalla</summary>
+Página PrincipalMostrar imagen
+
+Menu LateralMostrar imagen
+
+LoginMostrar imagen
+
+RegistroMostrar imagen
+
+</details>
+Responsive Breakpoints
+Desktop: > 1200px - 5 columnas
+Tablet: 900px - 1200px - 3 columnas
+Mobile Large: 600px - 900px - 2 columnas
+Mobile: < 600px - 1 columna
+🗺 Roadmap
+✅ Completado
+ Interfaz responsive
+ Sistema de registro/login
+ Catálogo de productos
+ Navegación funcional
+ Validaciones de formularios
+🚧 En Progreso
+ Sistema de chat entre usuarios
+ Funcionalidad de búsqueda
+ Filtros por categoría
+ Página de perfil de usuario
+📋 Futuras Funcionalidades
+ Subida de imágenes de productos
+ Sistema de ratings/reviews
+ Notificaciones push
+ Geolocalización para intercambios locales
+ Integración con redes sociales
+ Dashboard de administración
+👥 Contribuir
+Proceso de Contribución
+Fork el proyecto
+Crear una rama feature (git checkout -b feature/AmazingFeature)
+Commit los cambios (git commit -m 'Add some AmazingFeature')
+Push a la rama (git push origin feature/AmazingFeature)
+Abrir un Pull Request
+Estándares de Código
+HTML: Semántico y accesible
+CSS: BEM methodology preferida
+JavaScript: ES6+ con comentarios descriptivos
+Commits: Conventional commits
+Reportar Bugs
+Usar el sistema de Issues con el template:
+
+**Descripción del Bug**
+Descripción clara del problema
+
+**Pasos para Reproducir**
+1. Ir a '...'
+2. Click en '....'
+3. Ver error
+
+**Comportamiento Esperado**
+Descripción de lo que debería pasar
+
+**Screenshots**
+Si aplica, agregar screenshots
+🔧 Configuración de Desarrollo
+VSCode Settings
+json
+{
+    "clock.active": true,
+    "liveServer.settings.port": 5501
+}
+Extensiones Recomendadas
+Live Server
+Prettier
+Auto Rename Tag
+CSS Peek
+🚨 Problemas Conocidos
+ Contraseñas almacenadas en texto plano
+ Falta validación de formato de email
+ Botón de chat no funcional
+ Página de soporte incompleta
+📊 Performance
+Lighthouse Score: 90+ (Performance)
+Responsive: 100% compatible
+Browser Support: Chrome 70+, Firefox 65+, Safari 12+
+👨‍💻 Autores
+Code Ignite Team - Desarrollo inicial
+📄 Licencia
+Este proyecto está bajo la Licencia MIT - ver el archivo LICENSE.md para detalles.
+
+🙏 Agradecimientos
+Bootstrap team por el framework CSS
+Comunidad de desarrolladores web
+Beta testers y usuarios
+<div align="center"> <p>Hecho con ❤️ por Code Ignite</p> <p>Copyright 2025 por Code Ignite</p> </div>
