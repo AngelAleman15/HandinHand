@@ -215,16 +215,16 @@ const products = [
   <summary>Ver capturas de pantalla</summary>
 
   **Página Principal**  
-  ![Página Principal](ruta/a/captura1.png)
+  ![Página Principal](img/img-documentation/index.png)
 
   **Menu Lateral**  
-  ![Menu Lateral](ruta/a/captura2.png)
+  ![Menu Lateral](img/img-documentation/index-sidebar.png)
 
   **Login**  
-  ![Login](ruta/a/captura3.png)
+  ![Login](img/img-documentation/login.png)
 
   **Registro**  
-  ![Registro](ruta/a/captura4.png)
+  ![Registro](img/img-documentation/register.png)
 
 </details>
 
@@ -321,7 +321,7 @@ Si aplica, agregar screenshots
 {
     "clock.active": true,
     "liveServer.settings.port": 5501
-}
+}g
 ```
 
 ### Extensiones Recomendadas
