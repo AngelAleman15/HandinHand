@@ -1,3 +1,7 @@
+*{
+  user-select: none;
+}
+
 footer {
   background-color: white;
   display: flex;
@@ -364,9 +368,12 @@ body {
 }
 
 .card img {
-  max-width: 250px;
-  width: 250px;
-  height: 90px;
+  width: 100%;         /* Ocupa todo el ancho disponible de la card */
+  max-width: 250px;    /* Nunca será más ancha que 250px */
+  height: auto;        /* Mantiene la proporción original */
+  object-fit: contain; /* Asegura que no se deforme ni se recorte */
+  margin: 0 auto;      /* Centra la imagen horizontalmente */
+  display: block;      /* Elimina espacios extra abajo de la imagen */
 }
 
 .card p {
