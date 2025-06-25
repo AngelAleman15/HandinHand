@@ -9,7 +9,10 @@
 
 ## Index Sidebar
 ### <img src='img/img-documentation/index-sidebar.png'>
-### Al lado izquierdo se encuentra un botón que envía al usuario a iniciar sesión a traves de un formulario, mientras que a la derecha se encuentra un botón que envía al usuario a la página de registro. Luego, debajo tiene diferentes botónes para ayudar al usuario a filtrar productos según su preferencia, como por ejemplo, por categoría, ropa, vehículos, etc. Y finalmente, en la parte inferior, se encuentra un botón que envía al usuario a las normas y condiciones de la página.
+### Al lado izquierdo se encuentra un botón que envía al usuario a iniciar sesión a traves de un formulario con el que el usuario pueda iniciar sesión.
+### Al lado derecho se encuentra un botón que envía al usuario a la página de registro para que el usuario cree una cuenta para poder utilizar otras funciones de la página, como entrar a su perfil personal.
+### Debajo tiene diferentes botónes para ayudar al usuario a filtrar productos según sus preferencias, como por ejemplo, por tipo de ropa (el botón que dice "Ropa"), vehículos, etc. 
+### En la parte inferior, se encuentra un botón que envía al usuario a las normas y condiciones impuestas por la página las cuales deben ser leídas con cuidado para asegurar la seguridad de los usuarios.
 
 ## Login
 ### <img src='img/img-documentation/login.png'>
