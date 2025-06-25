@@ -634,7 +634,7 @@ body:has(#loginForm) #loginForm {
 
 /* Responsividad para register.html */
 @media (max-width: 900px) {
-  .container {
+  body:has(#registerForm).container {
     flex-direction: column !important;
     gap: 40px !important;
     width: 98% !important;
@@ -643,13 +643,13 @@ body:has(#loginForm) #loginForm {
     justify-content: center !important;
     display: flex !important;
   }
-  .card {
+  body:has(#registerForm).card {
     width: 90% !important;
     height: auto !important;
     min-width: 220px;
     margin-bottom: 20px;
   }
-  #registerForm {
+  body:has(#registerForm)#registerForm {
     width: 90% !important;
     margin-left: 0 !important;
     min-width: 220px;
@@ -657,36 +657,36 @@ body:has(#loginForm) #loginForm {
 }
 
 @media (max-width: 500px) {
-  .container {
+  body:has(#registerForm).container {
     flex-direction: column !important;
     gap: 20px !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
   }
-  .card {
+  body:has(#registerForm).card {
     width: 98% !important;
     height: auto !important;
     padding: 10px 0;
   }
-  .card img {
+  body:has(#registerForm).card img {
     width: 90% !important;
     height: auto !important;
   }
-  #registerForm {
+  body:has(#registerForm)#registerForm {
     width: 98% !important;
     margin-left: 0 !important;
     padding: 0 1%;
   }
-  #registerForm button {
+  body:has(#registerForm)#registerForm button {
     width: 70% !important;
     font-size: 1rem !important;
   }
-  #registerForm input {
+  body:has(#registerForm)#registerForm input {
     font-size: 1rem !important;
     height: 40px !important;
   }
-  #registerForm p {
+  body:has(#registerForm)#registerForm p {
     font-size: 1rem !important;
   }
 }
@@ -697,7 +697,7 @@ footer {
   width: 100%;
   padding: 20px 0 10px 0;
   display: flex;
-  flex-direction: column;
+  flex-direction:column;
   align-items: center;
   gap: 10px;
   border-top: 1px solid #e0e0e0;
