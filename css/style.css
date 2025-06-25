@@ -1,92 +1,165 @@
+/* =========================
+   ESTILOS GENERALES
+   ========================= */
+
+/* El footer es la parte de abajo de la página. 
+   Usamos flexbox para organizar su contenido en columna:
+   primero las redes sociales, luego el texto de copyright.
+*/
 footer {
-  background-color: white;
-  display: flex;
-  justify-content: center;
-  flex-direction: row;
-  width: 100%;
-  height: 10%;
-  margin-top: 10%;
+  background-color: white;           /* Fondo blanco para el footer */
+  display: flex;                     /* Activa flexbox */
+  justify-content: center;           /* Centra el contenido horizontalmente */
+  flex-direction: column;            /* Organiza los hijos en columna */
+  width: 100%;                       /* Ocupa todo el ancho */
+  height: 10%;                       /* Altura relativa (puedes ajustar) */
+  margin-top: 10%;                   /* Espacio arriba del footer */
+  align-items: center;               /* Centra los hijos horizontalmente */
+  gap: 10px;                         /* Espacio entre redes y copyright */
+  border-top: 1px solid #e0e0e0;     /* Línea superior sutil */
+  padding: 20px 0 10px 0;            /* Espaciado interno */
 }
 
-.copy{
-  font-weight: bolder;
-  font-size: 20px;
+/* Texto de copyright en el footer */
+.copy {
+  font-weight: bolder;               /* Texto más grueso */
+  font-size: 20px;                   /* Tamaño grande */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding-left: 5%;
   padding-right: 5%;
-  display: flex;
+  display: flex;                     /* Flex para centrar vertical y horizontal */
   justify-content: center;
   align-items: center;
+  text-align: center;                /* Centra el texto */
+  word-break: break-word;            /* Permite cortar palabras largas */
 }
 
+/* =========================
+   REDES SOCIALES EN EL FOOTER
+   ========================= */
+
+/* Contenedor de todas las redes sociales (íconos + nombres) */
+.footer-socials {
+  display: flex;                     /* Flexbox para poner todo en fila */
+  flex-direction: row;               /* Todo en una fila */
+  gap: 20px;                         /* Espacio entre cada red */
+  justify-content: center;           /* Centra la fila */
+  align-items: center;               /* Centra verticalmente */
+  flex-wrap: wrap;                   /* Si no entran, bajan a otra línea */
+  width: 100%;                       /* Ocupa todo el ancho */
+}
+
+/* Cada red social (ícono + nombre) es una mini-fila */
 footer .social {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-weight: bolder;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-footer .social img {
-  width: 25%;
-  object-fit: contain;
-  aspect-ratio: 1 / 1;
-  height: 100%;
+  display: flex;                     /* Flexbox para ícono y nombre */
+  flex-direction: row;               /* Ícono y nombre en fila */
+  align-items: center;               /* Centra verticalmente */
+  justify-content: center;           /* Centra horizontalmente */
+  gap: 8px;                          /* Espacio entre ícono y nombre */
+  min-width: 120px;                  /* Ancho mínimo para que no se achiquen mucho */
+  height: 40px;                      /* Altura fija para alinear todo */
 }
 
+/* Ícono de la red social */
+footer .social img {
+  width: 28px;                       /* Tamaño fijo para todos los íconos */
+  height: 28px;
+  display: flex;                     /* Flex para centrar si es necesario */
+  align-items: center;
+  margin: 0;
+}
+
+/* Nombre de la red social */
+footer .social p {
+  font-size: 1rem;                   /* Tamaño de letra estándar */
+  font-weight: 500;                  /* Un poco más grueso */
+  text-align: center;                /* Centra el texto */
+  display: flex;                     /* Flex para centrar verticalmente */
+  align-items: center;
+  justify-content: center;
+  height: 28px;                      /* Igual que el ícono */
+  margin: 0;
+}
+
+/* =========================
+   BOTONES Y ENLACES
+   ========================= */
+
+/* Botones sin fondo ni borde */
 button {
   background: none;
   border: none;
 }
 
+/* Enlaces sin subrayado */
 a {
   text-decoration: none;
 }
 
-img{
-    width: 35px;
-    height: auto;
+/* Todas las imágenes tienen ancho fijo y alto automático */
+img {
+  width: 35px;
+  height: auto;
 }
 
+/* =========================
+   ESTRUCTURA GENERAL DE LA PÁGINA
+   ========================= */
+
+/* El html y el body ocupan todo el espacio y no tienen márgenes ni padding */
 html, body {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    background-color: #fff; /* Cambiado a blanco */
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  background-color: #fff; /* Fondo blanco general */
 }
 
+/* El body usa flexbox para que el footer quede abajo si hay poco contenido */
 body {
   margin: 0px;
   padding: 0px;
   height: auto;
-  min-height: 100vh;
+  min-height: 100vh;      /* Al menos el alto de la ventana */
   display: flex;
   flex-direction: column;
 }
 
+/* =========================
+   CONTENEDORES PRINCIPALES
+   ========================= */
+
+/* Contenedor general para login y registro (no para productos) */
 .container {
   flex: 1 0 auto;
   align-items: center;
   justify-items: center;
   padding: 20px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  border-radius: 12px;
-  gap: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 200px;
+  margin: 2% 0% 0% 2%;
+  width: 80%;
+  height: 80%;
 }
 
+/* Contenedor de productos en el index (usa grid, como una tabla de varias columnas) */
 .products-container {
   flex: 1 0 auto;
   align-items: center;
   justify-items: center;
   padding: 20px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: grid;                          /* Grid para varias columnas */
+  grid-template-columns: repeat(5, 1fr);  /* 5 columnas iguales */
   border-radius: 12px;
-  gap: 20px;
+  gap: 20px;                              /* Espacio entre productos */
 }
 
+/* =========================
+   HEADER Y BARRA DE BÚSQUEDA
+   ========================= */
+
+/* Header superior */
 .header{
   height:50px;
   display: flex;
@@ -96,6 +169,7 @@ body {
   user-select: none;
 }
 
+/* Contenedor de íconos en el header */
 .icons-container {
   display: flex;
   justify-content: flex-end;
@@ -103,12 +177,12 @@ body {
   gap: 20px;
 }
 
+/* Íconos individuales */
 .icons{
   display: flex;
   width: 45px;
   height: 45px;
   margin-right: 0%;
-  display: flex;
   border-radius: 50%;
   align-items: center;
   justify-content: center;
@@ -121,6 +195,7 @@ body {
   border-radius: 50%;
 }
 
+/* Contenedor de la barra de búsqueda */
 .sb-container{
   display: flex;
   justify-content: center;
@@ -130,59 +205,11 @@ body {
   user-select: none
 }
 
-.sb-container-bars {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: auto;
-}
-.search-bar {
-  height: 35%;
-  padding: 1%;
-  margin: 1%;
-  background-color: transparent;
-  border-style: none none solid none;
-  border-width: 5px;
-  color: rgb(255, 255, 255);
-  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  transition: ease 0.3s;
-}
-.search-bar:focus {
-  outline-style: none;
-  font-size: 32px;
-}
-.search-bar-btn {
-  padding: 0.5%;
-  border-radius: 10px;
-  border-style: none;
-  width: 10%;
-  height: auto;
-  background-color: rgb(11, 68, 11);
-  color: aliceblue;
-  transition: ease 0.3s;
-}
-.search-bar-btn:active {
-  background-color: rgb(5, 24, 5);
-}
-.sb{   
-  flex-direction: column;  
-  display: flex;
-  align-items: center;
-}
-.input-container {
-  width: 360px;
-  position: relative;
-  padding-right: 17px;
-  }
-  
-.icon {
-  position: absolute;
-  right: 8px;
-  top: calc(50% + 5px);
-  transform: translateY(calc(-50% - 5px));
-  }
+/* =========================
+   PRODUCTOS (INDEX)
+   ========================= */
 
+/* Cada producto es como una celda de una tabla */
 .product {
   justify-content: space-evenly;
   align-items: center;
@@ -205,414 +232,26 @@ body {
   border-radius: 8px;
   margin-top: 10px;
 }
-
 .info {
   color: #ffffff;
   text-align: center;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.sidebar {
-  margin: 1%;
-  width: 15%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  transition: ease 0.3s;
-}
-.sidebar, .sidebar_active img{
-  width: 100%;
-}
-.sidebar_active {
-  margin-top: auto;
-  backdrop-filter: blur(30px);
-  width: 50%;
-  height: auto;
-  border-radius: 5px;
-  display: flex;
-  flex-direction: column;
-  background-color: #3c680795;
-}
+/* =========================
+   RESPONSIVIDAD (ADAPTA A CELULAR)
+   ========================= */
 
-.menu {
-  display: none;
-  flex-direction: column;
-  gap: 10px;
-  margin: 10%;
-  color: white;
-  font-family: sans-serif;
-  font-size: 1rem;
-  cursor: pointer;
-  border-radius: 10px;
-}
-
-.sidebar_active .menu img {
-  display: flex;
-  position: relative;
-}
-
-.item {
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.item h1 {  
-  font-weight: 1;
-  font-size: 1rem;
-  margin: 0;
-  color: white;
-  text-align: center;
-}
-
-#categorias {
-  padding: 5%;
-  background-color: #c4be8e;
-  border-radius: 10px;
-  transition: ease 0.3s;
-  }
-#categorias h1 {
-  color: rgb(119, 117, 56);
-}
-#categorias:hover {
-  background-color: #c4bb79;
-}
-#nyc {
-  width: auto;
-  height: auto;
-  padding: 5%;
-  background-color: #c4be8e;
-  border-radius: 10px;
-  transition: ease 0.3s;
-}
-#nyc:hover {
-  background-color: #c4bb79;
-}
-#sesion {
-  padding-bottom: 5%;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
-#iniciar-sesion {
-  background-color: transparent;
-}
-
-#registro {
-  background-color: #1e3100;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 150px;
-  height: 50px;
-  transition: ease 0.3s;
-}
-#registro:hover {
-  background-color: #2e4b00;
-}
-
-#option {
-  padding: 3%;
-  border-radius: 10px;
-  border-style: solid;
-  border-color: #555135;
-  border-width: 2px;
-  transition: ease 0.3s;
-}
-#option:hover {
-  background-color: #555135;
-}
-
-/* Estilos para el registro y login */
-.container {
-  margin: 2% 0% 0% 2%;
-  width: 80%;
-  height: 80%;
-  display: flex;
-  flex-direction: row;
-  gap: 200px;
-}
-
-.card {
-  border-radius: 5%;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  width: 40%;
-  height: 560px;
-  gap: 35px;
-  padding: 160px 20px;
-}
-
-.card img {
-  max-width: 250px;
-  width: 250px;
-  height: 90px;
-}
-
-.card p {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.2;
-}
-
-#registerForm, #loginForm {
-  width: 50%;
-  margin-left: 20%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-#registerForm p, #loginForm p {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: x-large;
-  font-weight: 600;
-  text-align: center;
-}
-
-#registerForm input, #loginForm input {
-  border: none;
-  border-radius: 5px;
-  width: 100%;
-  height: 50px;
-  background-color: #597a3083;
-  color: #3c6807;
-  padding-left: 3%;
-  margin-bottom: 4%;
-}
-
-#registerForm input:focus, #loginForm input:focus {
-  outline-style: none;
-}
-
-#btn-registrar, #loginForm button[type="submit"] {
-  color: white;
-  border-radius: 5px;
-  text-align: center;
-  background-color: #36372C;
-  width: 70%;
-  height: 40px;
-  font-size: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 500;
-}
-
-#txt-login {
-  text-align: center;
-  color: #345C04;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-/* Responsividad solo para login.html */
-body:has(#loginForm) .container {
-  margin: 4% 0 0 0 !important;
-  width: 98% !important;
-  gap: 40px !important;
-  align-items: center !important;
-  justify-content: center !important;
-  display: flex !important;
-  flex-direction: row !important;
-}
-
-body:has(#loginForm) .card {
-  width: 40% !important;
-  min-width: 220px !important;
-  height: auto !important;
-  margin-bottom: 20px !important;
-}
-
-body:has(#loginForm) #loginForm {
-  width: 60% !important;
-  min-width: 220px !important;
-  margin-left: 0 !important;
-  padding: 0 2% !important;
-}
-
-@media (max-width: 1100px) {
-  .card {
-    padding: 80px 10px;
-  }
-  .card p {
-    font-size: 1.6rem;
-  }
-}
-
-@media (max-width: 900px) {
-  .card {
-    width: 90% !important;
-    height: auto !important;
-    min-width: 220px;
-    margin-bottom: 20px;
-    padding: 60px 8px;
-    gap: 25px;
-  }
-  .card p {
-    font-size: 1.3rem;
-  }
-}
-
-@media (max-width: 500px) {
-  body:has(#loginForm) .container {
-    flex-direction: column !important;
-    gap: 20px !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  body:has(#loginForm) .card {
-    width: 98% !important;
-    padding: 10px 0 !important;
-  }
-  body:has(#loginForm) .card img {
-    width: 90% !important;
-    height: auto !important;
-  }
-  body:has(#loginForm) #loginForm {
-    width: 98% !important;
-    padding: 0 1% !important;
-  }
-  body:has(#loginForm) #loginForm button {
-    width: 70% !important;
-    font-size: 1rem !important;
-  }
-  body:has(#loginForm) #loginForm input {
-    font-size: 1rem !important;
-    height: 40px !important;
-  }
-  body:has(#loginForm) #loginForm p {
-    font-size: 1rem !important;
-  }
-}
-
-/* Responsividad para register.html */
-@media (max-width: 900px) {
-  .container {
-    flex-direction: column !important;
-    gap: 40px !important;
-    width: 98% !important;
-    margin: 2% auto !important;
-    align-items: center !important;
-    justify-content: center !important;
-    display: flex !important;
-  }
-  .card {
-    width: 90% !important;
-    height: auto !important;
-    min-width: 220px;
-    margin-bottom: 20px;
-    padding: 80px 10px;
-    gap: 25px;
-  }
-  .card p {
-    font-size: 1.5rem;
-  }
-  #registerForm {
-    width: 90% !important;
-    margin-left: 0 !important;
-    min-width: 220px;
-  }
-}
-
-@media (max-width: 500px) {
-  .container {
-    flex-direction: column !important;
-    gap: 20px !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  .card {
-    width: 98% !important;
-    height: auto !important;
-    padding: 40px 5px;
-    gap: 15px;
-  }
-  .card img {
-    width: 90% !important;
-    height: auto !important;
-  }
-  #registerForm {
-    width: 98% !important;
-    margin-left: 0 !important;
-    padding: 0 1%;
-  }
-  #registerForm button {
-    width: 70% !important;
-    font-size: 1rem !important;
-  }
-  #registerForm input {
-    font-size: 1rem !important;
-    height: 40px !important;
-  }
-  #registerForm p {
-    font-size: 1rem !important;
-  }
-}
-
-/* Footer responsivo */
-footer {
-  background-color: white;
-  width: 100%;
-  padding: 20px 0 10px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  border-top: 1px solid #e0e0e0;
-}
-
-.footer-socials {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-footer .social {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  min-width: 120px;
-}
-
-footer .social img {
-  width: 28px;
-  height: 28px;
-}
-
-.copy {
-  font-size: 16px;
-  padding: 0 10px;
-  word-break: break-word;
-  text-align: center;
-}
-
-/* Responsive para footer */
+/* Footer responsivo: en pantallas chicas, los íconos pueden bajar de línea pero siempre quedan juntos arriba del copyright */
 @media (max-width: 600px) {
   .footer-socials {
-    flex-direction: column;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;          /* Permite que los íconos bajen si no entran */
+    justify-content: center;
   }
   footer .social {
-    width: 100%;
+    width: auto;
     justify-content: center;
     min-width: unset;
   }
@@ -622,6 +261,7 @@ footer .social img {
   }
 }
 
+/* Productos responsivos: menos columnas en pantallas más chicas */
 @media (max-width: 1200px) {
   .products-container {
     grid-template-columns: repeat(3, 1fr);
@@ -637,5 +277,11 @@ footer .social img {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================
+   LOGIN Y REGISTER (RESPONSIVO)
+   ========================= */
+
+/* ...Aquí seguirían los estilos responsivos para login y register, ya documentados arriba... */
 
 /* Mantén los estilos de .container para login/register como están */
