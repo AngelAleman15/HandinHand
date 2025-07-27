@@ -1,3 +1,7 @@
+*{
+  user-select: none;
+}
+
 footer {
   background-color: white;
   display: flex;
@@ -22,16 +26,28 @@ footer {
 footer .social {
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-weight: bolder;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  align-items: center;      /* Centra verticalmente */
+  justify-content: center;  /* Centra horizontalmente */
+  gap: 8px;
+  min-width: 120px;
+  height: 40px;             /* Ajusta el alto si lo deseas */
 }
-footer .social img {
-  width: 25%;
-  object-fit: contain;
-  aspect-ratio: 1 / 1;
-  height: 100%;
+footer .social img,
+footer .social p {
+  display: flex;
+  align-items: center;
+  height: 28px;             /* Igual al alto de la imagen */
+  margin: 0;
+}
+
+footer .social p {
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;             /* Igual al alto de la imagen */
 }
 
 button {
@@ -352,9 +368,12 @@ body {
 }
 
 .card img {
-  max-width: 250px;
-  width: 250px;
-  height: 90px;
+  width: 100%;         /* Ocupa todo el ancho disponible de la card */
+  max-width: 250px;    /* Nunca será más ancha que 250px */
+  height: auto;        /* Mantiene la proporción original */
+  object-fit: contain; /* Asegura que no se deforme ni se recorte */
+  margin: 0 auto;      /* Centra la imagen horizontalmente */
+  display: block;      /* Elimina espacios extra abajo de la imagen */
 }
 
 .card p {
@@ -607,12 +626,13 @@ footer .social img {
 /* Responsive para footer */
 @media (max-width: 600px) {
   .footer-socials {
-    flex-direction: column;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap; /* Opcional: permite que los iconos bajen si no entran */
+    justify-content: center;
   }
   footer .social {
-    width: 100%;
+    width: auto;
     justify-content: center;
     min-width: unset;
   }
