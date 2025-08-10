@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function getBotResponse(userMessage) {
-    const apiKey = "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"; // Aqui usamos una APIKEY, pero yo estoy usando la mia. No, Angel, no me van a robar el codigo unos indios salidos de Arabia Saudi, tranquilo
+    const apiKey = "your-api-key"; // Aqui usamos una APIKEY, pero yo estoy usando la mia. No, Angel, no me van a robar el codigo unos indios salidos de Arabia Saudi, tranquilo
     const apiUrl = "https://api.openai.com/v1/chat/completions";
 
     try {
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "gpt-5-mini",
+          model: "gpt-3.5-turbo",
           messages: [{ role: "user", content: userMessage }],
           max_tokens: 150,
         }),
