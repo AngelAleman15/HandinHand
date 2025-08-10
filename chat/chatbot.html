@@ -7,10 +7,23 @@
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <div id="chat">
-        <div id="messages"></div>
-        <input id="input" placeholder="Escribe aquí...">
-        <button onclick="sendMessage()">Enviar</button>
+    <div id="chatbot-icon">🔎</div>
+    <div id="chatbot-container" class="hidden">
+        <div id="chatbot-header">
+            <span>Chatbot</span>
+            <button id="close-btn">&times;</button>
+        </div>
+        <div id="chatbot-body">
+            <div id="chatbot-messages"></div>
+        </div>
+        <div id="chatbot-input-container">
+            <input 
+                type="text" 
+                id="chatbot-input"
+                placeholder="Escribe tu mensaje.."
+            />
+            <button id="send-btn">Enviar</button>
+        </div>
     </div>
     <script src="chatbot.js"></script>
 </body>
