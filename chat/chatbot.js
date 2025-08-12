@@ -45,36 +45,38 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 async function getBotResponse(userMessage) {
-    const apiKey = "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";
-    const modelId = "openai/gpt-oss-120b"; 
+    const apiKey = "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";
+    const modelId = "mistralai/Mistral-7B-Instruct-v0.3"; 
     const apiUrl = `https://api-inference.huggingface.co/models/${modelId}`;
 
     try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          inputs: userMessage
-        }),
-      });
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+                inputs: `Usuario: ${userMessage}\nBot:`,
+                parameters: {
+                    max_new_tokens: 200,
+                    temperature: 0.7
+                }
+            }),
+        });
 
-      const data = await response.json();
-      console.log(data);
+        const data = await response.json();
+        console.log("Respuesta API:", data);
 
-      let botMessage = "Lo siento, no entendí la respuesta.";
-      if (Array.isArray(data) && data.length > 0 && data[0].generated_text) {
-        botMessage = data[0].generated_text;
-      } else if (data.generated_text) {
-        botMessage = data.generated_text;
-      }
-      appendMessage("bot", botMessage);
+        let botMessage = "Lo siento, no entendí la respuesta.";
+        if (Array.isArray(data) && data.length > 0 && data[0].generated_text) {
+            botMessage = data[0].generated_text.replace(`Usuario: ${userMessage}\nBot:`, "").trim();
+        }
+        appendMessage("bot", botMessage);
 
     } catch (error) {
-      console.error("Error al obtener la respuesta del bot:", error);
-      appendMessage("bot", "Lo siento, algo salió mal. Inténtalo de nuevo.");
+        console.error("Error al obtener la respuesta del bot:", error);
+        appendMessage("bot", "Lo siento, algo salió mal. Inténtalo de nuevo.");
     }
-  }
+}
 });
