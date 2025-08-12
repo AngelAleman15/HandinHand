@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot2</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<style>
+
+</style>
+<body>
+<div id="chatbot-icon">
+    <img src="../../img/support-icon.png">
+</div>
+<div id="chatbot-container" class="hidden">
+    <div id="chatbot-header">
+        <span>Chatbot Assistant</span>
+        <button id="close-btn">&times;</button>
+    </div>
+    <div id="chatbot-body">
+        <div id="chatbot-messages"></div>
+    </div>
+    <div id="chatbot-input-container">
+        <input 
+            type="text"
+            id="chatbot-input"
+            placeholder="Escribe tu mensaje.."
+        />
+        <button id="send-btn">Enviar</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const chatbotContainer = document.getElementById("chatbot-container");
+  const chatbotIcon = document.getElementById("chatbot-icon");
+  const closeBtn = document.getElementById("close-btn");
+  const sendBtn = document.getElementById("send-btn");
+  const chatbotInput = document.getElementById("chatbot-input");
+  const chatbotMessages = document.getElementById("chatbot-messages");
+
+  const respuestas = {
+    "hola": "¡Hola! ¿Cómo estás?",
+    "precios": "Nuestros precios varían según el producto.",
+    "adios": "¡Hasta luego!",
+    "Cosita": "HOLA"
+  };
+
+  // Mostrar el chatbot
+  chatbotIcon.addEventListener("click", () => {
+    chatbotContainer.classList.remove("hidden");
+    chatbotIcon.style.display = "none";
+  });
+
+  // Cerrar chatbot
+  closeBtn.addEventListener("click", () => {
+    chatbotContainer.classList.add("hidden");
+    chatbotIcon.style.display = "flex";
+  });
+
+  // Enviar mensaje
+  sendBtn.addEventListener("click", sendMessage);
+  chatbotInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  function sendMessage() {
+    const userMessage = chatbotInput.value.trim().toLowerCase();
+    if (userMessage) {
+      appendMessage("user", userMessage);
+      chatbotInput.value = "";
+      setTimeout(() => {
+        const botReply = respuestas[userMessage] || "No entendí eso.";
+        appendMessage("bot", botReply);
+      }, 300);
+    }
+  }
+
+  function appendMessage(sender, message) {
+    const messageElement = document.createElement("div");
+    messageElement.classList.add("message", sender);
+    messageElement.textContent = message;
+    chatbotMessages.appendChild(messageElement);
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  }
+});
+</script>
+
+
+
+</body>
+</html>
