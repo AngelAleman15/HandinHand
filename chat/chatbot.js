@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function getBotResponse(userMessage) {
-  const apiKey = "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";
+  const apiKey = "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";
   const modelId = "google/gemma-2-2b-it";
   const apiUrl = `https://api-inference.huggingface.co/models/${modelId}`;
 
