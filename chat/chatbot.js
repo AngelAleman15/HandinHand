@@ -46,29 +46,34 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function getBotResponse(userMessage) {
-    const apiKey = "your-api-key"; // Aqui usamos una APIKEY, pero yo estoy usando la mia. No, Angel, no me van a robar el codigo unos indios salidos de Arabia Saudi, tranquilo
-    const apiUrl = "https://api.openai.com/v1/chat/completions";
+  const apiKey = "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";
+  const modelId = "google/gemma-2-2b-it";
+  const apiUrl = `https://api-inference.huggingface.co/models/${modelId}`;
 
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: userMessage }],
-          max_tokens: 150,
-        }),
-      });
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        inputs: userMessage // Hugging Face espera "inputs", no "messages"
+      }),
+    });
 
-      const data = await response.json();
-      const botMessage = data.choices[0].message.content;
-      appendMessage("bot", botMessage);
-    } catch (error) {
-      console.error("Error al obtener la respuesta del bot:", error);
-      appendMessage("bot", "Lo siento, algo salió mal. Inténtalo de nuevo.");
+    const data = await response.json();
+    console.log(data);
+
+    let botMessage = "Lo siento, no pude generar respuesta.";
+    if (Array.isArray(data) && data.length > 0 && data[0].generated_text) {
+      botMessage = data[0].generated_text;
     }
+
+    appendMessage("bot", botMessage);
+  } catch (error) {
+    console.error("Error al obtener la respuesta del bot:", error);
+    appendMessage("bot", "Lo siento, algo salió mal. Inténtalo de nuevo.");
   }
+}
 });
