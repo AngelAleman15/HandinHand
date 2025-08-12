@@ -8,8 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const chatbotIcon = document.getElementById("chatbot-icon");
   const closeButton = document.getElementById("close-btn");
 
-// activar o desactivar la visibilidad del chatbot al hacer clic en el icono
-// mostrar el chatbot al hacer clic en el icono
+  // activar o desactivar la visibilidad del chatbot al hacer clic en el icono
   chatbotIcon.addEventListener("click", function () {
     chatbotContainer.classList.remove("hidden");
     chatbotIcon.style.display = "none"; // esconder el icono del chatbot
@@ -45,35 +44,37 @@ document.addEventListener("DOMContentLoaded", function () {
     chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
   }
 
-  async function getBotResponse(userMessage) {
-  const apiKey = "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";
-  const modelId = "google/gemma-2-2b-it";
-  const apiUrl = `https://api-inference.huggingface.co/models/${modelId}`;
+async function getBotResponse(userMessage) {
+    const apiKey = "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";
+    const modelId = "openai/gpt-oss-120b"; 
+    const apiUrl = `https://api-inference.huggingface.co/models/${modelId}`;
 
-  try {
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        inputs: userMessage // Hugging Face espera "inputs", no "messages"
-      }),
-    });
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          inputs: userMessage
+        }),
+      });
 
-    const data = await response.json();
-    console.log(data);
+      const data = await response.json();
+      console.log(data);
 
-    let botMessage = "Lo siento, no pude generar respuesta.";
-    if (Array.isArray(data) && data.length > 0 && data[0].generated_text) {
-      botMessage = data[0].generated_text;
+      let botMessage = "Lo siento, no entendí la respuesta.";
+      if (Array.isArray(data) && data.length > 0 && data[0].generated_text) {
+        botMessage = data[0].generated_text;
+      } else if (data.generated_text) {
+        botMessage = data.generated_text;
+      }
+      appendMessage("bot", botMessage);
+
+    } catch (error) {
+      console.error("Error al obtener la respuesta del bot:", error);
+      appendMessage("bot", "Lo siento, algo salió mal. Inténtalo de nuevo.");
     }
-
-    appendMessage("bot", botMessage);
-  } catch (error) {
-    console.error("Error al obtener la respuesta del bot:", error);
-    appendMessage("bot", "Lo siento, algo salió mal. Inténtalo de nuevo.");
   }
-}
 });
