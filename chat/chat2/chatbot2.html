@@ -40,12 +40,25 @@ document.addEventListener("DOMContentLoaded", function () {
   const chatbotInput = document.getElementById("chatbot-input");
   const chatbotMessages = document.getElementById("chatbot-messages");
 
-  const respuestas = {
-    "hola": "¡Hola! ¿Cómo estás?",
-    "precios": "Nuestros precios varían según el producto.",
-    "adios": "¡Hasta luego!",
-    "Cosita": "HOLA"
-  };
+const respuestas = {
+  "hola": "¡Hola! ¿Cómo estás?",
+  "como puedo iniciar sesion": "Para iniciar sesión, haz clic en 'Iniciar sesión' en la esquina superior derecha e ingresa tu usuario y contraseña.",
+  "precio": "Nuestros precios varían según el producto. Puedes verlos en la sección 'Productos'.",
+  "adios": "¡Hasta luego!",
+  "gracias": "¡De nada! 😊",
+  "horarios": "Nuestro horario es de lunes a viernes de 9:00 a 18:00.",
+  "contacto": "Puedes contactarnos al correo XXXXXXXXXXXXXX o al WhatsApp +598 1234 5678."
+};
+
+// Función para que no afecten lso tildes o mayusculas
+function normalizarTexto(texto) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD") // separa acentos
+    .replace(/[\u0300-\u036f]/g, "") // quita acentos
+    .replace(/[¿?]/g, "") // quita signos de pregunta
+    .trim();
+}
 
   // Mostrar el chatbot
   chatbotIcon.addEventListener("click", () => {
