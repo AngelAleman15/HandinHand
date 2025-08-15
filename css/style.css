@@ -317,7 +317,7 @@ body {
     color: rgba(0, 0, 0, 0.641);
     font-size: 12px;
     text-align: center;
-    margin-top: 10px;
+    margin-top: 1px;
 }
 
 .footer {
@@ -335,13 +335,13 @@ body {
 }
 
 .cardquote {
-    border: 1px solid #D2D2D2;
+    background-color: rgba(255, 255, 255, 0.788);
     border-radius: 20px;
     color: black;
-    font-size: 15px;
+    font-size: 20px;
     font-weight: bold;
     text-align: center;
-    padding-bottom: 20px;
+    padding: 0px 50px 20px 50px;
     align-items: center;
     align-content: center;
 }
@@ -350,6 +350,14 @@ body {
     width: 100%;
     height: auto;
     object-fit: cover;
+}
+
+.login-title{
+    font-size: 25px;
+    color: white;
+    font-weight: bold;
+    -webkit-text-stroke: 0.5px black;
+    text-shadow: 0.5px 0.5px 0 black, -0.5px -0.5px 0 black, 0.5px -0.5px 0 black, -0.5px 0.5px 0 black;
 }
 
 .login {
@@ -363,21 +371,26 @@ body {
 
 .field {
     margin: 5px 0;
-    padding: 8px 11px;
+    padding-left: 2%;
+    width: 450px;
+    height: 50px;
     border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #8CA764;
+    border: none;
+    background-color: white;
+    font-size: 20px;
 }
 
 .field::placeholder {
+    font-size: 20px;
     color: #222918;
     opacity: 0.9;
 }
 
 .btnlogin {
+    font-size: 16px;
     background-color: #36372C;
     color: white;
-    padding: 10px 15px;
+    padding: 15px 25px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -385,4 +398,65 @@ body {
 
 .btnlogin:hover {
     background-color: #20201a;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-repeat: repeat;
+  background-position: 50% 50%;
+  background-size: 154px 265px;
+  background-image: conic-gradient(
+      from 0deg at 92.66% 50%,
+      #6a994e 0 120deg,
+      #fff0 0 100%
+    ),
+    conic-gradient(from -60deg at 81.66% 10.25%, #6a994e 0 180deg, #fff0 0 100%),
+    conic-gradient(from -60deg at 66.66% 22.25%, #a7c957 0 120deg, #fff0 0 100%),
+    conic-gradient(from 0deg at 71.66% 43%, #386641 0 120deg, #fff0 0 100%),
+    conic-gradient(from 0deg at 66.66% 45.95%, #386641 0 60deg, #fff0 0 100%),
+    conic-gradient(from 120deg at 25% 91.5%, #a7c957 0 120deg, #fff0 0 100%),
+    conic-gradient(from 180deg at 16% 73.5%, #6a994e 0 120deg, #fff0 0 100%),
+    conic-gradient(from 180deg at 16% 73.5%, #6a994e 0 120deg, #fff0 0 100%),
+    conic-gradient(from 180deg at 16% 73.5%, #6a994e 0 120deg, #fff0 0 100%),
+    conic-gradient(from 180deg at 16% 73.5%, #6a994e 0 120deg, #fff0 0 100%),
+    conic-gradient(
+      from 180deg at 39.5% 65.65%,
+      #386641 0 60deg,
+      #a7c957 0 120deg,
+      #fff0 0 100%
+    ),
+    conic-gradient(
+      from 180deg at 39.5% 65.65%,
+      #386641 0 60deg,
+      #a7c957 0 120deg,
+      #fff0 0 100%
+    ),
+    conic-gradient(
+      from 180deg at 39.5% 65.65%,
+      #386641 0 60deg,
+      #a7c957 0 120deg,
+      #fff0 0 100%
+    ),
+    conic-gradient(
+      from 180deg at 39.5% 65.65%,
+      #386641 0 60deg,
+      #a7c957 0 120deg,
+      #fff0 0 100%
+    ),
+    conic-gradient(
+      from 60deg at 50% 51.5%,
+      #a7c957 0 60deg,
+      #6a994e 0 120deg,
+      #4a8656 0 100%
+    );
+}
+
+.text {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    color: white;
+    -webkit-text-stroke: 0.5px black;
+    text-shadow: 0.5px 0.5px 0 black, -0.5px -0.5px 0 black, 0.5px -0.5px 0 black, -0.5px 0.5px 0 black;
 }
