@@ -2,101 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="img/fondito.jpg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HandinHand</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <title>HandinHand</title>
 </head>
-<body>
-    <header class="header">
-        <div>
-           <a href="index.html" draggable="false"><img src="img/Hand(sinfondo).png" alt="Loguito" style="width: 125px;" draggable="false"></a>
+<body class="body-index">
+    <div class="header">
+        <div class="logo"><a href="index.html"><img src="img/Hand(sinfondo).png" alt="Icono"></a></div>
+        <div class="menu">
+            <ul>
+                <li><img src="img/ayuda.png" alt="ayuda"></li>
+                <li class="menu-toggle-container">
+                    <img src="img/menudesplegable.png" alt="menú desplegable" id="menu-toggle" class="menutoggle">
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <button class="dropdown-item">
+                            <img src="img/usuario.png" alt="perfil">
+                            Mi Perfil
+                        </button>
+                        <button class="dropdown-item">
+                            <img src="img/chat.png" alt="mensajes">
+                            Mensajes
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item">
+                            Configuración
+                        </button>
+                        <button class="dropdown-item">
+                            Ayuda
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <a href="iniciarsesion.html">
+                            <button class="dropdown-item">Iniciar Sesión</button>
+                        </a>
+                        <a href="registrar.html">
+                            <button class="dropdown-item">Registrarse</button>
+                        </a>
+                    </div>
+                </li>
+            </ul>
         </div>
-        <div class="icons-container">
-            <div class="icons">
-                <button onclick="window.location.href='register.html'"><img src="img/user-icon.png" alt="Icono de usuario" draggable="false"></button>
+    </div>
+
+    <div>
+        <div class="navbar-container">
+            <div class="quote"><p>"Reutilizá, Intercambiá, Conectá"</p></div>
+            <div class="navbar"><input type="text" placeholder="¿Qué te interesa?" class="inputnav"><button class="btnnav">Buscar</button></div>
+        </div>
+        <div class="cardscontainer">
+            <div class="card">
+                <div class="cardimg"><img src="img/zapato.jpg" alt="🍩"></div>
+                <div class="cardtitle">ZAPATO</div>
+                <div class="carddescription">ZAPATO SISISI, UN ZAPATO CON FORMA DE ZAPATO MUY MUY HECHO N¡BIEN</div>
+                <div class="cardfooter">
+                    <div class="sellerinfo">
+                        <div class="profile"></div>
+                        <div class="usercontainer"><div class="name">Angel Alemán</div><div class="stars"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/star.png"><img src="img/star.png"></div></div>
+                    </div>
+                    <button class="btncontact">Contactar</button>
+                </div>
             </div>
-            <div class="icons">
-                <button><img src="img/chat-icon.png" alt="Icono de chat" draggable="false"></button>
+            <div class="card">
+                <div class="cardimg"><img src="img/zapato.jpg" alt="🍩"></div>
+                <div class="cardtitle">ZAPATO</div>
+                <div class="carddescription">ZAPATO SISISI, UN ZAPATO CON FORMA DE ZAPATO MUY MUY HECHO N¡BIEN</div>
+                <div class="cardfooter">
+                    <div class="sellerinfo">
+                        <div class="profile"></div>
+                        <div class="usercontainer"><div class="name">Angel Alemán</div><div class="stars"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/star.png"><img src="img/star.png"></div></div>
+                    </div>
+                    <button class="btncontact">Contactar</button>
+                </div>
             </div>
-            <div class="icons">
-                <button onclick="window.location.href='support.html'"><img src="img/support-icon.png" alt="Icono de soporte" draggable="false"></button>
+            <div class="card">
+                <div class="cardimg"><img src="img/zapato.jpg" alt="🍩"></div>
+                <div class="cardtitle">ZAPATO</div>
+                <div class="carddescription">ZAPATO SISISI, UN ZAPATO CON FORMA DE ZAPATO MUY MUY HECHO N¡BIEN</div>
+                <div class="cardfooter">
+                    <div class="sellerinfo">
+                        <div class="profile"></div>
+                        <div class="usercontainer"><div class="name">Angel Alemán</div><div class="stars"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/star.png"><img src="img/star.png"></div></div>
+                    </div>
+                    <button class="btncontact">Contactar</button>
+                </div>
             </div>
-            <div class="sidebar icons" id="open_sidebar">
-                <img src="img/menu-icon.png" id="icon_sidebar" draggable="false">
-                <div class="menu" id="menu_sidebar">
-                    <div class="item" id="sesion">
-                        <div class="item" id="iniciar-sesion">
-                            <h1 onclick="window.location.href='login.html'">Iniciar sesion</h1>
-                        </div>
-                        <div class="item" id="registro">
-                            <h1 onclick="window.location.href='register.html'">Registrar</h1>
-                        </div>
+            <div class="card">
+                <div class="cardimg"><img src="img/zapato.jpg" alt="🍩"></div>
+                <div class="cardtitle">ZAPATO</div>
+                <div class="carddescription">ZAPATO SISISI, UN ZAPATO CON FORMA DE ZAPATO MUY MUY HECHO N¡BIEN</div>
+                <div class="cardfooter">
+                    <div class="sellerinfo">
+                        <div class="profile"></div>
+                        <div class="usercontainer"><div class="name">Angel Alemán</div><div class="stars"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/star.png"><img src="img/star.png"></div></div>
                     </div>
-                    <div class="item" id="categorias">
-                        <h1>Categorias</h1>
+                    <button class="btncontact">Contactar</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="cardimg"><img src="img/zapato.jpg" alt="🍩"></div>
+                <div class="cardtitle">ZAPATO</div>
+                <div class="carddescription">ZAPATO SISISI, UN ZAPATO CON FORMA DE ZAPATO MUY MUY HECHO N¡BIEN</div>
+                <div class="cardfooter">
+                    <div class="sellerinfo">
+                        <div class="profile"></div>
+                        <div class="usercontainer"><div class="name">Angel Alemán</div><div class="stars"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/star.png"><img src="img/star.png"></div></div>
                     </div>
-                    <div class="item" id="option">
-                        <h1>Ropa</h1>
+                    <button class="btncontact">Contactar</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="cardimg"><img src="img/zapato.jpg" alt="🍩"></div>
+                <div class="cardtitle">ZAPATO</div>
+                <div class="carddescription">ZAPATO SISISI, UN ZAPATO CON FORMA DE ZAPATO MUY MUY HECHO N¡BIEN</div>
+                <div class="cardfooter">
+                    <div class="sellerinfo">
+                        <div class="profile"></div>
+                        <div class="usercontainer"><div class="name">Angel Alemán</div><div class="stars"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/star.png"><img src="img/star.png"></div></div>
                     </div>
-                    <div class="item" id="option">
-                        <h1>Vehiculo</h1>
+                    <button class="btncontact">Contactar</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="cardimg"><img src="img/zapato.jpg" alt="🍩"></div>
+                <div class="cardtitle">ZAPATO</div>
+                <div class="carddescription">ZAPATO SISISI, UN ZAPATO CON FORMA DE ZAPATO MUY MUY HECHO N¡BIEN</div>
+                <div class="cardfooter">
+                    <div class="sellerinfo">
+                        <div class="profile"></div>
+                        <div class="usercontainer"><div class="name">Angel Alemán</div><div class="stars"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/star.png"><img src="img/star.png"></div></div>
                     </div>
-                    <div class="item" id="option">
-                        <h1>Objetos</h1>
+                    <button class="btncontact">Contactar</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="cardimg"><img src="img/zapato.jpg" alt="🍩"></div>
+                <div class="cardtitle">ZAPATO</div>
+                <div class="carddescription">ZAPATO SISISI, UN ZAPATO CON FORMA DE ZAPATO MUY MUY HECHO N¡BIEN</div>
+                <div class="cardfooter">
+                    <div class="sellerinfo">
+                        <div class="profile"></div>
+                        <div class="usercontainer"><div class="name">Angel Alemán</div><div class="stars"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/star.png"><img src="img/star.png"></div></div>
                     </div>
-                    <div class="item" id="option">
-                        <h1>Muebles</h1>
+                    <button class="btncontact">Contactar</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="cardimg"><img src="img/zapato.jpg" alt="🍩"></div>
+                <div class="cardtitle">ZAPATO</div>
+                <div class="carddescription">ZAPATO SISISI, UN ZAPATO CON FORMA DE ZAPATO MUY MUY HECHO N¡BIEN</div>
+                <div class="cardfooter">
+                    <div class="sellerinfo">
+                        <div class="profile"></div>
+                        <div class="usercontainer"><div class="name">Angel Alemán</div><div class="stars"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/star.png"><img src="img/star.png"></div></div>
                     </div>
-                    <div class="item" id="option">
-                        <h1>Electrodomesticos</h1>
+                    <button class="btncontact">Contactar</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="cardimg"><img src="img/zapato.jpg" alt="🍩"></div>
+                <div class="cardtitle">ZAPATO</div>
+                <div class="carddescription">ZAPATO SISISI, UN ZAPATO CON FORMA DE ZAPATO MUY MUY HECHO N¡BIEN</div>
+                <div class="cardfooter">
+                    <div class="sellerinfo">
+                        <div class="profile"></div>
+                        <div class="usercontainer"><div class="name">Angel Alemán</div><div class="stars"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/starfilled.png"><img src="img/star.png"><img src="img/star.png"></div></div>
                     </div>
-                    <div class="item" id="option">
-                        <h1>Antiguedades</h1>
-                    </div>
-                    <div class="item" id="option">
-                        <h1>Dispositivos</h1>
-                    </div>
-                    <div class="item" id="nyc">
-                        <p style="color: rgb(119, 117, 56); padding: 0px; margin: 0px;">Normas y Condiciones</p>
-                    </div>
+                    <button class="btncontact">Contactar</button>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
 
-    
-    <div class="sb-container">
-        <h1 style="color: aliceblue; font-family: 'Arial Black'; font-size: 50px;" class="sombra">"Reutilizá, intercambiá, conectá"</h1>
+<div id="chatbot-icon">
+    <img src="img/Hand(sinfondo).png" style="width: 2.5rem;">
+</div>
+<div id="chatbot-container" class="hidden">
+    <div id="chatbot-header">
+        <span>Perseo</span>
+        <button id="close-btn">&times;</button>
     </div>
-    <div class="sb-container">
-        <input type="text" placeholder="¿Que te interesa?" class="search-bar">
-        <button class="search-bar-btn">Buscar</button>
+    <div id="chatbot-body">
+        <div id="chatbot-messages"></div>
     </div>
-    <div class="products-container"></div>
-    <footer>
-        <div class="footer-socials">
-            <div class="social">
-                <img src="img/instaicon.png" draggable="false" alt="Instagram">
-                <p>H_Hand</p>
-            </div>
-            <div class="social">
-                <img src="img/xicon.png" draggable="false" alt="X">
-                <p>H_Hand</p>
-            </div>
-            <div class="social">
-                <img src="img/wasaicon.png" draggable="false" alt="WhatsApp">
-                <p>H_Hand</p>
-            </div>
-            <div class="social">
-                <img src="img/phoneicon.png" draggable="false" alt="Teléfono">
-                <p>H_Hand</p>
-            </div>
+    <div id="chatbot-input-container">
+        <input
+            type="text"
+            id="chatbot-input"
+            placeholder="Escribe tu mensaje.."
+        />
+        <button id="send-btn">Enviar</button>
+    </div>
+</div>
+
+    <div class="footer">
+        <div class="socialcontainer">
+            <div class="social"><img src="img/instaicon.png" alt=""></div><p class="socialinfo">H_Hand</p>
+            <div class="social"><img src="img/xicon.png" alt=""></div><p class="socialinfo">H_Hand</p>
+            <div class="social"><img src="img/wasaicon.png" alt=""></div><p class="socialinfo">H_Hand</p>
+            <div class="social"><img src="img/phoneicon.png" alt=""></div><p class="socialinfo">H_Hand</p>
         </div>
-        <p class="copy">Copyright 2025 por Code Ignite</p>
-    </footer>
-    <script src="js/script.js"></script>
-    <script src="js/sidebar.js"></script>
+        <div class="footerinfo">© 2025 CodeIgnite. Todos los derechos reservados.</div>
+    </div>
+    <script src="js/dropdownmenu.js"></script>
+    <script src="js/chatbot.js"></script>
 </body>
 </html>
