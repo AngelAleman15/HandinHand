@@ -1,6 +1,7 @@
 const menuToggle = document.getElementById("menu-toggle");
 const dropdownMenu = document.getElementById("dropdown-menu");
 
+
 menuToggle.addEventListener("click", (e) => {
     e.stopPropagation();
     menuToggle.classList.toggle("active");
