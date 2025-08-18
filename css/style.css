@@ -143,7 +143,7 @@ a{
     margin: 5px 0;
     padding-left: 2%;
     width: 450px;
-    height: 32px;
+    height: 40px;
     border-radius: 5px;
     border: none;
     background-color: white;
@@ -166,7 +166,7 @@ a{
     border: none;
     border-radius: 5px;
     width: 3.5rem;
-    height: 32px;
+    height: 40px;
     margin-left: 10px;
 }
 
@@ -539,7 +539,7 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
   right: 20px;
   width: 60px;
   height: 60px;
-  background-color: #3c680795;
+  background-color: #3c6807;
   color: white;
   font-size: 30px;
   display: flex;
@@ -552,14 +552,14 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
 }
 
 #chatbot-icon:hover {
-  background-color: #30540395;
+  background-color: #305403;
   transform: scale(1.1);
 }
 
 /*chatbot Container*/
 #chatbot-container {
   position: fixed;
-  bottom: 80px;
+  bottom: 20px;
   right: 20px;
   width: 350px;
   height: 450px;
@@ -638,6 +638,7 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
 }
 
 #chatbot-input {
+    outline: none;
   flex: 1;
   padding: 10px;
   border: 1px solid #444;
