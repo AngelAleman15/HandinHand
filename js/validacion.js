@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setFieldError(email, "Email requerido");
             hasErrors = true;
         } else if (!validarEmail(correo)) {
-            setFieldError(email, "Formato de email inválido");
+            setFieldError(email, "El formato del email debe ser: ejemplo@correo.com");
             hasErrors = true;
         }
         
@@ -77,13 +77,28 @@ document.addEventListener('DOMContentLoaded', function() {
             setFieldError(password, "Contraseña requerida");
             hasErrors = true;
         } else if (contrasenia.length < 6) {
-            setFieldError(password, "La contraseña debe tener al menos 6 caracteres");
+            setFieldError(password, "La contraseña es muy corta. Debe tener al menos 6 caracteres");
             hasErrors = true;
         }
         
         if (!fechaNacimiento) {
             setFieldError(birthdate, "Fecha de nacimiento requerida");
             hasErrors = true;
+        } else {
+            // Validar edad (mayor de 18 años)
+            const birthDate = new Date(fechaNacimiento);
+            const today = new Date();
+            const age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            if (age < 18) {
+                setFieldError(birthdate, "Debes ser mayor de 18 años para poder registrarte en HandInHand");
+                hasErrors = true;
+            }
         }
 
         // Si hay errores de interfaz, prevenir envío

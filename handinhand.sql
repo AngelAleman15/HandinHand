@@ -15,16 +15,15 @@ CREATE TABLE usuarios (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Tabla de productos
+-- Tabla de productos (SIN PRECIO - App de trueques)
 CREATE TABLE productos (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    precio DECIMAL(10,2) NOT NULL,
     imagen VARCHAR(255) NOT NULL,
     categoria VARCHAR(50),
-    estado ENUM('disponible', 'vendido', 'reservado') DEFAULT 'disponible',
+    estado ENUM('disponible', 'intercambiado', 'reservado') DEFAULT 'disponible',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
@@ -81,11 +80,25 @@ INSERT INTO usuarios (fullname, username, email, phone, password, birthdate) VAL
 -- Angel / password  (o Alejo / password, o Milagros / password)
 -- test / 123456
 
--- Insertar productos de ejemplo
-INSERT INTO productos (user_id, nombre, descripcion, precio, imagen, categoria) VALUES
-(1, 'Zapatos Deportivos', 'Zapatos deportivos en excelente estado, poco uso', 50.00, 'img/zapato.jpg', 'Calzado'),
-(1, 'Zapatillas Running', 'Zapatillas ideales para running, marca reconocida', 75.00, 'img/zapato.jpg', 'Calzado'),
-(2, 'Zapatos Casuales', 'Zapatos casuales cómodos para uso diario, marca reconocida', 40.00, 'img/zapato.jpg', 'Calzado');
+-- Insertar productos de ejemplo (SIN PRECIOS - App de trueques)
+INSERT INTO productos (user_id, nombre, descripcion, imagen, categoria) VALUES
+-- Productos de Angel (user_id = 1)
+(1, 'Zapatos Deportivos Nike', 'Zapatos deportivos en excelente estado, poco uso. Perfectos para correr o hacer ejercicio.', 'img/zapato.jpg', 'Calzado'),
+(1, 'Guitarra Acústica', 'Guitarra acústica en buen estado, ideal para principiantes. Incluye funda protectora.', 'img/zapato.jpg', 'Música'),
+(1, 'Libro "El Principito"', 'Clásico de la literatura en perfecto estado. Edición especial con ilustraciones.', 'img/zapato.jpg', 'Libros'),
+
+-- Productos de Alejo (user_id = 2)
+(2, 'Smartphone Samsung', 'Samsung Galaxy en excelente estado, con cargador y protector. Funciona perfectamente.', 'img/zapato.jpg', 'Electrónicos'),
+(2, 'Chaqueta de Cuero', 'Chaqueta de cuero genuino, talla M. Muy poco uso, perfecta para invierno.', 'img/zapato.jpg', 'Ropa'),
+(2, 'Bicicleta de Montaña', 'Bicicleta en muy buen estado, ideal para aventuras al aire libre. Incluye casco.', 'img/zapato.jpg', 'Deportes'),
+
+-- Productos de Milagros (user_id = 3)
+(3, 'Cafetera Express', 'Cafetera express automática, hace café delicioso. Incluye manual de uso.', 'img/zapato.jpg', 'Hogar'),
+(3, 'Juego de Mesa Monopoly', 'Monopoly clásico en excelente estado, completo con todas las piezas.', 'img/zapato.jpg', 'Juguetes'),
+(3, 'Taladro Eléctrico', 'Taladro eléctrico con set de brocas. Perfecto para proyectos de hogar.', 'img/zapato.jpg', 'Herramientas'),
+
+-- Productos de Test (user_id = 4)
+(4, 'Reloj Vintage', 'Reloj de pulsera vintage en perfecto funcionamiento. Estilo clásico y elegante.', 'img/zapato.jpg', 'Accesorios');
 
 -- Insertar categorías
 INSERT INTO categorias (nombre, descripcion) VALUES
@@ -93,9 +106,16 @@ INSERT INTO categorias (nombre, descripcion) VALUES
 ('Ropa', 'Vestimenta en general'),
 ('Electrónicos', 'Dispositivos electrónicos y tecnología'),
 ('Hogar', 'Artículos para el hogar y decoración'),
-('Deportes', 'Artículos deportivos y fitness');
+('Deportes', 'Artículos deportivos y fitness'),
+('Libros', 'Libros, revistas y material educativo'),
+('Música', 'Instrumentos musicales y equipos de audio'),
+('Juguetes', 'Juguetes y juegos para todas las edades'),
+('Herramientas', 'Herramientas y equipos de trabajo'),
+('Accesorios', 'Accesorios y complementos diversos');
 
 -- Insertar valoraciones de ejemplo
 INSERT INTO valoraciones (usuario_id, valorador_id, puntuacion, comentario) VALUES
-(1, 2, 5, 'Excelente vendedor, muy recomendable'),
-(1, 3, 4, 'Buen trato y productos de calidad');
+(1, 2, 5, 'Excelente persona para hacer trueques, muy recomendable'),
+(1, 3, 4, 'Buen trato y productos de calidad para intercambiar'),
+(2, 1, 5, 'Intercambio perfecto, muy confiable y puntual'),
+(3, 4, 4, 'Gran experiencia de trueque, productos tal como se describían');

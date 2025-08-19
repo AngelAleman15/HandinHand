@@ -45,22 +45,68 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function sendMessage() {
-    const userMessage = chatbotInput.value.trim().toLowerCase();
+    const userMessage = chatbotInput.value.trim();
     if (userMessage) {
       appendMessage("user", userMessage);
       chatbotInput.value = "";
-      setTimeout(() => {
-        const botReply = respuestas[userMessage] || "No entendí eso.";
-        appendMessage("bot", botReply);
-      }, 300);
+      
+      // Mostrar indicador de escritura
+      appendMessage("bot", "Escribiendo...", true);
+      
+      // Llamar a la API del chatbot
+      fetch('api/chatbot.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          mensaje: userMessage
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Remover el indicador de escritura
+        removeTypingIndicator();
+        
+        if (data.success) {
+          appendMessage("bot", data.data.respuesta);
+        } else {
+          appendMessage("bot", "Lo siento, ocurrió un error. Intenta de nuevo.");
+        }
+      })
+      .catch(error => {
+        console.error('Error en el chatbot:', error);
+        removeTypingIndicator();
+        appendMessage("bot", "Lo siento, no puedo responder en este momento. Intenta más tarde.");
+      });
     }
   }
 
-  function appendMessage(sender, message) {
+  function appendMessage(sender, message, isTyping = false) {
     const messageElement = document.createElement("div");
     messageElement.classList.add("message", sender);
-    messageElement.textContent = message;
+    
+    if (isTyping) {
+      messageElement.classList.add("typing");
+      messageElement.innerHTML = `
+        <div class="typing-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      `;
+    } else {
+      messageElement.textContent = message;
+    }
+    
     chatbotMessages.appendChild(messageElement);
     chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const typingMessage = chatbotMessages.querySelector('.typing');
+    if (typingMessage) {
+      typingMessage.remove();
+    }
   }
 });

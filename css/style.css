@@ -191,14 +191,21 @@ a{
 
 .card{
     min-height: 300px;
-    align-items: center;
     display: flex;
     flex-direction: column;
+    justify-content: space-between; /* Distribuir el espacio entre elementos */
     padding: 20px 10px 10px 10px;
     border-radius: 5px;
     border: 1px solid transparent;
     background-color:#A2CB8D;
     backdrop-filter: blur(10px);
+}
+
+.cardcontent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1; /* Esto hace que el contenido ocupe todo el espacio disponible */
 }
 
 .card:hover{
@@ -228,18 +235,22 @@ a{
      justify-content: space-between;
      align-items: center;
      width: 100%;
+     margin-top: auto; /* Esto empuja el footer hacia abajo */
 }
 
 .cardtitle{
     color: rgba(0, 0, 0, 0.755);
     font-size: 20px;
     font-weight: bold;
+    text-align: center;
 }
 
 .carddescription{
     color: rgba(0, 0, 0, 0.755);
     font-size: 12px;
     margin-top: 5px;
+    text-align: left;
+    flex: 1; /* Hace que la descripción ocupe el espacio disponible */
 }
 
 .sellerinfo{
@@ -253,7 +264,7 @@ a{
 .usercontainer{
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .profile{
@@ -269,6 +280,7 @@ a{
     color: rgba(0, 0, 0, 0.755);
     font-size: 12px;
     font-weight: bold;
+    text-align: left;
 }
 
 .stars{
@@ -667,4 +679,38 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
 
 #send-btn:active {
   background-color: #30580095;
+}
+
+/* Indicador de escritura del chatbot */
+.typing-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ccc;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typing {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

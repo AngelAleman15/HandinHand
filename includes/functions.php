@@ -51,7 +51,7 @@ function sanitizeInput($data) {
 }
 
 /**
- * Función para obtener productos
+ * Función para obtener productos (SIN PRECIO - App de trueques)
  */
 function getProductos($limit = null, $busqueda = null) {
     require_once __DIR__ . '/../config/database.php';
@@ -84,7 +84,7 @@ function getProductos($limit = null, $busqueda = null) {
 }
 
 /**
- * Función para obtener un producto específico
+ * Función para obtener un producto específico (SIN PRECIO - App de trueques)
  */
 function getProducto($id) {
     require_once __DIR__ . '/../config/database.php';
@@ -114,12 +114,5 @@ function generateStars($rating, $max = 5) {
         }
     }
     return $html;
-}
-
-/**
- * Función para formatear precio
- */
-function formatPrice($price) {
-    return '$' . number_format($price, 2);
 }
 ?>

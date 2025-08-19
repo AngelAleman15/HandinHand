@@ -30,9 +30,11 @@ include 'includes/header.php';
             <?php if (!empty($productos)): ?>
                 <?php foreach ($productos as $producto): ?>
                 <div class="card">
-                    <div class="cardimg"><img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>"></div>
-                    <div class="cardtitle"><?php echo htmlspecialchars($producto['nombre']); ?></div>
-                    <div class="carddescription"><?php echo htmlspecialchars($producto['descripcion']); ?></div>
+                    <div class="cardcontent">
+                        <div class="cardimg"><img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>"></div>
+                        <div class="cardtitle"><?php echo htmlspecialchars($producto['nombre']); ?></div>
+                        <div class="carddescription"><?php echo htmlspecialchars($producto['descripcion']); ?></div>
+                    </div>
                     <div class="cardfooter">
                         <div class="sellerinfo">
                             <div class="profile"></div>
