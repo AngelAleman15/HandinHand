@@ -458,6 +458,25 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
     transform: scaleX(1);
 }
 
+/*Angel, me daba toc que el cerrar sesión rojo tuviera linea verde*/
+.dropdown-item-exit::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #c95757;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease-in-out;
+    border-radius: 0 0 8px 8px;
+}
+
+.dropdown-item:hover::after {
+    transform: scaleX(1);
+}
+
 .login-form,
 .registration-form {
     display: flex;
