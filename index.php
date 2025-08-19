@@ -8,6 +8,9 @@ $body_class = "body-index";
 // Incluir funciones
 require_once 'includes/functions.php';
 
+// Verificar si se cerró sesión
+$logout_success = isset($_GET['logout']) && $_GET['logout'] === 'success';
+
 // Obtener productos de la base de datos
 $busqueda = isset($_GET['busqueda']) ? trim($_GET['busqueda']) : null;
 $productos = getProductos(20, $busqueda); // Limitar a 20 productos
@@ -64,6 +67,17 @@ include 'includes/header.php';
     </div>
 
     <script>
+    <?php if ($logout_success): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Sesión cerrada',
+            text: 'Has cerrado sesión exitosamente',
+            confirmButtonColor: '#6a994e',
+            timer: 3000,
+            timerProgressBar: true
+        });
+    <?php endif; ?>
+    
     function contactarVendedor(productoId) {
         <?php if (isLoggedIn()): ?>
             // Si está logueado, redirigir a página de mensajes

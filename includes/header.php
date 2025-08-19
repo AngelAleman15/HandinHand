@@ -1,3 +1,10 @@
+<?php
+// Asegurar que las sesiones estén iniciadas y las funciones estén cargadas
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/functions.php';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -29,28 +36,65 @@
                 <li class="menu-toggle-container">
                     <img src="img/menudesplegable.png" alt="menú desplegable" id="menu-toggle" class="menutoggle">
                     <div class="dropdown-menu" id="dropdown-menu">
-                        <button class="dropdown-item">
-                            <img src="img/usuario.png" alt="perfil">
-                            Mi Perfil
-                        </button>
-                        <button class="dropdown-item">
-                            <img src="img/chat.png" alt="mensajes">
-                            Mensajes
-                        </button>
-                        <div class="dropdown-divider"></div>
-                        <button class="dropdown-item">
-                            Configuración
-                        </button>
-                        <button class="dropdown-item">
-                            Ayuda
-                        </button>
-                        <div class="dropdown-divider"></div>
-                        <a href="iniciarsesion.php">
-                            <button class="dropdown-item">Iniciar Sesión</button>
-                        </a>
-                        <a href="registrar.php">
-                            <button class="dropdown-item">Registrarse</button>
-                        </a>
+                        <?php if (isLoggedIn()): ?>
+                            <?php 
+                            $currentUser = getCurrentUser();
+                            ?>
+                            <!-- Opciones para usuarios logueados -->
+                            <div class="dropdown-header">
+                                <img src="img/usuario.png" alt="usuario">
+                                <span>Hola, <?php echo htmlspecialchars($currentUser['username']); ?></span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="perfil.php">
+                                <button class="dropdown-item">
+                                    <div class="profile"></div>
+                                    Mi Perfil
+                                </button>
+                            </a>
+                            <a href="mensajes.php">
+                                <button class="dropdown-item">
+                                    <img src="img/chat.png" alt="mensajes">
+                                    Mensajes
+                                </button>
+                            </a>
+                            <a href="mis-productos.php">
+                                <button class="dropdown-item">
+                                    Mis Productos
+                                </button>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="configuracion.php">
+                                <button class="dropdown-item">
+                                    Configuración
+                                </button>
+                            </a>
+                            <button class="dropdown-item">
+                                Ayuda
+                            </button>
+                            <div class="dropdown-divider"></div>
+                            <a href="logout.php">
+                                <button class="dropdown-item logout-btn">
+                                    Cerrar Sesión
+                                </button>
+                            </a>
+                        <?php else: ?>
+                            <!-- Opciones para usuarios no logueados -->
+                            <button class="dropdown-item">
+                                Ayuda
+                            </button>
+                            <div class="dropdown-divider"></div>
+                            <a href="iniciarsesion.php">
+                                <button class="dropdown-item">
+                                    Iniciar Sesión
+                                </button>
+                            </a>
+                            <a href="registrar.php">
+                                <button class="dropdown-item">
+                                    Registrarse
+                                </button>
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </li>
             </ul>
