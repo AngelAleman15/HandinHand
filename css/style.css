@@ -126,7 +126,11 @@ a{
     width: auto;
     height: 50vh;
     border-bottom: 1px solid #eee;
+<<<<<<< HEAD
     background-image: url('/img/fondito.png');
+=======
+    background-image: url('../img/fondito.png');
+>>>>>>> angelitophp
     background-size: contain;
     background-position: center;
 }
@@ -143,7 +147,11 @@ a{
     margin: 5px 0;
     padding-left: 2%;
     width: 450px;
+<<<<<<< HEAD
     height: 40px;
+=======
+    height: 32px;
+>>>>>>> angelitophp
     border-radius: 5px;
     border: none;
     background-color: white;
@@ -166,7 +174,11 @@ a{
     border: none;
     border-radius: 5px;
     width: 3.5rem;
+<<<<<<< HEAD
     height: 40px;
+=======
+    height: 32px;
+>>>>>>> angelitophp
     margin-left: 10px;
 }
 
@@ -191,9 +203,15 @@ a{
 
 .card{
     min-height: 300px;
+<<<<<<< HEAD
     align-items: center;
     display: flex;
     flex-direction: column;
+=======
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribuir el espacio entre elementos */
+>>>>>>> angelitophp
     padding: 20px 10px 10px 10px;
     border-radius: 5px;
     border: 1px solid transparent;
@@ -201,6 +219,16 @@ a{
     backdrop-filter: blur(10px);
 }
 
+<<<<<<< HEAD
+=======
+.cardcontent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1; /* Esto hace que el contenido ocupe todo el espacio disponible */
+}
+
+>>>>>>> angelitophp
 .card:hover{
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     transform: scale(1.02);
@@ -228,18 +256,31 @@ a{
      justify-content: space-between;
      align-items: center;
      width: 100%;
+<<<<<<< HEAD
+=======
+     margin-top: auto; /* Esto empuja el footer hacia abajo */
+>>>>>>> angelitophp
 }
 
 .cardtitle{
     color: rgba(0, 0, 0, 0.755);
     font-size: 20px;
     font-weight: bold;
+<<<<<<< HEAD
+=======
+    text-align: center;
+>>>>>>> angelitophp
 }
 
 .carddescription{
     color: rgba(0, 0, 0, 0.755);
     font-size: 12px;
     margin-top: 5px;
+<<<<<<< HEAD
+=======
+    text-align: left;
+    flex: 1; /* Hace que la descripción ocupe el espacio disponible */
+>>>>>>> angelitophp
 }
 
 .sellerinfo{
@@ -253,7 +294,11 @@ a{
 .usercontainer{
     display: flex;
     flex-direction: column;
+<<<<<<< HEAD
     align-items: center;
+=======
+    align-items: flex-start;
+>>>>>>> angelitophp
 }
 
 .profile{
@@ -269,6 +314,10 @@ a{
     color: rgba(0, 0, 0, 0.755);
     font-size: 12px;
     font-weight: bold;
+<<<<<<< HEAD
+=======
+    text-align: left;
+>>>>>>> angelitophp
 }
 
 .stars{
@@ -441,6 +490,18 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
     border: 2px solid #6a994e;
 }
 
+<<<<<<< HEAD
+=======
+.field.error {
+    border: 2px solid red !important;
+}
+
+.field.error:focus {
+    border: 2px solid red !important;
+    outline: none !important; /* Quitar el outline cuando hay error */
+}
+
+>>>>>>> angelitophp
 .field::placeholder {
     font-size: 20px;
     color: #222918;
@@ -523,12 +584,20 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
 }
 
 .error-message {
+<<<<<<< HEAD
     margin-left:2px ;
     color: red;
     font-size: 14px;
     margin-top: 5px;
     font-weight: bold;
     color: transparent;
+=======
+    margin-left: 2px;
+    font-size: 14px;
+    margin-top: 5px;
+    font-weight: bold;
+    color: transparent; /* Por defecto invisible, JavaScript lo cambiará a rojo cuando sea necesario */
+>>>>>>> angelitophp
 }
 
 /* ===== CHATBOT STYLES ===== */
@@ -539,7 +608,11 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
   right: 20px;
   width: 60px;
   height: 60px;
+<<<<<<< HEAD
   background-color: #3c6807;
+=======
+  background-color: #3c680795;
+>>>>>>> angelitophp
   color: white;
   font-size: 30px;
   display: flex;
@@ -552,14 +625,22 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
 }
 
 #chatbot-icon:hover {
+<<<<<<< HEAD
   background-color: #305403;
+=======
+  background-color: #30540395;
+>>>>>>> angelitophp
   transform: scale(1.1);
 }
 
 /*chatbot Container*/
 #chatbot-container {
   position: fixed;
+<<<<<<< HEAD
   bottom: 20px;
+=======
+  bottom: 80px;
+>>>>>>> angelitophp
   right: 20px;
   width: 350px;
   height: 450px;
@@ -638,7 +719,10 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
 }
 
 #chatbot-input {
+<<<<<<< HEAD
     outline: none;
+=======
+>>>>>>> angelitophp
   flex: 1;
   padding: 10px;
   border: 1px solid #444;
@@ -660,4 +744,41 @@ hace que el scaleX(0) pase a 1, para que el contenido se haga visible, o sea, el
 
 #send-btn:active {
   background-color: #30580095;
+<<<<<<< HEAD
+=======
+}
+
+/* Indicador de escritura del chatbot */
+.typing-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ccc;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typing {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+>>>>>>> angelitophp
 }
