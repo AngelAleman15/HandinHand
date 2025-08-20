@@ -24,7 +24,7 @@ include 'includes/header.php';
     <div class="profile-content">
         <div class="profile-info">
             <div class="profile-avatar">
-                <img src="img/usuario.png" alt="Avatar">
+                <img src="img/usuario.png" alt="Avatar" draggable="false">
             </div>
             
             <div class="profile-details">
