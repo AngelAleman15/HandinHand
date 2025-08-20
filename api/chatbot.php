@@ -133,7 +133,7 @@ function procesarMensajeConPLN($mensaje, $userId, $pdo, $memoria) {
             break;
             
         case 'valoraciones':
-            $respuesta = consultarVloraciones($userId, $pdo, $contextoUsuario);
+            $respuesta = consultarValoraciones($userId, $pdo, $contextoUsuario);
             break;
             
         case 'seguridad':
@@ -797,7 +797,7 @@ function explicarProcesoIntercambio($contexto) {
     return "🔄 **Proceso de intercambio:**\n1️⃣ Encuentra un producto que te guste\n2️⃣ Contacta al dueño\n3️⃣ Negocien el intercambio\n4️⃣ Acuerden lugar seguro\n5️⃣ Realicen el trueque\n6️⃣ ¡Califíquense mutuamente!";
 }
 
-function consultarVloraciones($userId, $pdo, $contexto) {
+function consultarValoraciones($userId, $pdo, $contexto) {
     if (!$contexto['logueado']) return "🔐 Inicia sesión para ver valoraciones.";
     return "⭐ Tu reputación actual: " . $contexto['valoracion_promedio'] . "/5\n\n💡 Mejora tu reputación siendo puntual, honesto y comunicativo.";
 }
