@@ -367,19 +367,19 @@ function responderYaLogueado($contextoUsuario) {
 function detectarIntencion($mensaje) {
     $intenciones = [
         'saludo' => [
-            'patrones' => ['hola', 'buenas', 'hey', 'saludos', 'buenos dias', 'buenas tardes', 'buenas noches'],
+            'patrones' => ['hola', 'buenas', 'hey', 'saludos', 'buenos dias', 'buenas tardes', 'buenas noches', 'buen dia'],
             'peso' => 1.0
         ],
         'login_necesario' => [
-            'patrones' => ['como inicio sesion', 'como iniciar sesion', 'como me logueo', 'como entrar', 'como acceder', 'login', 'iniciar sesion', 'entrar cuenta', 'acceder cuenta'],
+            'patrones' => ['como inicio sesion', 'como iniciar sesion', 'como me logueo', 'como entrar', 'como acceder', 'login', 'iniciar sesion', 'entrar cuenta', 'acceder cuenta', 'como puedo acceder a mi cuenta', 'como puedo iniciar sesion', 'como puedo acceder a mi cuenta', 'como puedo loguearme', 'como inicio en mi cuenta', 'como inicio sesion en mi cuenta'],
             'peso' => 1.0
         ],
         'mis_productos' => [
-            'patrones' => ['mis productos', 'que publique', 'que tengo publicado', 'mis publicaciones', 'productos mios', 'mis articulos'],
+            'patrones' => ['mis productos', 'que publique', 'que tengo publicado', 'mis publicaciones', 'productos mios', 'mis articulos', 'quiero ver mis productos', 'que productos publique', 'cuales son mis productos en venta','que productos tengo en venta'],
             'peso' => 1.0
         ],
         'mis_intercambios' => [
-            'patrones' => ['mis intercambios', 'trueques activos', 'mis trueques', 'intercambios pendientes', 'que intercambie'],
+            'patrones' => ['mis intercambios', 'trueques activos', 'mis trueques', 'intercambios pendientes', 'que intercambie', 'que intercambios tengo pendientes', 'que intercambios tengo activos', 'que cosas intercambie', 'que trueques he realizado', 'que trueques tengo pendientes', 'que trueques tengo activos', 'que trueques realice', '', ''],
             'peso' => 1.0
         ],
         'buscar_producto' => [
@@ -387,31 +387,31 @@ function detectarIntencion($mensaje) {
             'peso' => 0.8
         ],
         'publicar_producto' => [
-            'patrones' => ['como publico', 'como subo', 'publicar', 'subir producto', 'agregar producto'],
+            'patrones' => ['como publico', 'como subo', 'publicar', 'subir producto', 'agregar producto', 'como agrego un producto a mi cuenta', 'como subo un producto a mi cuenta', 'como publico un producto en mi cuenta', 'como publico un producto en mi cuenta'],
             'peso' => 1.0
         ],
         'perfil_usuario' => [
-            'patrones' => ['mi perfil', 'mis datos', 'mi informacion', 'mi cuenta'],
+            'patrones' => ['mi perfil', 'mis datos', 'mi informacion', 'mi cuenta', 'quiero ver mi perfil', 'quiero ver mis datos', 'quiero ver mi informacion', 'quiero saber informacion de mi perfil', 'quiero ver informacion de mi cuenta', 'quiero saber informacion de mi cuenta'],
             'peso' => 1.0
         ],
         'estadisticas' => [
-            'patrones' => ['estadisticas', 'mi historial', 'resumen', 'actividad'],
+            'patrones' => ['estadisticas', 'mi historial', 'resumen', 'actividad', 'quiero ver mis estadisticas', 'quiero ver mi historial', 'quiero un resumen de mis estadisticas'],
             'peso' => 0.9
         ],
         'ayuda_intercambio' => [
-            'patrones' => ['como intercambiar', 'como hacer trueque', 'proceso intercambio', 'como funciona'],
+            'patrones' => ['como intercambiar', 'como hacer trueque', 'proceso intercambio', 'como funciona', 'como hago trueques', 'como hago un trueque', 'como realizo trueques', 'como realizo un trueque', 'como funcionan los intercambios'],
             'peso' => 1.0
         ],
         'valoraciones' => [
-            'patrones' => ['mis valoraciones', 'calificaciones', 'opiniones', 'reputacion'],
+            'patrones' => ['mis valoraciones', 'calificaciones', 'opiniones', 'reputacion', 'quiero ver mis valoraciones', 'quiero ver mis calificaciones', 'quiero ver mis opiniones', 'quiero ver mi reputacion', 'quiero ver valoraciones de mi'],
             'peso' => 1.0
         ],
         'seguridad' => [
-            'patrones' => ['es seguro', 'seguridad', 'confianza', 'riesgos'],
+            'patrones' => ['es seguro', 'seguridad', 'confianza', 'riesgos',],
             'peso' => 1.0
         ],
         'despedida' => [
-            'patrones' => ['adios', 'chau', 'hasta luego', 'nos vemos', 'gracias'],
+            'patrones' => ['adios', 'chau', 'hasta luego', 'nos vemos', 'gracias', 'bye bye', 'nos vemos despues', 'nos vemos mas tarde'],
             'peso' => 1.0
         ]
     ];

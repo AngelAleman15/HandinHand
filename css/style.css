@@ -70,7 +70,7 @@ a{
 }
 
 .dropdown-item:hover {
-    background-color: #f5f5f5;
+    background-color:rgba(159, 193, 49, 0.4);
 }
 
 .dropdown-item img {
