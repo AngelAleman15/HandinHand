@@ -118,6 +118,13 @@ body {
 
     <!-- Contenido principal -->
     <div class="profile-content">
+        <!-- Avatar del usuario -->
+        <div class="profile-info">
+            <div class="profile-avatar">
+                <img src="img/usuario.png" alt="Avatar" draggable="false">
+            </div>
+        </div>
+
         <!-- Tarjetas de estadísticas -->
         <div class="stats-grid">
             <div class="stat-card">
