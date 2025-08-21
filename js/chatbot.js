@@ -48,6 +48,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Enviar mensaje con botón
   sendBtn.addEventListener("click", enviarMensaje);
 
+  // Cerrar chatbot con tecla ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && chatAbierto) {
+      chatbotContainer.classList.add("hidden");
+      chatbotIcon.style.display = "flex";
+      chatAbierto = false;
+    }
+  });
+
   // Mostrar mensajes de bienvenida
   function mostrarMensajesBienvenida() {
     mensajesBienvenida.forEach((mensaje, index) => {
@@ -58,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Función principal para enviar mensajes
-  function enviarMensaje() {
+  async function enviarMensaje() {
     const mensajeUsuario = chatbotInput.value.trim();
     
     if (!mensajeUsuario) {
@@ -69,6 +78,27 @@ document.addEventListener("DOMContentLoaded", function () {
     // Agregar mensaje del usuario
     agregarMensaje("user", mensajeUsuario);
     chatbotInput.value = "";
+
+    // === SISTEMA DE ACCIONES INTELIGENTES ===
+    // Verificar si el mensaje contiene una acción ejecutable
+    if (window.perseoActions) {
+      try {
+        const actionResult = await window.perseoActions.executeAction(mensajeUsuario);
+        
+        if (actionResult) {
+          // Es una acción, mostrar resultado directamente
+          agregarMensaje("bot", actionResult.message, true, actionResult);
+          
+          // Si la acción fue exitosa, no enviar a la API de chat
+          if (actionResult.success) {
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error en sistema de acciones:', error);
+        // Continuar con el chat normal si hay error en acciones
+      }
+    }
 
     // Mostrar indicador de escritura
     mostrarIndicadorEscritura();
@@ -136,14 +166,27 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Agregar mensaje al chat
-  function agregarMensaje(remitente, mensaje, animado = true) {
+  function agregarMensaje(remitente, mensaje, animado = true, actionData = null) {
     const elementoMensaje = document.createElement("div");
     elementoMensaje.classList.add("message", remitente);
+    
+    // Agregar clases especiales para acciones
+    if (actionData) {
+      elementoMensaje.classList.add("action-message");
+      if (actionData.success) {
+        elementoMensaje.classList.add("action-success");
+      } else {
+        elementoMensaje.classList.add("action-error");
+      }
+    }
     
     if (remitente === "bot") {
       elementoMensaje.innerHTML = `
         <div class="bot-avatar">P</div>
-        <div class="message-content">${formatearMensaje(mensaje)}</div>
+        <div class="message-content">
+          ${formatearMensaje(mensaje)}
+          ${actionData ? crearElementosAccion(actionData) : ''}
+        </div>
       `;
     } else {
       elementoMensaje.innerHTML = `
@@ -171,9 +214,103 @@ document.addEventListener("DOMContentLoaded", function () {
     chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
   }
 
-  // Formatear mensaje para mostrar saltos de línea
+  // Crear elementos visuales para acciones
+  function crearElementosAccion(actionData) {
+    if (!actionData || !actionData.action) return '';
+    
+    let elementoExtra = '';
+    
+    switch (actionData.action) {
+      case 'reminder_created':
+        elementoExtra = `
+          <div class="action-result reminder-result">
+            <div class="action-icon">⏰</div>
+            <div class="action-details">
+              <strong>Recordatorio creado</strong>
+              <p>Te avisaré: ${new Date(actionData.data.reminderTime).toLocaleString('es-ES')}</p>
+            </div>
+          </div>
+        `;
+        break;
+        
+      case 'navigation':
+        elementoExtra = `
+          <div class="action-result navigation-result">
+            <div class="action-icon">🧭</div>
+            <div class="action-details">
+              <strong>Navegando...</strong>
+              <p>Redirigiendo a ${actionData.data.target}</p>
+            </div>
+          </div>
+        `;
+        break;
+        
+      case 'search_completed':
+        elementoExtra = `
+          <div class="action-result search-result">
+            <div class="action-icon">🔍</div>
+            <div class="action-details">
+              <strong>Búsqueda completada</strong>
+              <p>${actionData.data.length} resultados encontrados</p>
+              <button onclick="window.perseoActions.showSearchResults()" class="action-button">Ver resultados</button>
+            </div>
+          </div>
+        `;
+        break;
+        
+      case 'product_creation_form_opened':
+        elementoExtra = `
+          <div class="action-result product-result">
+            <div class="action-icon">📦</div>
+            <div class="action-details">
+              <strong>Formulario abierto</strong>
+              <p>Completa los datos para crear tu producto</p>
+            </div>
+          </div>
+        `;
+        break;
+        
+      default:
+        if (actionData.success) {
+          elementoExtra = `
+            <div class="action-result success-result">
+              <div class="action-icon">✅</div>
+              <div class="action-details">
+                <strong>Acción completada</strong>
+              </div>
+            </div>
+          `;
+        }
+    }
+    
+    return elementoExtra;
+  }
+
+  // Exponer función para sistema de acciones
+  window.agregarMensajePerseo = function(mensaje, actionData = null) {
+    agregarMensaje("bot", mensaje, true, actionData);
+  };
+
+  // Formatear mensaje para mostrar saltos de línea e imágenes
   function formatearMensaje(mensaje) {
-    return mensaje.replace(/\n/g, '<br>');
+    // Primero reemplazar saltos de línea
+    let mensajeFormateado = mensaje.replace(/\n/g, '<br>');
+    
+    // Detectar y convertir URLs de imágenes
+    const regexImagen = /🖼️\s*([^\s<br>]+\.(jpg|jpeg|png|gif|webp|bmp))/gi;
+    mensajeFormateado = mensajeFormateado.replace(regexImagen, (match, url) => {
+      // Limpiar la URL
+      const urlLimpia = url.trim();
+      return `<br><div class="product-image"><img src="${urlLimpia}" alt="Imagen del producto" style="max-width: 200px; max-height: 150px; border-radius: 8px; margin: 5px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onload="this.parentElement.parentElement.parentElement.parentElement.scrollTop = this.parentElement.parentElement.parentElement.parentElement.scrollHeight" onerror="this.style.display='none'; this.parentElement.innerHTML='🖼️ [Imagen no disponible]';"></div>`;
+    });
+    
+    // Detectar y estilizar links WIP
+    const regexWIP = /\[([^\]]+)\] \(WIP - En desarrollo\)/gi;
+    mensajeFormateado = mensajeFormateado.replace(regexWIP, (match, textoLink) => {
+      return `<span style="color: #6c757d; font-style: italic; border: 1px dashed #dee2e6; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; background: #f8f9fa;">[${textoLink}] (🚧 En desarrollo)</span>`;
+    });
+    
+    return mensajeFormateado;
   }
 
   // Mostrar indicador de escritura
@@ -205,6 +342,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Mostrar error temporal
   function mostrarError(mensaje) {
+    // Remover cualquier mensaje de error existente
+    const errorExistente = chatbotInput.parentElement.querySelector('.error-message');
+    if (errorExistente) {
+      errorExistente.remove();
+    }
+    
     const errorElement = document.createElement("div");
     errorElement.classList.add("error-message");
     errorElement.textContent = mensaje;
@@ -219,13 +362,16 @@ document.addEventListener("DOMContentLoaded", function () {
       border-radius: 5px;
       font-size: 12px;
       z-index: 1000;
+      white-space: nowrap;
     `;
     
     chatbotInput.parentElement.style.position = "relative";
     chatbotInput.parentElement.appendChild(errorElement);
     
     setTimeout(() => {
-      errorElement.remove();
+      if (errorElement.parentElement) {
+        errorElement.remove();
+      }
     }, 2000);
   }
 

@@ -23,9 +23,15 @@ include 'includes/header.php';
 ?>
 
 <div class="container">
+    <!-- Banner WIP -->
+    <div style="background: linear-gradient(135deg, #ffc107, #fd7e14); color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 15px rgba(255,193,7,0.3);">
+        <h3 style="margin: 0; font-size: 1.2em;">🚧 Página en Desarrollo</h3>
+        <p style="margin: 5px 0 0; opacity: 0.9;">Esta sección está siendo desarrollada. Funcionalidad completa próximamente.</p>
+    </div>
+    
     <div class="page-header">
         <h1>Mis Productos</h1>
-        <button class="btn btn-primary" onclick="addProduct()">+ Agregar Producto</button>
+        <button class="btn btn-primary" onclick="showWipMessage('Agregar Producto')">+ Agregar Producto <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></button>
     </div>
     
     <div class="products-grid">

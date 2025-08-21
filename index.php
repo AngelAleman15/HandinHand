@@ -19,6 +19,7 @@ $productos = getProductos(20, $busqueda); // Limitar a 20 productos
 include 'includes/header.php';
 ?>
 
+<div class="main-wrapper">
     <div>
         <div class="navbar-container">
             <div class="quote"><p>"Reutilizá, Intercambiá, Conectá"</p></div>
@@ -48,7 +49,17 @@ include 'includes/header.php';
                                 </div>
                             </div>
                         </div>
-                        <button class="btncontact" onclick="contactarVendedor(<?php echo $producto['id']; ?>)">Contactar</button>
+                        <?php if (isLoggedIn() && $_SESSION['user_id'] == $producto['user_id']): ?>
+                            <!-- Botón para productos propios -->
+                            <div class="owner-actions">
+                                <button class="btn-edit" onclick="showWipMessage('Editar producto')" title="Editar producto (En desarrollo)">
+                                    <i class="fas fa-edit"></i> Editar <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span>
+                                </button>
+                            </div>
+                        <?php else: ?>
+                            <!-- Botón contactar para productos de otros usuarios -->
+                            <button class="btncontact" onclick="contactarVendedor(<?php echo $producto['id']; ?>)">Contactar</button>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -65,6 +76,7 @@ include 'includes/header.php';
             <?php endif; ?>
         </div>
     </div>
+</div>
 
     <script>
     <?php if ($logout_success): ?>
@@ -78,6 +90,16 @@ include 'includes/header.php';
         });
     <?php endif; ?>
     
+    function showWipMessage(feature) {
+        Swal.fire({
+            icon: 'info',
+            title: '🚧 Función en desarrollo',
+            text: `La función "${feature}" está siendo desarrollada. Pronto estará disponible.`,
+            confirmButtonColor: '#6a994e',
+            confirmButtonText: 'Entendido'
+        });
+    }
+    
     function contactarVendedor(productoId) {
         <?php if (isLoggedIn()): ?>
             // Si está logueado, redirigir a página de mensajes
@@ -87,6 +109,75 @@ include 'includes/header.php';
             alert('Debes iniciar sesión para contactar al vendedor');
             window.location.href = 'iniciarsesion.php';
         <?php endif; ?>
+    }
+    
+    // Funciones para gestionar productos propios
+    function editProduct(productoId) {
+        // Redirigir a página de edición de producto
+        window.location.href = 'editar-producto.php?id=' + productoId;
+    }
+    
+    function deleteProduct(productoId) {
+        Swal.fire({
+            title: '⚠️ ¿Eliminar Producto?',
+            text: 'Esta acción no se puede deshacer. El producto será eliminado permanentemente.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Mostrar loading
+                Swal.fire({
+                    title: 'Eliminando producto...',
+                    text: 'Por favor espera',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Realizar petición AJAX para eliminar el producto
+                fetch('api/productos.php?id=' + productoId, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Eliminado!',
+                            text: 'El producto ha sido eliminado exitosamente',
+                            icon: 'success',
+                            confirmButtonColor: '#6a994e'
+                        }).then(() => {
+                            location.reload(); // Recargar página para actualizar la vista
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error al eliminar',
+                            text: data.message || 'Error desconocido',
+                            icon: 'error',
+                            confirmButtonColor: '#dc3545'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error de conexión',
+                        text: 'No se pudo comunicar con el servidor',
+                        icon: 'error',
+                        confirmButtonColor: '#dc3545'
+                    });
+                });
+            }
+        });
     }
     </script>
 

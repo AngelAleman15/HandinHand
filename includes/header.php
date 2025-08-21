@@ -11,10 +11,14 @@ require_once __DIR__ . '/functions.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/perseo-actions.css?v=<?php echo time(); ?>">
     <title><?php echo isset($page_title) ? $page_title : 'HandinHand'; ?></title>
     
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Scripts adicionales si están definidos -->
     <?php if (isset($additional_scripts) && is_array($additional_scripts)): ?>
@@ -52,15 +56,15 @@ require_once __DIR__ . '/functions.php';
                                     Mi Perfil
                                 </button>
                             </a>
-                            <a href="mensajes.php">
+                            <a href="#" onclick="showWipMessage('Mensajes'); return false;">
                                 <button class="dropdown-item">
                                     <img src="img/chat.png" alt="mensajes">
-                                    Mensajes
+                                    Mensajes <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(WIP)</span>
                                 </button>
                             </a>
-                            <a href="mis-productos.php">
+                            <a href="#" onclick="showWipMessage('Mis Productos'); return false;">
                                 <button class="dropdown-item">
-                                    Mis Productos
+                                    Mis Productos <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(WIP)</span>
                                 </button>
                             </a>
                             <div class="dropdown-divider"></div>
@@ -69,8 +73,8 @@ require_once __DIR__ . '/functions.php';
                                     Configuración
                                 </button>
                             </a>
-                            <button class="dropdown-item">
-                                Ayuda
+                            <button class="dropdown-item" onclick="showWipMessage('Ayuda')">
+                                Ayuda <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(WIP)</span>
                             </button>
                             <div class="dropdown-divider"></div>
                             <a href="logout.php">
@@ -80,8 +84,8 @@ require_once __DIR__ . '/functions.php';
                             </a>
                         <?php else: ?>
                             <!-- Opciones para usuarios no logueados -->
-                            <button class="dropdown-item">
-                                Ayuda
+                            <button class="dropdown-item" onclick="showWipMessage('Ayuda')">
+                                Ayuda <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(WIP)</span>
                             </button>
                             <div class="dropdown-divider"></div>
                             <a href="iniciarsesion.php">
@@ -100,3 +104,15 @@ require_once __DIR__ . '/functions.php';
             </ul>
         </div>
     </div>
+
+    <script>
+    function showWipMessage(feature) {
+        Swal.fire({
+            icon: 'info',
+            title: '🚧 Función en desarrollo',
+            text: `La función "${feature}" está siendo desarrollada. Pronto estará disponible.`,
+            confirmButtonColor: '#6a994e',
+            confirmButtonText: 'Entendido'
+        });
+    }
+    </script>

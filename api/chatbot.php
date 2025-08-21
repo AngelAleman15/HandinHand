@@ -27,6 +27,18 @@ try {
 
     $mensaje = trim($data['mensaje']);
     
+    // Validar que el mensaje no esté vacío y tenga una longitud razonable
+    if (empty($mensaje)) {
+        throw new Exception('El mensaje no puede estar vacío');
+    }
+    
+    if (strlen($mensaje) > 1000) {
+        throw new Exception('El mensaje es demasiado largo');
+    }
+    
+    // Sanitizar el mensaje
+    $mensaje = htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8');
+    
     // Iniciar sesión para obtener contexto del usuario y memoria
     session_start();
     $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
@@ -36,8 +48,19 @@ try {
     if (!file_exists($configPath)) {
         $configPath = dirname(__DIR__) . '/config/database.php';
     }
+    
+    if (!file_exists($configPath)) {
+        throw new Exception('Archivo de configuración de base de datos no encontrado');
+    }
+    
     include_once $configPath;
-    $pdo = getConnection();
+    
+    try {
+        $pdo = getConnection();
+    } catch (Exception $e) {
+        error_log("Error de BD en chatbot: " . $e->getMessage());
+        throw new Exception('Error de conexión a la base de datos');
+    }
     
     // Obtener o inicializar memoria conversacional
     $memoriaConversacion = obtenerMemoriaConversacion();
@@ -59,7 +82,6 @@ try {
 } catch (Exception $e) {
     ob_clean();
     
-    // Log del error para debugging
     error_log("Error en Perseo: " . $e->getMessage() . " - Línea: " . $e->getLine());
     
     echo json_encode([
@@ -70,7 +92,6 @@ try {
 } catch (Error $e) {
     ob_clean();
     
-    // Log del error fatal
     error_log("Error fatal en Perseo: " . $e->getMessage() . " - Línea: " . $e->getLine());
     
     echo json_encode([
@@ -123,6 +144,10 @@ function procesarMensajeConPLN($mensaje, $userId, $pdo, $memoria) {
             $respuesta = mostrarInformacionPerfil($userId, $pdo, $contextoUsuario);
             break;
             
+        case 'mi_nombre':
+            $respuesta = mostrarNombreUsuario($contextoUsuario);
+            break;
+            
         case 'estadisticas':
             $respuesta = generarEstadisticasUsuario($userId, $pdo, $contextoUsuario);
             break;
@@ -133,7 +158,7 @@ function procesarMensajeConPLN($mensaje, $userId, $pdo, $memoria) {
             break;
             
         case 'valoraciones':
-            $respuesta = consultarVloraciones($userId, $pdo, $contextoUsuario);
+            $respuesta = consultarValoraciones($userId, $pdo, $contextoUsuario);
             break;
             
         case 'seguridad':
@@ -337,13 +362,13 @@ function detectarIntencionConMemoria($mensaje, $memoria) {
 function responderSeguimiento($contextoPrevio, $contextoUsuario) {
     switch ($contextoPrevio) {
         case 'guia_publicacion':
-            return "📸 **Pasos detallados para publicar:**\n\n1️⃣ **Accede a tu perfil**: Haz clic en tu nombre (esquina superior derecha)\n\n2️⃣ **Ve a 'Mis Productos'**: Encontrarás esta opción en tu perfil\n\n3️⃣ **Clic en 'Agregar Producto'**: Botón verde en la página\n\n4️⃣ **Completa el formulario**:\n   • Título descriptivo\n   • Categoría apropiada\n   • Fotos claras (mínimo 2)\n   • Descripción detallada\n   • Qué buscas a cambio\n\n5️⃣ **Publica**: ¡Y listo para intercambiar!\n\n💡 **Tip**: Productos con buenas fotos reciben 3x más mensajes.";
+            return "📸 Pasos detallados para publicar:\n\n1️⃣ Accede a tu perfil: Haz clic en tu nombre (esquina superior derecha)\n\n2️⃣ Ve a 'Mis Productos': Encontrarás esta opción en tu perfil\n\n3️⃣ Clic en 'Agregar Producto': Botón verde en la página\n\n4️⃣ Completa el formulario:\n   • Título descriptivo\n   • Categoría apropiada\n   • Fotos claras (mínimo 2)\n   • Descripción detallada\n   • Qué buscas a cambio\n\n5️⃣ Publica: ¡Y listo para intercambiar!\n\n💡 Tip: Productos con buenas fotos reciben 3x más mensajes.";
             
         case 'proceso_intercambio':
-            return "🔄 **Guía paso a paso para intercambiar:**\n\n**Paso 1: Encuentra un producto**\n• Usa el buscador o navega por categorías\n• Revisa fotos y descripción\n\n**Paso 2: Contacta al dueño**\n• Clic en 'Contactar' del producto\n• Presenta tu oferta claramente\n• Menciona qué ofreces a cambio\n\n**Paso 3: Negocia**\n• Ambos deben estar conformes\n• Acuerden detalles del intercambio\n\n**Paso 4: Planifica el encuentro**\n• Lugar público y seguro\n• Horario conveniente para ambos\n\n**Paso 5: Realiza el trueque**\n• Inspecciona los productos\n• Completa el intercambio\n\n**Paso 6: Califícanse**\n• Deja tu valoración honest\n• Ayuda a la comunidad";
+            return "🔄 Guía paso a paso para intercambiar:\n\nPaso 1: Encuentra un producto\n• Usa el buscador o navega por categorías\n• Revisa fotos y descripción\n\nPaso 2: Contacta al dueño\n• Clic en 'Contactar' del producto\n• Presenta tu oferta claramente\n• Menciona qué ofreces a cambio\n\nPaso 3: Negocia\n• Ambos deben estar conformes\n• Acuerden detalles del intercambio\n\nPaso 4: Planifica el encuentro\n• Lugar público y seguro\n• Horario conveniente para ambos\n\nPaso 5: Realiza el trueque\n• Inspecciona los productos\n• Completa el intercambio\n\nPaso 6: Califícanse\n• Deja tu valoración honesta\n• Ayuda a la comunidad";
             
         case 'consejos_seguridad':
-            return "🛡️ **Medidas de seguridad detalladas:**\n\n**Antes del encuentro:**\n✅ Revisa el perfil y valoraciones del usuario\n✅ Comunícate solo por HandinHand\n✅ Haz preguntas sobre el producto\n✅ Pide fotos adicionales si es necesario\n\n**Durante el encuentro:**\n✅ Reúnete en lugares públicos (centros comerciales, parques concurridos)\n✅ Ve acompañado/a si es posible\n✅ Inspecciona bien el producto\n✅ Verifica que funcione correctamente\n\n**Señales de alerta:**\n🚨 Presión para encontrarse rápido\n🚨 Lugares remotos o privados\n🚨 Precios demasiado buenos\n🚨 Comunicación fuera de la app\n\n**En caso de problemas:**\n📞 Reporta usuarios sospechosos\n📞 Confía en tu instinto";
+            return "🛡️ Medidas de seguridad detalladas:\n\nAntes del encuentro:\n✅ Revisa el perfil y valoraciones del usuario\n✅ Comunícate solo por HandinHand\n✅ Haz preguntas sobre el producto\n✅ Pide fotos adicionales si es necesario\n\nDurante el encuentro:\n✅ Reúnete en lugares públicos (centros comerciales, parques concurridos)\n✅ Ve acompañado/a si es posible\n✅ Inspecciona bien el producto\n✅ Verifica que funcione correctamente\n\nSeñales de alerta:\n🚨 Presión para encontrarse rápido\n🚨 Lugares remotos o privados\n🚨 Precios demasiado buenos\n🚨 Comunicación fuera de la app\n\nEn caso de problemas:\n📞 Reporta usuarios sospechosos\n📞 Confía en tu instinto";
             
         case 'explicacion_login':
             return explicarComoIniciarSesion();
@@ -354,14 +379,14 @@ function responderSeguimiento($contextoPrevio, $contextoUsuario) {
 }
 
 function explicarComoIniciarSesion() {
-    return "🔐 **Cómo iniciar sesión en HandinHand:**\n\n**Si ya tienes cuenta:**\n1️⃣ Ve a la esquina superior derecha\n2️⃣ Haz clic en 'Iniciar Sesión'\n3️⃣ Ingresa tu email y contraseña\n4️⃣ ¡Listo!\n\n**Si no tienes cuenta:**\n1️⃣ Haz clic en 'Registrarse'\n2️⃣ Completa el formulario:\n   • Nombre completo\n   • Email válido\n   • Contraseña segura\n   • Confirmación de contraseña\n3️⃣ Acepta términos y condiciones\n4️⃣ ¡Bienvenido a HandinHand!\n\n**¿Olvidaste tu contraseña?**\n🔄 Usa 'Recuperar contraseña' en la página de login\n\n💡 Una vez logueado, podré mostrarte tus productos, intercambios y estadísticas personales.";
+    return "🔐 Cómo iniciar sesión en HandinHand:\n\nSi ya tienes cuenta:\n1️⃣ Ve a la esquina superior derecha\n2️⃣ Haz clic en 'Iniciar Sesión'\n3️⃣ Ingresa tu email y contraseña\n4️⃣ ¡Listo!\n\nSi no tienes cuenta:\n1️⃣ Haz clic en 'Registrarse'\n2️⃣ Completa el formulario:\n   • Nombre completo\n   • Email válido\n   • Contraseña segura\n   • Confirmación de contraseña\n3️⃣ Acepta términos y condiciones\n4️⃣ ¡Bienvenido a HandinHand!\n\n¿Olvidaste tu contraseña?\n🔄 Usa 'Recuperar contraseña' en la página de login\n\n💡 Una vez logueado, podré mostrarte tus productos, intercambios y estadísticas personales.";
 }
 
 function responderYaLogueado($contextoUsuario) {
     if ($contextoUsuario['logueado']) {
-        return "¡Perfecto, " . $contextoUsuario['nombre'] . "! 🎉 Veo que ya tienes sesión iniciada.\n\n📊 **Tu estado actual:**\n📦 " . $contextoUsuario['total_productos'] . " productos publicados\n💬 " . $contextoUsuario['total_intercambios'] . " conversaciones\n⭐ " . $contextoUsuario['valoracion_promedio'] . "/5 de reputación\n\n¿En qué puedo ayudarte ahora? Puedo mostrarte:\n• Tus productos y mensajes\n• Estadísticas detalladas\n• Guías para intercambios\n• Consejos personalizados";
+        return "¡Perfecto, " . $contextoUsuario['nombre'] . "! 🎉 Veo que ya tienes sesión iniciada.\n\n📊 Tu estado actual:\n📦 " . $contextoUsuario['total_productos'] . " productos publicados\n💬 " . $contextoUsuario['total_intercambios'] . " conversaciones\n⭐ " . $contextoUsuario['valoracion_promedio'] . "/5 de reputación\n\n¿En qué puedo ayudarte ahora? Puedo mostrarte:\n• Tus productos y mensajes\n• Estadísticas detalladas\n• Guías para intercambios\n• Consejos personalizados";
     } else {
-        return "🤔 Hmm, parece que aún no detecto tu sesión activa. Esto puede pasar por:\n\n**Posibles causas:**\n• La página no se refrescó después del login\n• Cookies bloqueadas\n• Sesión expirada\n\n**Soluciones:**\n1️⃣ Recarga la página (F5)\n2️⃣ Cierra y abre el chatbot\n3️⃣ Si persiste, cierra sesión y vuelve a entrar\n\n💡 Una vez que detecte tu sesión, podré darte información personalizada de tu cuenta.";
+        return "🤔 Hmm, parece que aún no detecto tu sesión activa. Esto puede pasar por:\n\nPosibles causas:\n• La página no se refrescó después del login\n• Cookies bloqueadas\n• Sesión expirada\n\nSoluciones:\n1️⃣ Recarga la página (F5)\n2️⃣ Cierra y abre el chatbot\n3️⃣ Si persiste, cierra sesión y vuelve a entrar\n\n💡 Una vez que detecte tu sesión, podré darte información personalizada de tu cuenta.";
     }
 }
 function detectarIntencion($mensaje) {
@@ -383,7 +408,7 @@ function detectarIntencion($mensaje) {
             'peso' => 1.0
         ],
         'buscar_producto' => [
-            'patrones' => ['busco', 'necesito', 'quiero', 'buscar', 'donde encuentro', 'hay algun'],
+            'patrones' => ['busco', 'necesito', 'quiero', 'buscar', 'donde encuentro', 'hay algun', 'estoy buscando', 'me gustaria', 'ando buscando', 'quiero encontrar', 'necesito conseguir', 'me interesa'],
             'peso' => 0.8
         ],
         'publicar_producto' => [
@@ -392,6 +417,10 @@ function detectarIntencion($mensaje) {
         ],
         'perfil_usuario' => [
             'patrones' => ['mi perfil', 'mis datos', 'mi informacion', 'mi cuenta'],
+            'peso' => 1.0
+        ],
+        'mi_nombre' => [
+            'patrones' => ['como me llamo', 'cual es mi nombre', 'mi nombre', 'como me llamo yo', 'cual es mi nombre completo'],
             'peso' => 1.0
         ],
         'estadisticas' => [
@@ -455,8 +484,7 @@ function obtenerContextoUsuario($userId, $pdo) {
             'nombre' => 'Usuario',
             'total_productos' => 0,
             'total_intercambios' => 0,
-            'valoracion_promedio' => 0,
-            'debug_info' => 'Sin user_id en sesión'
+            'valoracion_promedio' => 0
         ];
     }
     
@@ -465,8 +493,7 @@ function obtenerContextoUsuario($userId, $pdo) {
         if (!$pdo) {
             return [
                 'logueado' => false, 
-                'nombre' => 'Usuario',
-                'debug_info' => 'Error: No hay conexión a BD'
+                'nombre' => 'Usuario'
             ];
         }
         
@@ -478,8 +505,7 @@ function obtenerContextoUsuario($userId, $pdo) {
         if (!$usuario) {
             return [
                 'logueado' => false, 
-                'nombre' => 'Usuario',
-                'debug_info' => "Usuario con ID $userId no encontrado en BD"
+                'nombre' => 'Usuario'
             ];
         }
         
@@ -516,15 +542,13 @@ function obtenerContextoUsuario($userId, $pdo) {
             'fecha_registro' => $usuario['created_at'],
             'total_productos' => $totalProductos,
             'total_intercambios' => $totalIntercambios,
-            'valoracion_promedio' => round($valoracionPromedio, 1),
-            'debug_info' => "Usuario encontrado correctamente"
+            'valoracion_promedio' => round($valoracionPromedio, 1)
         ];
         
     } catch (Exception $e) {
         return [
             'logueado' => false, 
-            'nombre' => 'Usuario',
-            'debug_info' => 'Error en BD: ' . $e->getMessage()
+            'nombre' => 'Usuario'
         ];
     }
 }
@@ -544,11 +568,12 @@ function generarSaludo($contexto) {
         }
     }
     
+    // Respuesta simplificada para usuarios no logueados
     if (!$contexto['logueado']) {
         if ($yaSaludo) {
             return "👋 ¡Hola de nuevo! Sigo aquí para ayudarte.\n\n🔐 Recuerda que si inicias sesión podrás acceder a funciones personalizadas.\n\n¿En qué más puedo asistirte?";
         }
-        return "¡Hola! 👋 Soy Perseo, tu asistente inteligente de HandinHand.\n\n🔐 **Inicia sesión** para que pueda ayudarte con tus productos e intercambios específicos.\n\n¿En qué puedo ayudarte?";
+        return "¡Hola! 👋 Soy Perseo, tu asistente inteligente de HandinHand.\n\n🔐 Inicia sesión para que pueda ayudarte con tus productos e intercambios específicos.\n\n¿En qué puedo ayudarte hoy?";
     }
     
     if ($yaSaludo) {
@@ -575,12 +600,12 @@ function generarSaludo($contexto) {
 
 function consultarMisProductos($userId, $pdo, $contexto) {
     if (!$contexto['logueado']) {
-        return "🔐 **Necesitas iniciar sesión para ver tus productos.**\n\n¡Regístrate o inicia sesión para comenzar a publicar!\n\n💡 Una vez logueado podrás:\n• Ver todos tus productos\n• Gestionar publicaciones\n• Revisar mensajes recibidos\n• Estadísticas detalladas";
+        return "🔐 Necesitas iniciar sesión para ver tus productos.\n\n¡Regístrate o inicia sesión para comenzar a publicar!\n\n💡 Una vez logueado podrás:\n• Ver todos tus productos\n• Gestionar publicaciones\n• Revisar mensajes recibidos\n• Estadísticas detalladas";
     }
     
     try {
         $stmt = $pdo->prepare("
-            SELECT p.nombre as titulo, p.descripcion, p.estado, p.categoria, 
+            SELECT p.nombre as titulo, p.descripcion, p.estado, p.categoria, p.imagen,
                    COUNT(m.id) as mensajes_recibidos
             FROM productos p 
             LEFT JOIN mensajes m ON p.id = m.producto_id 
@@ -599,9 +624,16 @@ function consultarMisProductos($userId, $pdo, $contexto) {
         $respuesta = "📦 Tus productos publicados:\n\n";
         foreach ($productos as $producto) {
             $estado_emoji = $producto['estado'] === 'disponible' ? '✅' : ($producto['estado'] === 'intercambiado' ? '🔄' : '⏸️');
-            $respuesta .= $estado_emoji . " **" . $producto['titulo'] . "**\n";
+            $respuesta .= $estado_emoji . " " . $producto['titulo'] . "\n";
+            
+            // Agregar imagen si existe
+            if (!empty($producto['imagen'])) {
+                $respuesta .= "🖼️ " . $producto['imagen'] . "\n";
+            }
+            
             $respuesta .= "📂 " . ($producto['categoria'] ?: 'Sin categoría') . "\n";
-            $respuesta .= "💬 " . $producto['mensajes_recibidos'] . " mensaje(s) recibido(s)\n\n";
+            $respuesta .= "💬 " . $producto['mensajes_recibidos'] . " mensaje(s) recibido(s)\n";
+            $respuesta .= "🔧 [Gestionar producto] (WIP - En desarrollo)\n\n";
         }
         
         if (count($productos) === 5) {
@@ -617,12 +649,12 @@ function consultarMisProductos($userId, $pdo, $contexto) {
 
 function consultarMisIntercambios($userId, $pdo, $contexto) {
     if (!$contexto['logueado']) {
-        return "🔐 **Inicia sesión para ver tus intercambios activos.**\n\n💡 Con una cuenta podrás:\n• Ver conversaciones en tiempo real\n• Hacer seguimiento de trueques\n• Recibir notificaciones de mensajes";
+        return "🔐 Inicia sesión para ver tus intercambios activos.\n\n💡 Con una cuenta podrás:\n• Ver conversaciones en tiempo real\n• Hacer seguimiento de trueques\n• Recibir notificaciones de mensajes";
     }
     
     try {
         $stmt = $pdo->prepare("
-            SELECT p.nombre as titulo, u.fullname as interesado, m.mensaje, m.created_at as fecha
+            SELECT p.nombre as titulo, u.fullname as interesado, m.mensaje, m.created_at as fecha, p.imagen
             FROM mensajes m
             JOIN productos p ON m.producto_id = p.id
             JOIN usuarios u ON m.remitente_id = u.id
@@ -642,7 +674,13 @@ function consultarMisIntercambios($userId, $pdo, $contexto) {
             $tiempo = time() - strtotime($intercambio['fecha']);
             $hace = $tiempo < 3600 ? floor($tiempo/60) . ' min' : floor($tiempo/3600) . ' h';
             
-            $respuesta .= "📦 **" . $intercambio['titulo'] . "**\n";
+            $respuesta .= "📦 " . $intercambio['titulo'] . "\n";
+            
+            // Agregar imagen si existe
+            if (!empty($intercambio['imagen'])) {
+                $respuesta .= "🖼️ " . $intercambio['imagen'] . "\n";
+            }
+            
             $respuesta .= "👤 " . $intercambio['interesado'] . " (hace " . $hace . ")\n";
             $respuesta .= "💬 \"" . substr($intercambio['mensaje'], 0, 50) . "...\"\n\n";
         }
@@ -677,7 +715,7 @@ function generarEstadisticasUsuario($userId, $pdo, $contexto) {
         $stmt->execute([$userId]);
         $categoriaPopular = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        $respuesta = "📊 **Estadísticas de " . $contexto['nombre'] . "**\n\n";
+        $respuesta = "📊 Estadísticas de " . $contexto['nombre'] . "\n\n";
         $respuesta .= "📅 Miembro desde hace " . $diasRegistro . " días\n";
         $respuesta .= "📦 Total productos: " . $contexto['total_productos'] . "\n";
         $respuesta .= "💬 Conversaciones: " . $contexto['total_intercambios'] . "\n";
@@ -692,7 +730,7 @@ function generarEstadisticasUsuario($userId, $pdo, $contexto) {
         }
         
         // Consejos personalizados
-        $respuesta .= "\n💡 **Consejos personalizados:**\n";
+        $respuesta .= "\n💡 Consejos personalizados:\n";
         if ($contexto['total_productos'] < 3) {
             $respuesta .= "• Publica más productos para aumentar intercambios\n";
         }
@@ -714,8 +752,13 @@ function generarEstadisticasUsuario($userId, $pdo, $contexto) {
  * ===== FUNCIONES AUXILIARES =====
  */
 function normalizarTexto($texto) {
+    // Validar entrada
+    if (!is_string($texto) || empty(trim($texto))) {
+        return '';
+    }
+    
     // Convertir a minúsculas
-    $texto = mb_strtolower($texto, 'UTF-8');
+    $texto = mb_strtolower(trim($texto), 'UTF-8');
     
     // Remover menciones del bot ANTES de procesar acentos
     $texto = preg_replace('/\b(perseo|perseon|bot|chatbot)\b[,:]?\s*/iu', '', $texto);
@@ -735,7 +778,7 @@ function normalizarTexto($texto) {
     $texto = preg_replace('/[^\w\s]/u', ' ', $texto);
     
     // Limpiar espacios múltiples
-    $texto = preg_replace('/\s+/', ' ', $texto);
+    $texto = preg_replace('/\s+/', ' ', trim($texto));
     
     // Correcciones ortográficas y contracciones
     $correcciones = [
@@ -754,13 +797,33 @@ function normalizarTexto($texto) {
 function extraerEntidadesProducto($mensaje) {
     $entidades = [];
     
-    // Categorías comunes
-    $categorias = ['ropa', 'zapatos', 'electronico', 'libro', 'juguete', 'deporte', 'cocina'];
-    foreach ($categorias as $categoria) {
-        if (strpos($mensaje, $categoria) !== false) {
-            $entidades['categoria'] = $categoria;
-            break;
+    // Productos específicos con palabras clave
+    $productos = [
+        'cafetera' => ['cafetera', 'maquina de cafe', 'cafetera express', 'cafetera automatica'],
+        'zapatos' => ['zapato', 'zapatos', 'zapatillas', 'tenis', 'botas', 'sandalias'],
+        'ropa' => ['camisa', 'pantalon', 'vestido', 'chaqueta', 'blusa', 'falda', 'jean'],
+        'electronico' => ['celular', 'telefono', 'laptop', 'computadora', 'tablet', 'auriculares'],
+        'libro' => ['libro', 'libros', 'novela', 'revista', 'manual'],
+        'juguete' => ['juguete', 'juguetes', 'muñeca', 'pelota', 'lego'],
+        'deporte' => ['bicicleta', 'pelota', 'pesas', 'patines', 'equipo deportivo'],
+        'cocina' => ['olla', 'sarten', 'licuadora', 'microondas', 'refrigeradora'],
+        'hogar' => ['mesa', 'silla', 'sofa', 'cama', 'espejo', 'lampara']
+    ];
+    
+    // Buscar el producto mencionado
+    foreach ($productos as $categoria => $palabras) {
+        foreach ($palabras as $palabra) {
+            if (strpos(strtolower($mensaje), strtolower($palabra)) !== false) {
+                $entidades['categoria'] = $categoria;
+                $entidades['producto'] = $palabra;
+                return $entidades; // Retornar en el primer match
+            }
         }
+    }
+    
+    // Si no encuentra producto específico, extraer palabras después de "buscando"
+    if (preg_match('/(?:busco|buscando|necesito|quiero)\s+(?:un|una|unos|unas)?\s*([a-záéíóúñ\s]+)/i', $mensaje, $matches)) {
+        $entidades['busqueda_libre'] = trim($matches[1]);
     }
     
     return $entidades;
@@ -780,8 +843,69 @@ function respuestaInteligentePorDefecto($mensaje, $contexto) {
 
 // Funciones adicionales para completar todas las intenciones...
 function ayudarBusquedaProducto($entidades, $pdo) {
-    // Implementar búsqueda inteligente
-    return "🔍 Te ayudo a buscar productos. ¿Qué específicamente necesitas?";
+    try {
+        // Si hay una categoría o producto específico
+        if (isset($entidades['categoria']) || isset($entidades['producto']) || isset($entidades['busqueda_libre'])) {
+            
+            // Determinar qué buscar
+            $termino_busqueda = '';
+            if (isset($entidades['producto'])) {
+                $termino_busqueda = $entidades['producto'];
+            } elseif (isset($entidades['busqueda_libre'])) {
+                $termino_busqueda = $entidades['busqueda_libre'];
+            } elseif (isset($entidades['categoria'])) {
+                $termino_busqueda = $entidades['categoria'];
+            }
+            
+            // Buscar en la base de datos
+            $stmt = $pdo->prepare("
+                SELECT p.nombre, p.descripcion, p.categoria, p.imagen, u.fullname as propietario, p.estado
+                FROM productos p 
+                JOIN usuarios u ON p.user_id = u.id 
+                WHERE (p.nombre LIKE ? OR p.descripcion LIKE ? OR p.categoria LIKE ?) 
+                AND p.estado = 'disponible'
+                ORDER BY p.created_at DESC 
+                LIMIT 5
+            ");
+            
+            $busqueda = '%' . $termino_busqueda . '%';
+            $stmt->execute([$busqueda, $busqueda, $busqueda]);
+            $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (!empty($productos)) {
+                $respuesta = "🔍 Encontré estos productos relacionados con '" . $termino_busqueda . "':\n\n";
+                
+                foreach ($productos as $producto) {
+                    $respuesta .= "📦 " . $producto['nombre'] . "\n";
+                    
+                    // Agregar imagen si existe
+                    if (!empty($producto['imagen'])) {
+                        $respuesta .= "🖼️ " . $producto['imagen'] . "\n";
+                    }
+                    
+                    $respuesta .= "👤 Propietario: " . $producto['propietario'] . "\n";
+                    $respuesta .= "📂 Categoría: " . ($producto['categoria'] ?: 'General') . "\n";
+                    if (strlen($producto['descripcion']) > 80) {
+                        $respuesta .= "📝 " . substr($producto['descripcion'], 0, 80) . "...\n\n";
+                    } else {
+                        $respuesta .= "� " . $producto['descripcion'] . "\n\n";
+                    }
+                }
+                
+                $respuesta .= "💡 Los links de contacto directo están en desarrollo.\nPor ahora: Ve a la página principal → Busca el producto → Haz clic en 'Contactar'\n\n¿Te ayudo con algo más?";
+                
+                return $respuesta;
+            } else {
+                return "😔 No encontré productos de '" . $termino_busqueda . "' disponibles ahora.\n\n💡 Sugerencias:\n• Intenta con sinónimos (ej: 'zapatillas' en lugar de 'tenis')\n• Publica que buscas ese producto\n• Revisa más tarde, se agregan productos constantemente\n\n¿Te ayudo a publicar que buscas este producto?";
+            }
+            
+        } else {
+            return "🔍 ¿Qué estás buscando específicamente?\n\nPuedes decirme cosas como:\n• 'Busco una cafetera express'\n• 'Necesito zapatos deportivos'\n• 'Quiero una bicicleta'\n• 'Estoy buscando libros'\n\n¡Y te ayudo a encontrarlo!";
+        }
+        
+    } catch (Exception $e) {
+        return "❌ Error al buscar productos. Intenta nuevamente o busca directamente en la página principal.";
+    }
 }
 
 function guiarPublicacion($contexto) {
@@ -790,20 +914,28 @@ function guiarPublicacion($contexto) {
 
 function mostrarInformacionPerfil($userId, $pdo, $contexto) {
     if (!$contexto['logueado']) return "🔐 Inicia sesión para ver tu perfil.";
-    return "👤 **Tu perfil:**\n📧 " . $contexto['email'] . "\n📦 " . $contexto['total_productos'] . " productos\n⭐ " . $contexto['valoracion_promedio'] . "/5 reputación";
+    return "👤 Tu perfil:\n📧 " . $contexto['email'] . "\n📦 " . $contexto['total_productos'] . " productos\n⭐ " . $contexto['valoracion_promedio'] . "/5 reputación";
+}
+
+function mostrarNombreUsuario($contexto) {
+    if (!$contexto['logueado']) {
+        return "🔐 Inicia sesión para que pueda conocer tu nombre.\n\n💡 Una vez que inicies sesión, podré darte respuestas personalizadas y recordar tu información.";
+    }
+    
+    return "👋 Tu nombre es: " . $contexto['nombre'] . "\n\n📧 Email: " . $contexto['email'] . "\n📅 Miembro desde: " . date('d/m/Y', strtotime($contexto['fecha_registro'])) . "\n\n¡Es un placer conocerte mejor! 😊";
 }
 
 function explicarProcesoIntercambio($contexto) {
-    return "🔄 **Proceso de intercambio:**\n1️⃣ Encuentra un producto que te guste\n2️⃣ Contacta al dueño\n3️⃣ Negocien el intercambio\n4️⃣ Acuerden lugar seguro\n5️⃣ Realicen el trueque\n6️⃣ ¡Califíquense mutuamente!";
+    return "🔄 Proceso de intercambio:\n1️⃣ Encuentra un producto que te guste\n2️⃣ Contacta al dueño\n3️⃣ Negocien el intercambio\n4️⃣ Acuerden lugar seguro\n5️⃣ Realicen el trueque\n6️⃣ ¡Califíquense mutuamente!";
 }
 
-function consultarVloraciones($userId, $pdo, $contexto) {
+function consultarValoraciones($userId, $pdo, $contexto) {
     if (!$contexto['logueado']) return "🔐 Inicia sesión para ver valoraciones.";
     return "⭐ Tu reputación actual: " . $contexto['valoracion_promedio'] . "/5\n\n💡 Mejora tu reputación siendo puntual, honesto y comunicativo.";
 }
 
 function darConsejosSeguridad() {
-    return "🛡️ **Consejos de seguridad:**\n✅ Revisa valoraciones del usuario\n✅ Reúnete en lugares públicos\n✅ Inspecciona antes de intercambiar\n✅ Confía en tu instinto\n✅ Usa el chat de la app";
+    return "🛡️ Consejos de seguridad:\n✅ Revisa valoraciones del usuario\n✅ Reúnete en lugares públicos\n✅ Inspecciona antes de intercambiar\n✅ Confía en tu instinto\n✅ Usa el chat de la app";
 }
 
 function generarDespedida($contexto) {

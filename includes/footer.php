@@ -31,6 +31,7 @@
     </div>
 
     <!-- Scripts básicos -->
+    <script src="js/perseo-actions.js?v=<?php echo time(); ?>"></script>
     <script src="js/dropdownmenu.js?v=<?php echo time(); ?>"></script>
     <script src="js/chatbot.js?v=<?php echo time(); ?>"></script>
 </body>

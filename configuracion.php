@@ -35,7 +35,7 @@ include 'includes/header.php';
                     <h3>Actualizar información personal</h3>
                     <p>Modifica tu nombre, email y otros datos personales</p>
                 </div>
-                <button class="btn btn-secondary" onclick="updateInfo()">Editar</button>
+                <button class="btn btn-secondary" onclick="showWipMessage('Actualizar información personal')">Editar <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></button>
             </div>
         </div>
         
@@ -43,22 +43,22 @@ include 'includes/header.php';
             <h2>Notificaciones</h2>
             <div class="setting-item">
                 <div class="setting-info">
-                    <h3>Notificaciones por email</h3>
+                    <h3>Notificaciones por email <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(WIP)</span></h3>
                     <p>Recibe emails cuando alguien te contacte por un producto</p>
                 </div>
-                <label class="switch">
-                    <input type="checkbox" checked>
+                <label class="switch" onclick="showWipMessage('Notificaciones por email')">
+                    <input type="checkbox" checked disabled>
                     <span class="slider"></span>
                 </label>
             </div>
             
             <div class="setting-item">
                 <div class="setting-info">
-                    <h3>Recordatorios de intercambio</h3>
+                    <h3>Recordatorios de intercambio <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(WIP)</span></h3>
                     <p>Te recordaremos cuando tengas intercambios pendientes</p>
                 </div>
-                <label class="switch">
-                    <input type="checkbox">
+                <label class="switch" onclick="showWipMessage('Recordatorios de intercambio')">
+                    <input type="checkbox" disabled>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -68,11 +68,11 @@ include 'includes/header.php';
             <h2>Privacidad</h2>
             <div class="setting-item">
                 <div class="setting-info">
-                    <h3>Perfil público</h3>
+                    <h3>Perfil público <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(WIP)</span></h3>
                     <p>Permite que otros usuarios vean tu perfil y valoraciones</p>
                 </div>
-                <label class="switch">
-                    <input type="checkbox" checked>
+                <label class="switch" onclick="showWipMessage('Perfil público')">
+                    <input type="checkbox" checked disabled>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -85,7 +85,7 @@ include 'includes/header.php';
                     <h3>Eliminar cuenta</h3>
                     <p>Elimina permanentemente tu cuenta y todos tus datos</p>
                 </div>
-                <button class="btn btn-danger" onclick="deleteAccount()">Eliminar cuenta</button>
+                <button class="btn btn-danger" onclick="showWipMessage('Eliminar Cuenta')">Eliminar cuenta <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></button>
             </div>
         </div>
     </div>
