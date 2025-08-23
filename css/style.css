@@ -527,21 +527,25 @@ body.no-header-padding {
     font-size: 20px;
     font-weight: bold;
     text-align: center;
-    padding: 0px 50px 20px 50px;
+    padding: 10px 30px 10px 30px;
     align-items: center;
     align-content: center;
+    max-height: 550px;
+    overflow: hidden;
 }
 
 .cardquote img{
     width: 100%;
     height: auto;
     object-fit: cover;
+    max-height: 80px;
 }
 
 .login-title{
     font-size: 25px;
     color: white;
     font-weight: bold;
+    text-align: center;
     -webkit-text-stroke: 0.5px black;
     text-shadow: 0.5px 0.5px 0 black, -0.5px -0.5px 0 black, 0.5px -0.5px 0 black, -0.5px 0.5px 0 black;
 }
@@ -576,6 +580,7 @@ body.no-header-padding {
 .login-form,
 .registration-form {
     display: flex;
+
     flex-direction: column;
     align-items: center;
     width: 100%;
@@ -585,6 +590,7 @@ body.no-header-padding {
 .fieldscontainer {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 10px;
     width: 100%;
 }
@@ -640,8 +646,8 @@ body.no-header-padding {
 
 .body-lr {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow: auto;
   background-repeat: repeat;
   background-position: 50% 50%;
   background-size: 154px 265px;
@@ -705,6 +711,8 @@ body.no-header-padding {
     margin-top: 5px;
     font-weight: bold;
     color: transparent;
+    text-align: center;
+    width: 100%;
 }
 
 /* ===== PERSEO CHATBOT STYLES ===== */
@@ -1346,7 +1354,7 @@ body.no-header-padding {
   }
   
   .cardquote {
-    padding: 0 20px 15px 20px;
+    padding: 15px 20px 15px 20px;
     font-size: 16px;
   }
 }

@@ -5,9 +5,7 @@ session_start();
 $page_title = "HandinHand - Iniciar Sesión";
 $body_class = "body-lr";
 $footer_style = "background-color: rgba(255, 255, 255); border: none;";
-$additional_scripts = [
-    'js/validacion.js'
-];
+$additional_scripts = [];
 
 // Procesar formulario de login
 $error_message = '';
