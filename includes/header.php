@@ -78,7 +78,7 @@ require_once __DIR__ . '/functions.php';
                             </button>
                             <div class="dropdown-divider"></div>
                             <a href="logout.php">
-                                <button class="dropdown-item logout-btn">
+                                <button class="dropdown-item-exit logout-btn">
                                     Cerrar Sesión
                                 </button>
                             </a>
