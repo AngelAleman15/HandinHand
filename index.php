@@ -52,13 +52,17 @@ include 'includes/header.php';
                         <?php if (isLoggedIn() && $_SESSION['user_id'] == $producto['user_id']): ?>
                             <!-- Botón para productos propios -->
                             <div class="owner-actions">
-                                <button class="btn-edit" onclick="showWipMessage('Editar producto')" title="Editar producto (En desarrollo)">
-                                    <i class="fas fa-edit"></i> Editar <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span>
+                                <button class="btn-edit" style="width: 5vw;" onclick="showWipMessage('Editar producto')" title="Editar producto (En desarrollo)">
+                                    <i class="fas fa-edit"></i> <p style="font-size: 1vh;">Editar</p> <span style="font-size: 0.4vw; opacity: 0.7;">(WIP)</span>
                                 </button>
                             </div>
                         <?php else: ?>
                             <!-- Botón contactar para productos de otros usuarios -->
-                            <button class="btncontact" onclick="contactarVendedor(<?php echo $producto['id']; ?>)">Contactar</button>
+                            <div class-="owner-actions">
+                                <button class="btn-edit" style="width: 5vw;" onclick="contactarVendedor(<?php echo $producto['id']; ?>)">
+                                    <p style="font-size: 1vh">Contactar</p>
+                                </button>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
