@@ -58,8 +58,8 @@ include 'includes/header.php';
                             </div>
                         <?php else: ?>
                             <!-- Botón contactar para productos de otros usuarios -->
-                            <div class-="owner-actions">
-                                <button class="btn-edit" style="width: 5vw;" onclick="contactarVendedor(<?php echo $producto['id']; ?>)">
+                            <div class-="owner-actions" style="margin: 0px 10px 0px 5px;">
+                                <button class="btn-edit" style="width: 5vw; padding:;" onclick="contactarVendedor(<?php echo $producto['id']; ?>)">
                                     <p style="font-size: 1vh">Contactar</p>
                                 </button>
                             </div>
