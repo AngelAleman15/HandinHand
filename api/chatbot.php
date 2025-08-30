@@ -166,6 +166,11 @@ function procesarMensajeConPLN($mensaje, $userId, $pdo, $memoria) {
             $contextoRespuesta = 'consejos_seguridad';
             break;
             
+        case 'que_es_handinhand':
+            $respuesta = explicarQueEsHandinHand();
+            $contextoRespuesta = 'explicacion_plataforma';
+            break;
+            
         case 'despedida':
             $respuesta = generarDespedida($contextoUsuario);
             break;
@@ -437,6 +442,10 @@ function detectarIntencion($mensaje) {
         ],
         'seguridad' => [
             'patrones' => ['es seguro', 'seguridad', 'confianza', 'riesgos'],
+            'peso' => 1.0
+        ],
+        'que_es_handinhand' => [
+            'patrones' => ['que es hand in hand', 'que es handinhand', 'que es esta pagina', 'que es esta app', 'que es esta plataforma', 'para que sirve', 'de que se trata', 'que hacen aqui', 'como funciona esta pagina', 'que es esto'],
             'peso' => 1.0
         ],
         'despedida' => [
@@ -729,18 +738,6 @@ function generarEstadisticasUsuario($userId, $pdo, $contexto) {
             $respuesta .= "🔥 Categoría favorita: " . $categoriaPopular['categoria'] . "\n";
         }
         
-        // Consejos personalizados
-        $respuesta .= "\n💡 Consejos personalizados:\n";
-        if ($contexto['total_productos'] < 3) {
-            $respuesta .= "• Publica más productos para aumentar intercambios\n";
-        }
-        if ($contexto['valoracion_promedio'] < 4 && $contexto['valoracion_promedio'] > 0) {
-            $respuesta .= "• Mejora tu reputación respondiendo rápido\n";
-        }
-        if ($contexto['total_intercambios'] < 5) {
-            $respuesta .= "• Inicia más conversaciones con otros usuarios\n";
-        }
-        
         return $respuesta;
         
     } catch (Exception $e) {
@@ -936,6 +933,10 @@ function consultarValoraciones($userId, $pdo, $contexto) {
 
 function darConsejosSeguridad() {
     return "🛡️ Consejos de seguridad:\n✅ Revisa valoraciones del usuario\n✅ Reúnete en lugares públicos\n✅ Inspecciona antes de intercambiar\n✅ Confía en tu instinto\n✅ Usa el chat de la app";
+}
+
+function explicarQueEsHandinHand() {
+    return "🤝 **¿Qué es HandinHand?**\n\nHandinHand es una plataforma de **intercambios y trueques** donde puedes:\n\n📦 **Publicar productos** que ya no uses\n🔄 **Intercambiar** por cosas que necesites\n💰 **Sin dinero** - Solo trueques directos\n🌍 **Comunidad local** - Conecta con vecinos\n⭐ **Sistema de reputación** - Para confianza mutua\n\n🎯 **Nuestra misión:** \"Unite, Creá, Transformá\"\n\n💡 **¿Cómo funciona?**\n1️⃣ Registras una cuenta\n2️⃣ Publicas productos que quieres intercambiar\n3️⃣ Buscas lo que necesitas\n4️⃣ Contactas a otros usuarios\n5️⃣ Acuerdan el intercambio\n6️⃣ ¡Se conocen y hacen el trueque!\n\n🌱 **Beneficios:**\n• Economía circular y sostenible\n• Reduce el desperdicio\n• Construye comunidad\n• Ahorra dinero\n• Da nueva vida a tus objetos\n\n¿Te gustaría saber algo específico sobre la plataforma?";
 }
 
 function generarDespedida($contexto) {

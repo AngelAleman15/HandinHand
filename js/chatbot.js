@@ -343,36 +343,60 @@ document.addEventListener("DOMContentLoaded", function () {
   // Mostrar error temporal
   function mostrarError(mensaje) {
     // Remover cualquier mensaje de error existente
-    const errorExistente = chatbotInput.parentElement.querySelector('.error-message');
+    const errorExistente = chatbotContainer.querySelector('.temp-error-message');
     if (errorExistente) {
       errorExistente.remove();
     }
     
+    // Crear elemento de error que aparece sobre el input
     const errorElement = document.createElement("div");
-    errorElement.classList.add("error-message");
+    errorElement.classList.add("temp-error-message");
     errorElement.textContent = mensaje;
     errorElement.style.cssText = `
-      position: absolute;
-      top: -30px;
-      left: 50%;
-      transform: translateX(-50%);
       background: #ff4444;
       color: white;
-      padding: 5px 10px;
-      border-radius: 5px;
+      padding: 6px 12px;
+      margin: 5px 10px 0 10px;
+      border-radius: 6px;
       font-size: 12px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      right: 0;
       z-index: 1000;
-      white-space: nowrap;
     `;
     
-    chatbotInput.parentElement.style.position = "relative";
-    chatbotInput.parentElement.appendChild(errorElement);
+    // Agregar al contenedor del chatbot (no al área de mensajes)
+    chatbotContainer.appendChild(errorElement);
     
+    // Animar aparición
+    setTimeout(() => {
+      errorElement.style.opacity = "1";
+    }, 10);
+    
+    // Remover después de 2 segundos
     setTimeout(() => {
       if (errorElement.parentElement) {
-        errorElement.remove();
+        errorElement.style.opacity = "0";
+        setTimeout(() => {
+          if (errorElement.parentElement) {
+            errorElement.remove();
+          }
+        }, 300);
       }
     }, 2000);
+    
+    // Hacer que el input destelle para indicar el error
+    chatbotInput.style.borderColor = "#ff4444";
+    chatbotInput.style.boxShadow = "0 0 5px rgba(255, 68, 68, 0.5)";
+    
+    setTimeout(() => {
+      chatbotInput.style.borderColor = "";
+      chatbotInput.style.boxShadow = "";
+    }, 1500);
   }
 
   // Comandos especiales del teclado
