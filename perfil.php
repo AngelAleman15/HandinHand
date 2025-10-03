@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once 'includes/functions.php';
 
@@ -85,7 +85,9 @@ body {
         <div class="profile-cover">
             <div class="profile-avatar-section">
                 <div class="profile-avatar">
-                    <img src="img/usuario.png" alt="Avatar de <?php echo htmlspecialchars($user['fullname']); ?>">
+                    <img src="<?php echo isset($user['avatar_path']) && !empty($user['avatar_path']) ? htmlspecialchars($user['avatar_path']) : 'img/usuario.png'; ?>" 
+                         alt="Avatar de <?php echo htmlspecialchars($user['fullname']); ?>" 
+                         onerror="this.src='img/usuario.png'">
                     <button class="avatar-edit-btn" onclick="editAvatar()">
                         <i class="fas fa-camera"></i>
                     </button>
@@ -104,7 +106,7 @@ body {
                     </div>
                     <p class="member-since">Miembro desde hace <?php echo $diasMiembro; ?> días</p>
                     <div class="profile-actions">
-                        <button class="btn btn-primary" onclick="editProfile()">
+                        <button class="btn btn-primary" onclick="editPersonalInfo()">
                             <i class="fas fa-edit"></i> Editar Perfil
                         </button>
                         <button class="btn btn-primary" onclick="showWipMessage('Mis Productos')">
@@ -186,7 +188,7 @@ body {
                         </div>
                         <div class="info-item">
                             <label>Teléfono</label>
-                            <span><?php echo isset($user['phone']) ? htmlspecialchars($user['phone']) : 'No especificado'; ?></span>
+                            <span><?php echo !empty($user['phone']) ? htmlspecialchars($user['phone']) : 'No especificado'; ?></span>
                         </div>
                     </div>
                 </div>
@@ -250,6 +252,18 @@ body {
                         <button class="quick-action-btn" onclick="showWipMessage('Valoraciones')">
                             <i class="fas fa-star"></i>
                             <span>Valoraciones <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></span>
+                        </button>
+                        <button class="quick-action-btn" onclick="testConnectivitySimple()">
+                            <i class="fas fa-wifi"></i>
+                            <span>🔧 Test Conectividad</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="testPasswordAPI()">
+                            <i class="fas fa-key"></i>
+                            <span>🔧 Test Password API</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="testPersonalInfoAPI()">
+                            <i class="fas fa-edit"></i>
+                            <span>🔧 Test Edición API</span>
                         </button>
                         <button class="quick-action-btn" onclick="changePassword()">
                             <i class="fas fa-key"></i>
@@ -786,6 +800,86 @@ body {
     box-shadow: 0 6px 20px rgba(49,60,38,0.4);
 }
 
+/* Estilos para el cropper y SweetAlert2 personalizado */
+.swal2-popup .cropper-container {
+    margin: 0 auto;
+}
+
+.swal2-html-container {
+    overflow: visible !important;
+}
+
+.swal2-popup {
+    overflow: visible !important;
+}
+
+.cropper-view-box {
+    outline: 3px solid #A2CB8D !important;
+    outline-opacity: 0.75;
+}
+
+.cropper-face {
+    background: rgba(162, 203, 141, 0.1) !important;
+}
+
+.cropper-line, .cropper-point {
+    background: #A2CB8D !important;
+}
+
+.cropper-point.point-se {
+    background: #C9F89B !important;
+    width: 8px !important;
+    height: 8px !important;
+}
+
+/* Animaciones para el botón de avatar */
+@keyframes avatarPulse {
+    0%, 100% { 
+        box-shadow: 0 4px 15px rgba(162,203,141,0.3);
+        transform: scale(1);
+    }
+    50% { 
+        box-shadow: 0 6px 20px rgba(162,203,141,0.5);
+        transform: scale(1.05);
+    }
+}
+
+.avatar-edit-btn:hover {
+    animation: avatarPulse 2s infinite;
+}
+
+/* Estilos para el área de drop de archivos */
+.file-drop-area {
+    border: 2px dashed #A2CB8D;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    background: rgba(162, 203, 141, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-drop-area:hover,
+.file-drop-area.dragover {
+    border-color: #C9F89B;
+    background: rgba(201, 249, 155, 0.1);
+    transform: translateY(-2px);
+}
+
+.file-drop-area i {
+    color: #A2CB8D;
+    margin-bottom: 10px;
+}
+
+.file-drop-area.error {
+    border-color: #dc3545;
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.file-drop-area.error i {
+    color: #dc3545;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .profile-header {
@@ -863,8 +957,11 @@ body {
 }
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script src="js/test-functions.js"></script>
 
 <script>
 // === FUNCIONES DE INTERACCIÓN ===
@@ -940,76 +1037,1757 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function editProfile() {
+function editPersonalInfo() {
     Swal.fire({
-        title: 'Editar Perfil',
+        title: '✏️ Editar Información Personal',
         html: `
-            <div style="text-align: left;">
+            <div style="text-align: left; max-width: 400px; margin: 0 auto;">
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nombre Completo:</label>
-                    <input type="text" id="editFullname" class="swal2-input" placeholder="Nombre completo" value="<?php echo htmlspecialchars($user['fullname']); ?>">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #313C26; font-size: 14px;">
+                        <i class="fas fa-user"></i> Nombre Completo:
+                    </label>
+                    <input type="text" id="editFullname" class="swal2-input" 
+                           placeholder="Ingresa tu nombre completo" 
+                           value="<?php echo htmlspecialchars($user['fullname']); ?>"
+                           style="margin: 0; width: 100%; box-sizing: border-box; height: 40px; font-size: 14px;">
                 </div>
+                
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email:</label>
-                    <input type="email" id="editEmail" class="swal2-input" placeholder="Email" value="<?php echo htmlspecialchars($user['email']); ?>">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #313C26; font-size: 14px;">
+                        <i class="fas fa-at"></i> Nombre de Usuario:
+                    </label>
+                    <input type="text" id="editUsername" class="swal2-input" 
+                           placeholder="Nombre de usuario único" 
+                           value="<?php echo htmlspecialchars($user['username']); ?>"
+                           style="margin: 0; width: 100%; box-sizing: border-box; height: 40px; font-size: 14px;">
+                    <small style="color: #666; font-size: 11px; margin-top: 3px; display: block;">
+                        Solo letras, números y guiones bajos. Mínimo 3 caracteres.
+                    </small>
                 </div>
+                
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #dc3545;">Contraseña (requerida para cambiar email):</label>
-                    <input type="password" id="editPassword" class="swal2-input" placeholder="Tu contraseña actual">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #313C26; font-size: 14px;">
+                        <i class="fas fa-envelope"></i> Email:
+                    </label>
+                    <input type="email" id="editEmail" class="swal2-input" 
+                           placeholder="tucorreo@ejemplo.com" 
+                           value="<?php echo htmlspecialchars($user['email']); ?>"
+                           style="margin: 0; width: 100%; box-sizing: border-box; height: 40px; font-size: 14px;">
+                    <small style="color: #dc3545; font-size: 11px; margin-top: 3px; display: block;">
+                        Se requiere verificación si cambias tu correo.
+                    </small>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #313C26; font-size: 14px;">
+                        <i class="fas fa-phone"></i> Teléfono (Opcional):
+                    </label>
+                    <input type="tel" id="editPhone" class="swal2-input" 
+                           placeholder="+34 123 456 789" 
+                           value="<?php echo isset($user['phone']) ? htmlspecialchars($user['phone']) : ''; ?>"
+                           style="margin: 0; width: 100%; box-sizing: border-box; height: 40px; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #dc3545;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #dc3545; font-size: 14px;">
+                        <i class="fas fa-key"></i> Contraseña Actual:
+                    </label>
+                    <input type="password" id="editCurrentPassword" class="swal2-input" 
+                           placeholder="Tu contraseña actual"
+                           style="margin: 0; width: 100%; box-sizing: border-box; height: 40px; font-size: 14px;">
+                    <small style="color: #666; font-size: 11px; margin-top: 3px; display: block;">
+                        Necesaria para confirmar los cambios.
+                    </small>
                 </div>
             </div>
         `,
+        width: '480px',
         focusConfirm: false,
-        confirmButtonText: 'Guardar Cambios',
+        confirmButtonText: '<i class="fas fa-save"></i> Guardar Cambios',
         confirmButtonColor: '#A2CB8D',
-        cancelButtonText: 'Cancelar',
+        cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
         showCancelButton: true,
+        cancelButtonColor: '#6c757d',
         preConfirm: () => {
-            const fullname = document.getElementById('editFullname').value;
-            const email = document.getElementById('editEmail').value;
-            const password = document.getElementById('editPassword').value;
+            const fullname = document.getElementById('editFullname').value.trim();
+            const username = document.getElementById('editUsername').value.trim();
+            const email = document.getElementById('editEmail').value.trim();
+            const phone = document.getElementById('editPhone').value.trim();
+            const currentPassword = document.getElementById('editCurrentPassword').value;
             
-            if (!fullname || !email) {
-                Swal.showValidationMessage('El nombre y email son obligatorios');
+            // Validaciones básicas
+            if (!fullname) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> El nombre completo es obligatorio');
                 return false;
             }
             
-            // Si el email cambió, requerir contraseña
-            if (email !== '<?php echo htmlspecialchars($user['email']); ?>' && !password) {
-                Swal.showValidationMessage('Se requiere contraseña para cambiar el email');
+            if (fullname.length < 2) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> El nombre debe tener al menos 2 caracteres');
                 return false;
             }
             
-            return { fullname, email, password };
+            if (!username) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> El nombre de usuario es obligatorio');
+                return false;
+            }
+            
+            if (username.length < 3) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> El nombre de usuario debe tener al menos 3 caracteres');
+                return false;
+            }
+            
+            // Validar formato de username
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> El nombre de usuario solo puede contener letras, números y guiones bajos');
+                return false;
+            }
+            
+            if (!email) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> El email es obligatorio');
+                return false;
+            }
+            
+            // Validar formato de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> El formato del email no es válido');
+                return false;
+            }
+            
+            // Validar teléfono si se proporciona
+            if (phone && phone.length > 0) {
+                const phoneRegex = /^[\+]?[0-9\s\-\(\)]{9,}$/;
+                if (!phoneRegex.test(phone)) {
+                    Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> El formato del teléfono no es válido');
+                    return false;
+                }
+            }
+            
+            if (!currentPassword) {
+                Swal.showValidationMessage('<i class="fas fa-key"></i> La contraseña actual es requerida para confirmar los cambios');
+                return false;
+            }
+            
+            return { fullname, username, email, phone, currentPassword };
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            // Aquí iría la lógica para actualizar el perfil
+            const data = result.value;
+            
+            // Mostrar loading
             Swal.fire({
-                title: '¡Perfil Actualizado!',
-                text: 'Los cambios se han guardado correctamente',
-                icon: 'success',
-                confirmButtonColor: '#A2CB8D'
+                title: '💾 Guardando Cambios...',
+                html: `
+                    <div style="text-align: center;">
+                        <div style="width: 60px; height: 60px; margin: 0 auto 15px; border: 4px solid #f3f3f3; border-top: 4px solid #A2CB8D; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        <p>Actualizando tu información personal...</p>
+                        <small style="color: #666;">Verificando datos y guardando cambios</small>
+                    </div>
+                    <style>
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                    </style>
+                `,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false
             });
+            
+            // Enviar datos al servidor
+            updatePersonalInfo(data);
         }
     });
 }
 
-function editPersonalInfo() {
-    Swal.fire({
-        title: 'Editar Información Personal',
-        text: 'Esta funcionalidad estará disponible próximamente',
-        icon: 'info',
-        confirmButtonColor: '#A2CB8D'
+// Función para actualizar la información personal en el servidor
+function updatePersonalInfo(userData) {
+    const formData = new FormData();
+    formData.append('action', 'update_personal_info');
+    formData.append('fullname', userData.fullname);
+    formData.append('username', userData.username);
+    formData.append('email', userData.email);
+    formData.append('phone', userData.phone);
+    formData.append('current_password', userData.currentPassword);
+    
+    fetch('api/update-profile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.text();
+    })
+    .then(textData => {
+        try {
+            const data = JSON.parse(textData);
+            
+            if (data.success) {
+                // Éxito: actualizar la página con la nueva información
+                updatePageWithNewInfo(data.data);
+                
+                Swal.fire({
+                    title: '✅ ¡Información Actualizada!',
+                    text: 'Tu información personal se ha actualizado correctamente',
+                    icon: 'success',
+                    confirmButtonColor: '#A2CB8D',
+                    timer: 3000,
+                    showConfirmButton: true
+                }).then(() => {
+                    // Recargar la página para mostrar todos los cambios
+                    window.location.reload();
+                });
+            } else {
+                // Error del servidor - mostrar detalles específicos
+                let errorMessage = data.message || 'Hubo un problema al actualizar tu información';
+                let errorDetails = '';
+                
+                // Procesar errores específicos
+                if (data.details && data.details.errors && Array.isArray(data.details.errors)) {
+                    errorDetails = data.details.errors.map((error, index) => {
+                        // Agregar números y hacer más visual
+                        return `<li style="margin: 8px 0; text-align: left; padding: 5px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 3px;">${error}</li>`;
+                    }).join('');
+                    
+                    errorMessage = `
+                        <div style="text-align: left;">
+                            <p><strong>❌ Se encontraron ${data.details.errors.length} problema(s):</strong></p>
+                            <ul style="margin: 15px 0; padding: 0; list-style: none;">
+                                ${errorDetails}
+                            </ul>
+                            <div style="background: #e3f2fd; padding: 12px; border-radius: 6px; margin-top: 15px; border-left: 4px solid #2196f3;">
+                                <strong>💡 Sugerencias:</strong>
+                                <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 14px;">
+                                    <li>Verifica que tu contraseña actual sea correcta</li>
+                                    <li>Asegúrate de que el email y username no estén en uso</li>
+                                    <li>Revisa el formato de los datos ingresados</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Error simple sin detalles
+                    errorMessage = `
+                        <div style="text-align: left;">
+                            <p>${errorMessage}</p>
+                            <div style="background: #ffebee; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                                <strong>🔍 Detalles técnicos:</strong><br>
+                                <code style="font-size: 12px;">${JSON.stringify(data, null, 2)}</code>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                Swal.fire({
+                    title: '⚠️ No se pudo actualizar',
+                    html: errorMessage,
+                    icon: 'error',
+                    confirmButtonColor: '#A2CB8D',
+                    width: '650px',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cerrar',
+                    confirmButtonText: 'Intentar de Nuevo',
+                    cancelButtonColor: '#6c757d'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Volver a abrir el formulario de edición
+                        editPersonalInfo();
+                    }
+                });
+                    `,
+                    icon: 'error',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            }
+        } catch (parseError) {
+            console.error('Error parsing JSON:', parseError);
+            console.error('Raw response:', textData);
+            
+            Swal.fire({
+                title: '❌ Error de Comunicación',
+                text: 'Error en la respuesta del servidor. Intenta de nuevo.',
+                icon: 'error',
+                confirmButtonColor: '#A2CB8D'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error updating personal info:', error);
+        
+        Swal.fire({
+            title: '❌ Error de Conexión',
+            text: 'No se pudo conectar con el servidor. Verifica tu conexión e intenta de nuevo.',
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
     });
 }
 
-function editAvatar() {
+// Función para actualizar la información en la página actual
+function updatePageWithNewInfo(newData) {
+    try {
+        // Actualizar el nombre en el header del perfil
+        const profileName = document.querySelector('.profile-basic-info h1');
+        if (profileName && newData.fullname) {
+            profileName.textContent = newData.fullname;
+        }
+        
+        // Actualizar el username
+        const profileUsername = document.querySelector('.profile-basic-info .username');
+        if (profileUsername && newData.username) {
+            profileUsername.textContent = '@' + newData.username;
+        }
+        
+        // Actualizar información en la sección de información personal
+        const infoItems = document.querySelectorAll('.info-item');
+        infoItems.forEach(item => {
+            const label = item.querySelector('label');
+            const span = item.querySelector('span');
+            
+            if (label && span) {
+                const labelText = label.textContent.toLowerCase();
+                
+                if (labelText.includes('nombre completo') && newData.fullname) {
+                    span.textContent = newData.fullname;
+                } else if (labelText.includes('usuario') && newData.username) {
+                    span.textContent = '@' + newData.username;
+                } else if (labelText.includes('email') && newData.email) {
+                    span.textContent = newData.email;
+                } else if (labelText.includes('teléfono')) {
+                    span.textContent = newData.phone || 'No especificado';
+                }
+            }
+        });
+        
+        // Actualizar título de la página
+        if (newData.fullname) {
+            document.title = `${newData.fullname} - Mi Perfil - HandinHand`;
+        }
+        
+        console.log('✅ Información de la página actualizada correctamente');
+    } catch (error) {
+        console.error('Error updating page info:', error);
+    }
+}
+
+// Función para probar conectividad básica
+function testConnectivity() {
     Swal.fire({
-        title: 'Cambiar Avatar',
-        text: 'Funcionalidad de carga de imágenes próximamente',
-        icon: 'info',
-        confirmButtonColor: '#A2CB8D'
+        title: '🔧 Probando Conectividad...',
+        html: '<div id="connectivityResults">Preparando pruebas...</div>',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        width: '500px',
+        didOpen: () => {
+            // Usar setTimeout para asegurar que el DOM esté completamente listo
+            setTimeout(() => {
+                const element = document.getElementById('connectivityResults');
+                if (element) {
+                    runConnectivityTests();
+                } else {
+                    console.error('Elemento connectivityResults no encontrado después del timeout');
+                    // Intentar una vez más con un delay mayor
+                    setTimeout(() => {
+                        const elementRetry = document.getElementById('connectivityResults');
+                        if (elementRetry) {
+                            runConnectivityTests();
+                        } else {
+                            console.error('Elemento connectivityResults sigue sin estar disponible');
+                        }
+                    }, 500);
+                }
+            }, 100);
+        }
+    });
+}
+
+function runConnectivityTests() {
+    const resultsDiv = document.getElementById('connectivityResults');
+    
+    if (!resultsDiv) {
+        console.error('CRITICAL: No se pudo encontrar el elemento connectivityResults');
+        console.log('Elementos disponibles:', document.querySelectorAll('[id]'));
+        
+        // Intentar mostrar el error en el Swal
+        Swal.fire({
+            title: '❌ Error Interno',
+            text: 'No se pudo inicializar el sistema de diagnóstico. Revisa la consola para más detalles.',
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+        return;
+    }
+    
+    console.log('✅ Elemento connectivityResults encontrado, iniciando pruebas...');
+    
+    // Test 1: Conectividad básica
+    resultsDiv.innerHTML = '<div style="color: blue; padding: 5px;">🔄 Test 1: Conectividad básica...</div>';
+    
+    fetch('api/test-connectivity.php', {
+        method: 'POST',
+        body: new FormData()
+    })
+    .then(response => {
+        console.log('Test connectivity - Status:', response.status);
+        console.log('Test connectivity - Headers:', response.headers);
+        return response.text();
+    })
+    .then(textData => {
+        console.log('Test connectivity - Raw response:', textData);
+        
+        // Verificar nuevamente que el elemento sigue existiendo
+        const currentDiv = document.getElementById('connectivityResults');
+        if (!currentDiv) {
+            console.error('Elemento connectivityResults desapareció durante la prueba');
+            return;
+        }
+        
+        try {
+            const data = JSON.parse(textData);
+            
+            currentDiv.innerHTML = `
+                <div style="color: green; padding: 5px;">✅ Test 1: Conectividad OK</div>
+                <div style="margin: 10px 0; color: blue; padding: 5px;">🔄 Test 2: Probando update-profile.php...</div>
+            `;
+            
+            // Test 2: API de update-profile con delay
+            setTimeout(() => testUpdateProfileAPI(), 500);
+            
+        } catch (parseError) {
+            console.error('Error parsing JSON:', parseError);
+            currentDiv.innerHTML = `
+                <div style="color: red; padding: 5px;">❌ Test 1: Error de JSON</div>
+                <div style="background: #f8f8f8; padding: 10px; font-family: monospace; font-size: 12px; margin: 10px 0; max-height: 200px; overflow-y: auto; border-radius: 4px;">
+                    <strong>Error:</strong> ${parseError.message}<br><br>
+                    <strong>Respuesta:</strong><br>
+                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                </div>
+                <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        
+        const currentDiv = document.getElementById('connectivityResults');
+        if (currentDiv) {
+            currentDiv.innerHTML = `
+                <div style="color: red; padding: 5px;">❌ Test 1: Error de conexión</div>
+                <div style="margin: 10px 0; color: #666; padding: 5px;">
+                    <strong>Error:</strong> ${error.message}<br>
+                    <strong>Posibles causas:</strong>
+                    <ul style="margin: 5px 0; padding-left: 20px;">
+                        <li>Servidor web no está ejecutándose</li>
+                        <li>Archivo test-connectivity.php no existe</li>
+                        <li>Problema de permisos</li>
+                    </ul>
+                </div>
+                <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>
+            `;
+        }
+    });
+}
+
+function testUpdateProfileAPI() {
+    const resultsDiv = document.getElementById('connectivityResults');
+    
+    if (!resultsDiv) {
+        console.error('No se pudo encontrar el elemento connectivityResults en testUpdateProfileAPI');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('action', 'test_connection');
+    
+    fetch('api/update-profile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('Test update-profile - Status:', response.status);
+        return response.text();
+    })
+    .then(textData => {
+        console.log('Test update-profile - Raw response:', textData);
+        
+        try {
+            const data = JSON.parse(textData);
+            
+            if (data.success) {
+                resultsDiv.innerHTML = `
+                    <div style="color: green;">✅ Test 1: Conectividad OK</div>
+                    <div style="color: green;">✅ Test 2: update-profile.php OK</div>
+                    <div style="margin: 15px 0; padding: 10px; background: #e8f5e8; border-radius: 5px;">
+                        <strong>¡Todo funciona correctamente!</strong><br>
+                        Puedes intentar cambiar la contraseña ahora.
+                    </div>
+                    <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px;">Cerrar</button>
+                `;
+            } else {
+                resultsDiv.innerHTML = `
+                    <div style="color: green;">✅ Test 1: Conectividad OK</div>
+                    <div style="color: orange;">⚠️ Test 2: Error en API</div>
+                    <div style="margin: 10px 0; color: #666;">${data.message}</div>
+                    <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px;">Cerrar</button>
+                `;
+            }
+        } catch (parseError) {
+            resultsDiv.innerHTML = `
+                <div style="color: green;">✅ Test 1: Conectividad OK</div>
+                <div style="color: red;">❌ Test 2: Error de JSON en update-profile.php</div>
+                <div style="background: #f8f8f8; padding: 10px; font-family: monospace; font-size: 12px; margin: 10px 0; max-height: 200px; overflow-y: auto;">
+                    <strong>Error de parsing:</strong> ${parseError.message}<br><br>
+                    <strong>Respuesta cruda:</strong><br>
+                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                </div>
+                <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px;">Cerrar</button>
+            `;
+        }
+    })
+    .catch(error => {
+        resultsDiv.innerHTML = `
+            <div style="color: green;">✅ Test 1: Conectividad OK</div>
+            <div style="color: red;">❌ Test 2: Error de conexión en update-profile.php</div>
+            <div style="margin: 10px 0; color: #666;">
+                <strong>Error:</strong> ${error.message}<br>
+                <strong>Posibles causas:</strong>
+                <ul style="margin: 5px 0; padding-left: 20px;">
+                    <li>Archivo update-profile.php no existe o no es accesible</li>
+                    <li>Error de sintaxis en PHP</li>
+                    <li>Problema con includes/functions.php</li>
+                    <li>Error de base de datos</li>
+                </ul>
+            </div>
+            <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px;">Cerrar</button>
+        `;
+    });
+}
+
+// Función simple de test de conectividad (más confiable)
+function testConnectivitySimple() {
+    // Test directo sin elementos DOM complejos
+    fetch('api/test-connectivity.php', {
+        method: 'POST',
+        body: new FormData()
+    })
+    .then(response => {
+        console.log('🔗 Simple Test - Status:', response.status);
+        return response.text();
+    })
+    .then(textData => {
+        console.log('🔗 Simple Test - Response:', textData);
+        
+        try {
+            const data = JSON.parse(textData);
+            
+            // Test exitoso
+            Swal.fire({
+                title: '✅ Conectividad OK',
+                html: `
+                    <div style="text-align: left;">
+                        <p><strong>✅ Servidor web:</strong> Funcionando</p>
+                        <p><strong>✅ PHP:</strong> Funcionando</p>
+                        <p><strong>✅ JSON:</strong> Válido</p>
+                        <p><strong>📊 Respuesta:</strong></p>
+                        <div style="background: #f8f8f8; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                            ${JSON.stringify(data, null, 2)}
+                        </div>
+                        <div style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 4px;">
+                            <strong>🎉 ¡Todo funciona!</strong> Puedes intentar cambiar la contraseña.
+                        </div>
+                    </div>
+                `,
+                icon: 'success',
+                confirmButtonColor: '#A2CB8D',
+                width: '500px'
+            });
+            
+        } catch (parseError) {
+            // Error de JSON
+            Swal.fire({
+                title: '⚠️ Error de JSON',
+                html: `
+                    <div style="text-align: left;">
+                        <p><strong>✅ Servidor web:</strong> Funcionando</p>
+                        <p><strong>❌ JSON:</strong> Inválido</p>
+                        <p><strong>🐛 Error:</strong> ${parseError.message}</p>
+                        <p><strong>📄 Respuesta raw:</strong></p>
+                        <div style="background: #f8f8f8; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+                            ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                        </div>
+                    </div>
+                `,
+                icon: 'warning',
+                confirmButtonColor: '#A2CB8D',
+                width: '600px'
+            });
+        }
+    })
+    .catch(error => {
+        // Error de conexión
+        console.error('🔗 Simple Test - Error:', error);
+        
+        Swal.fire({
+            title: '❌ Error de Conexión',
+            html: `
+                <div style="text-align: left;">
+                    <p><strong>❌ Servidor web:</strong> No responde</p>
+                    <p><strong>🐛 Error:</strong> ${error.message}</p>
+                    <p><strong>🔧 Posibles soluciones:</strong></p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Verificar que WAMP esté ejecutándose</li>
+                        <li>Comprobar que el archivo api/test-connectivity.php existe</li>
+                        <li>Revisar permisos de archivos</li>
+                        <li>Verificar configuración del servidor</li>
+                    </ul>
+                </div>
+            `,
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D',
+            width: '500px'
+        });
+    });
+}
+
+function changePassword() {
+    Swal.fire({
+        title: '🔐 Cambiar Contraseña',
+        html: `
+            <div style="text-align: left; max-width: 400px; margin: 0 auto;">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #313C26; font-size: 14px;">
+                        <i class="fas fa-lock"></i> Contraseña Actual:
+                    </label>
+                    <input type="password" id="currentPassword" class="swal2-input" 
+                           placeholder="Tu contraseña actual"
+                           style="margin: 0; width: 100%; box-sizing: border-box; height: 40px; font-size: 14px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #313C26; font-size: 14px;">
+                        <i class="fas fa-key"></i> Nueva Contraseña:
+                    </label>
+                    <input type="password" id="newPassword" class="swal2-input" 
+                           placeholder="Mínimo 6 caracteres"
+                           style="margin: 0; width: 100%; box-sizing: border-box; height: 40px; font-size: 14px;">
+                    <small style="color: #666; font-size: 11px; margin-top: 3px; display: block;">
+                        Debe tener al menos 6 caracteres.
+                    </small>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #313C26; font-size: 14px;">
+                        <i class="fas fa-check"></i> Confirmar Contraseña:
+                    </label>
+                    <input type="password" id="confirmPassword" class="swal2-input" 
+                           placeholder="Repite la nueva contraseña"
+                           style="margin: 0; width: 100%; box-sizing: border-box; height: 40px; font-size: 14px;">
+                </div>
+                <div style="background: #fff3cd; padding: 10px; border-radius: 6px; border-left: 3px solid #ffc107;">
+                    <small style="color: #856404; font-size: 11px;">
+                        <i class="fas fa-shield-alt"></i> 
+                        Por seguridad, deberás iniciar sesión nuevamente después del cambio.
+                    </small>
+                </div>
+            </div>
+        `,
+        width: '480px',
+        focusConfirm: false,
+        confirmButtonText: '<i class="fas fa-save"></i> Cambiar Contraseña',
+        confirmButtonColor: '#A2CB8D',
+        cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+        showCancelButton: true,
+        cancelButtonColor: '#6c757d',
+        preConfirm: () => {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Validaciones
+            if (!currentPassword) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> La contraseña actual es obligatoria');
+                return false;
+            }
+            
+            if (!newPassword) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> La nueva contraseña es obligatoria');
+                return false;
+            }
+            
+            if (newPassword.length < 6) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> La nueva contraseña debe tener al menos 6 caracteres');
+                return false;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> Las contraseñas no coinciden');
+                return false;
+            }
+            
+            if (currentPassword === newPassword) {
+                Swal.showValidationMessage('<i class="fas fa-exclamation-triangle"></i> La nueva contraseña debe ser diferente a la actual');
+                return false;
+            }
+            
+            return { currentPassword, newPassword, confirmPassword };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const data = result.value;
+            
+            // Mostrar loading
+            Swal.fire({
+                title: '🔐 Cambiando Contraseña...',
+                html: `
+                    <div style="text-align: center;">
+                        <div style="width: 60px; height: 60px; margin: 0 auto 15px; border: 4px solid #f3f3f3; border-top: 4px solid #A2CB8D; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        <p>Actualizando tu contraseña...</p>
+                        <small style="color: #666;">Esto puede tomar unos segundos</small>
+                    </div>
+                    <style>
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                    </style>
+                `,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false
+            });
+            
+            // Enviar datos al servidor
+            updatePassword(data);
+        }
+    });
+}
+
+// Función para actualizar la contraseña en el servidor
+function updatePassword(passwordData) {
+    const formData = new FormData();
+    formData.append('action', 'change_password');
+    formData.append('current_password', passwordData.currentPassword);
+    formData.append('new_password', passwordData.newPassword);
+    formData.append('confirm_password', passwordData.confirmPassword);
+    
+    console.log('=== DEBUG: Enviando cambio de contraseña ===');
+    console.log('Action:', 'change_password');
+    console.log('Current password length:', passwordData.currentPassword.length);
+    console.log('New password length:', passwordData.newPassword.length);
+    
+    fetch('api/update-profile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('=== DEBUG: Respuesta del servidor ===');
+        console.log('Status:', response.status);
+        console.log('Status Text:', response.statusText);
+        console.log('Headers:', response.headers);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.text();
+    })
+    .then(textData => {
+        console.log('=== DEBUG: Datos recibidos ===');
+        console.log('Raw response:', textData);
+        console.log('Response length:', textData.length);
+        
+        try {
+            const data = JSON.parse(textData);
+            console.log('Parsed data:', data);
+            
+            if (data.success) {
+                // Éxito: mostrar mensaje y redirigir al login
+                Swal.fire({
+                    title: '✅ ¡Contraseña Actualizada!',
+                    text: 'Tu contraseña se ha cambiado correctamente. Por seguridad, debes iniciar sesión nuevamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#A2CB8D',
+                    confirmButtonText: 'Ir al Login',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then(() => {
+                    // Redirigir al logout para que inicie sesión nuevamente
+                    window.location.href = 'logout.php';
+                });
+            } else {
+                // Error del servidor
+                Swal.fire({
+                    title: '❌ Error al Cambiar Contraseña',
+                    html: `
+                        <div style="text-align: left;">
+                            <p style="margin-bottom: 15px;">${data.message || 'Hubo un problema al cambiar tu contraseña'}</p>
+                            ${data.errors && data.errors.length > 0 ? 
+                                '<ul style="color: #dc3545; margin: 0; padding-left: 20px;">' + 
+                                data.errors.map(error => `<li>${error}</li>`).join('') + 
+                                '</ul>' : ''
+                            }
+                        </div>
+                    `,
+                    icon: 'error',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            }
+        } catch (parseError) {
+            console.error('=== DEBUG: Error de parsing JSON ===');
+            console.error('Parse error:', parseError);
+            console.error('Raw response that failed to parse:', textData);
+            
+            Swal.fire({
+                title: '❌ Error de Comunicación',
+                html: `
+                    <div style="text-align: left;">
+                        <p>Error en la respuesta del servidor.</p>
+                        <details style="margin-top: 10px;">
+                            <summary>Detalles técnicos (clic para expandir)</summary>
+                            <div style="background: #f8f8f8; padding: 10px; margin-top: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; word-break: break-all;">
+                                <strong>Error:</strong> ${parseError.message}<br><br>
+                                <strong>Respuesta del servidor:</strong><br>
+                                ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                            </div>
+                        </details>
+                    </div>
+                `,
+                icon: 'error',
+                confirmButtonColor: '#A2CB8D',
+                width: '600px'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('=== DEBUG: Error de fetch ===');
+        console.error('Fetch error:', error);
+        
+        Swal.fire({
+            title: '❌ Error de Conexión',
+            html: `
+                <div style="text-align: left;">
+                    <p>No se pudo conectar con el servidor.</p>
+                    <div style="margin-top: 10px; padding: 10px; background: #f8f8f8; border-radius: 4px;">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <button onclick="testConnectivity()" style="background: #A2CB8D; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                            🔧 Probar Conectividad
+                        </button>
+                    </div>
+                </div>
+            `,
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D',
+            width: '500px'
+        });
+    });
+}
+
+// Test actualización visual del avatar
+function testVisualUpdate() {
+    const results = document.getElementById('testResults');
+    
+    // Encontrar el elemento de imagen actual
+    const avatarImg = document.querySelector('.profile-avatar img');
+    
+    if (!avatarImg) {
+        results.innerHTML = '<div style="color: red;">❌ No se encontró el elemento de imagen del avatar</div>';
+        return;
+    }
+    
+    const currentSrc = avatarImg.src;
+    
+    results.innerHTML = `
+        <div style="color: blue;">🔄 Probando actualización visual...</div>
+        <div style="background: white; padding: 10px; border-radius: 3px; margin: 10px 0;">
+            <strong>Imagen actual:</strong><br>
+            <div style="font-family: monospace; font-size: 12px; word-break: break-all;">${currentSrc}</div>
+        </div>
+        <div style="margin: 10px 0;">
+            <button onclick="forceUpdateAvatar()" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 3px;">
+                🔄 Forzar Actualización de Imagen
+            </button>
+        </div>
+    `;
+}
+
+// Forzar actualización del avatar
+function forceUpdateAvatar() {
+    const avatarImg = document.querySelector('.profile-avatar img');
+    const results = document.getElementById('testResults');
+    
+    if (!avatarImg) {
+        results.innerHTML += '<div style="color: red;">❌ No se puede actualizar: elemento no encontrado</div>';
+        return;
+    }
+    
+    // Generar nueva URL con timestamp
+    const currentSrc = avatarImg.src;
+    const baseSrc = currentSrc.split('?')[0]; // Quitar timestamp previo
+    const newSrc = baseSrc + '?t=' + Date.now();
+    
+    console.log('Forzando actualización de:', currentSrc, 'a:', newSrc);
+    
+    avatarImg.src = newSrc;
+    
+    results.innerHTML += `
+        <div style="color: green; margin-top: 10px;">✅ Imagen forzada a actualizar</div>
+        <div style="background: white; padding: 10px; border-radius: 3px; margin: 10px 0;">
+            <strong>Nueva URL:</strong><br>
+            <div style="font-family: monospace; font-size: 12px; word-break: break-all;">${newSrc}</div>
+        </div>
+    `;
+}
+
+// Test datos de recorte
+function testCropData() {
+    const results = document.getElementById('testResults');
+    
+    // Crear un input file temporal para simular el proceso
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        results.innerHTML = '<div style="color: blue;">🔄 Probando datos de recorte...</div>';
+        
+        // Crear una imagen temporal para el cropper
+        const imageUrl = URL.createObjectURL(file);
+        const tempImg = document.createElement('img');
+        tempImg.src = imageUrl;
+        tempImg.style.position = 'absolute';
+        tempImg.style.left = '-9999px';
+        tempImg.style.width = '300px';
+        document.body.appendChild(tempImg);
+        
+        tempImg.onload = function() {
+            // Inicializar cropper temporal
+            const tempCropper = new Cropper(tempImg, {
+                aspectRatio: 1,
+                viewMode: 1,
+                ready: function() {
+                    // Obtener datos del recorte
+                    const cropData = tempCropper.getData();
+                    
+                    // Mostrar datos
+                    results.innerHTML = `
+                        <div style="color: green;">✅ Datos de recorte obtenidos</div>
+                        <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
+Archivo: ${file.name}
+Tamaño: ${file.size} bytes
+Tipo: ${file.type}
+
+Datos de recorte:
+${JSON.stringify(cropData, null, 2)}
+                        </pre>
+                        <div style="margin-top: 10px;">
+                            <button onclick="testCropUpload()" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px;">
+                                📤 Probar Upload con estos datos
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Guardar datos globalmente para el test
+                    window.testCropFile = file;
+                    window.testCropData = cropData;
+                    
+                    // Limpiar recursos
+                    tempCropper.destroy();
+                    document.body.removeChild(tempImg);
+                    URL.revokeObjectURL(imageUrl);
+                }
+            });
+        };
+    };
+    
+    // Simular click
+    input.click();
+}
+
+// Test upload con datos de recorte
+function testCropUpload() {
+    if (!window.testCropFile || !window.testCropData) {
+        document.getElementById('testResults').innerHTML = '<div style="color: red;">❌ No hay datos de recorte para probar</div>';
+        return;
+    }
+    
+    const results = document.getElementById('testResults');
+    results.innerHTML = '<div style="color: blue;">🔄 Probando upload con recorte...</div>';
+    
+    const formData = new FormData();
+    formData.append('avatar', window.testCropFile);
+    formData.append('cropData', JSON.stringify({ cropData: window.testCropData }));
+    
+    console.log('=== TEST CROP UPLOAD ===');
+    console.log('Archivo:', window.testCropFile.name);
+    console.log('Datos de recorte:', window.testCropData);
+    
+    fetch('api/upload-avatar.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('Respuesta:', response.status, response.statusText);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.text();
+    })
+    .then(textData => {
+        console.log('Respuesta raw:', textData);
+        
+        try {
+            const data = JSON.parse(textData);
+            results.innerHTML = `
+                <div style="color: green;">✅ Upload con recorte exitoso</div>
+                <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
+${JSON.stringify(data, null, 2)}
+                </pre>
+            `;
+        } catch (parseError) {
+            results.innerHTML = `
+                <div style="color: red;">❌ Error de JSON en upload con recorte: ${parseError.message}</div>
+                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+                    <strong>Respuesta raw:</strong><br>
+                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error en test crop upload:', error);
+        results.innerHTML = `<div style="color: red;">❌ Error en upload con recorte: ${error.message}</div>`;
+    });
+}
+
+// Test ultra básico - PHP puro sin JSON
+function testUltraBasic() {
+    const results = document.getElementById('testResults');
+    results.innerHTML = '<div style="color: blue;">🔄 Probando PHP ultra básico...</div>';
+    
+    fetch('test-ultra-basic.php')
+    .then(response => {
+        console.log('Ultra basic - Response status:', response.status);
+        console.log('Ultra basic - Response headers:', response.headers);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.text();
+    })
+    .then(textData => {
+        console.log('Ultra basic - Raw response:', textData);
+        
+        if (textData.includes('PHP funciona correctamente')) {
+            results.innerHTML = `
+                <div style="color: green;">✅ PHP Ultra Básico OK</div>
+                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace;">
+                    Respuesta: ${textData}
+                </div>
+            `;
+        } else {
+            results.innerHTML = `
+                <div style="color: orange;">⚠️ Respuesta inesperada</div>
+                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace;">
+                    ${textData}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Ultra basic error:', error);
+        results.innerHTML = `<div style="color: red;">❌ Error ultra básico: ${error.message}</div>`;
+    });
+}
+
+// Test ultra JSON - PHP con JSON pero sin includes
+function testUltraJson() {
+    const results = document.getElementById('testResults');
+    results.innerHTML = '<div style="color: blue;">🔄 Probando PHP con JSON...</div>';
+    
+    fetch('api/test-ultra-json.php')
+    .then(response => {
+        console.log('Ultra JSON - Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.text();
+    })
+    .then(textData => {
+        console.log('Ultra JSON - Raw response:', textData);
+        
+        try {
+            const data = JSON.parse(textData);
+            results.innerHTML = `
+                <div style="color: green;">✅ PHP con JSON OK</div>
+                <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
+${JSON.stringify(data, null, 2)}
+                </pre>
+            `;
+        } catch (parseError) {
+            results.innerHTML = `
+                <div style="color: red;">❌ Error de JSON en ultra test: ${parseError.message}</div>
+                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+                    <strong>Respuesta raw:</strong><br>
+                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Ultra JSON error:', error);
+        results.innerHTML = `<div style="color: red;">❌ Error en ultra JSON: ${error.message}</div>`;
+    });
+}
+
+// Test mínimo para verificar que PHP funciona
+function testMinimal() {
+    const results = document.getElementById('testResults');
+    results.innerHTML = '<div style="color: blue;">🔄 Probando PHP básico...</div>';
+    
+    fetch('api/test-minimal.php', {
+        method: 'POST',
+        body: new FormData()
+    })
+    .then(response => {
+        console.log('Minimal test - Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.text();
+    })
+    .then(textData => {
+        console.log('Minimal test - Raw response:', textData);
+        
+        try {
+            const data = JSON.parse(textData);
+            results.innerHTML = `
+                <div style="color: green;">✅ PHP Básico OK</div>
+                <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
+${JSON.stringify(data, null, 2)}
+                </pre>
+            `;
+        } catch (parseError) {
+            results.innerHTML = `
+                <div style="color: red;">❌ Error de JSON en test mínimo: ${parseError.message}</div>
+                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+                    <strong>Respuesta raw:</strong><br>
+                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Minimal test error:', error);
+        results.innerHTML = `<div style="color: red;">❌ Error en test mínimo: ${error.message}</div>`;
+    });
+}
+
+// Test de conectividad básica
+function testConnectivity() {
+    const results = document.getElementById('testResults');
+    results.innerHTML = '<div style="color: blue;">🔄 Probando conectividad...</div>';
+    
+    fetch('api/test-simple.php', {
+        method: 'POST',
+        body: new FormData()
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.text(); // Primero como texto para ver qué llega
+    })
+    .then(textData => {
+        console.log('Raw response:', textData);
+        
+        try {
+            const data = JSON.parse(textData);
+            results.innerHTML = `
+                <div style="color: green;">✅ Conectividad OK</div>
+                <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
+${JSON.stringify(data, null, 2)}
+                </pre>
+            `;
+        } catch (parseError) {
+            results.innerHTML = `
+                <div style="color: red;">❌ Error de JSON: ${parseError.message}</div>
+                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+                    <strong>Respuesta raw:</strong><br>
+                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Connectivity test error:', error);
+        results.innerHTML = `<div style="color: red;">❌ Error de conectividad: ${error.message}</div>`;
+    });
+}
+
+// Test de upload simple sin recorte
+function testSimpleUpload() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const results = document.getElementById('testResults');
+        results.innerHTML = '<div style="color: blue;">🔄 Probando upload simple...</div>';
+        
+        const formData = new FormData();
+        formData.append('avatar', file);
+        
+        fetch('api/upload-simple.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            console.log('Upload response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            return response.text(); // Primero como texto
+        })
+        .then(textData => {
+            console.log('Upload raw response:', textData);
+            
+            try {
+                const data = JSON.parse(textData);
+                
+                if (data.success) {
+                    results.innerHTML = `
+                        <div style="color: green;">✅ Upload simple exitoso</div>
+                        <div>Archivo: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)</div>
+                        <div>Avatar guardado en: ${data.data.avatar_path}</div>
+                    `;
+                    
+                    // Actualizar avatar en la página
+                    const avatarImg = document.querySelector('.profile-avatar img');
+                    if (avatarImg) {
+                        avatarImg.src = data.data.avatar_path + '?t=' + Date.now();
+                    }
+                } else {
+                    results.innerHTML = `<div style="color: red;">❌ Error: ${data.message}</div>`;
+                }
+            } catch (parseError) {
+                results.innerHTML = `
+                    <div style="color: red;">❌ Error de JSON: ${parseError.message}</div>
+                    <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+                        <strong>Respuesta raw:</strong><br>
+                        ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            results.innerHTML = `<div style="color: red;">❌ Error de red: ${error.message}</div>`;
+        });
+    };
+    
+    input.click();
+}
+
+// FUNCIÓN PRINCIPAL PARA EDITAR AVATAR
+// Esta función maneja todo el proceso: verificación, selección, recorte y subida
+function editAvatar() {
+    // Verificar si el usuario ya tiene avatar
+    const currentAvatar = document.querySelector('.profile-avatar img').src;
+    const hasAvatar = !currentAvatar.includes('usuario.png');
+    
+    // Si ya tiene avatar, preguntar si quiere cambiarlo
+    if (hasAvatar) {
+        Swal.fire({
+            title: '📸 ¿Cambiar Avatar?',
+            text: 'Ya tienes una foto de perfil. ¿Quieres cambiarla por una nueva?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, cambiar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#A2CB8D',
+            cancelButtonColor: '#6c757d'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showAvatarUploader();
+            }
+        });
+    } else {
+        // Si no tiene avatar, ir directo al selector
+        showAvatarUploader();
+    }
+}
+
+// FUNCIÓN PARA MOSTRAR EL SELECTOR DE ARCHIVOS
+// Crea un input file temporal y lo activa
+function showAvatarUploader() {
+    Swal.fire({
+        title: '📷 Seleccionar Imagen',
+        html: `
+            <div style="text-align: center; padding: 20px;">
+                <div style="margin-bottom: 20px;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3em; color: #A2CB8D; margin-bottom: 15px;"></i>
+                    <p style="color: #666; margin-bottom: 20px;">Selecciona una imagen para tu foto de perfil</p>
+                </div>
+                
+                <input type="file" id="avatarFile" accept="image/*" style="display: none;">
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('avatarFile').click()">
+                    <i class="fas fa-images"></i> Seleccionar Imagen
+                </button>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: left;">
+                    <small style="color: #666;">
+                        <strong>📋 Requisitos:</strong><br>
+                        • Tamaño máximo: 25MB<br>
+                        • Formatos: JPG, PNG, GIF, WebP<br>
+                        • Dimensión mínima: 100x100px<br>
+                        • Recomendado: Imagen cuadrada
+                    </small>
+                </div>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        cancelButtonColor: '#6c757d',
+        didOpen: () => {
+            // Cuando se abre el modal, configuramos el evento del input file
+            const fileInput = document.getElementById('avatarFile');
+            fileInput.addEventListener('change', handleFileSelection);
+        }
+    });
+}
+
+// FUNCIÓN PARA MANEJAR LA SELECCIÓN DE ARCHIVO
+// Se ejecuta cuando el usuario selecciona una imagen
+function handleFileSelection(event) {
+    const file = event.target.files[0];
+    
+    // Validar que se seleccionó un archivo
+    if (!file) {
+        return;
+    }
+    
+    // Validar tipo de archivo
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+        Swal.fire({
+            title: '❌ Archivo No Válido',
+            text: 'Por favor selecciona una imagen válida (JPG, PNG, GIF o WebP)',
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+        return;
+    }
+    
+    // Validar tamaño
+    const maxSize = 25 * 1024 * 1024; // 25MB
+    if (file.size > maxSize) {
+        Swal.fire({
+            title: '📏 Archivo Muy Grande',
+            text: 'La imagen debe ser menor a 25MB',
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+        return;
+    }
+    
+    // Si todo está bien, mostrar el recortador
+    showImageCropper(file);
+}
+
+// FUNCIÓN PARA MOSTRAR EL RECORTADOR DE IMAGEN
+// Usa Cropper.js para permitir al usuario recortar su imagen
+function showImageCropper(file) {
+    // Cerrar el modal actual
+    Swal.close();
+    
+    // Crear URL temporal para mostrar la imagen
+    const imageUrl = URL.createObjectURL(file);
+    
+    Swal.fire({
+        title: '✂️ Recortar Imagen',
+        html: `
+            <div style="max-width: 100%; margin: 0 auto;">
+                <div style="margin-bottom: 15px;">
+                    <p style="color: #666; margin: 0;">Arrastra para ajustar el área de tu foto de perfil</p>
+                </div>
+                <div style="max-height: 400px; overflow: hidden; border-radius: 8px;">
+                    <img id="cropperImage" src="${imageUrl}" style="max-width: 100%; display: block;">
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                    <small style="color: #666;">
+                        <i class="fas fa-info-circle"></i> 
+                        La imagen se recortará como un cuadrado perfecto para tu avatar
+                    </small>
+                </div>
+            </div>
+        `,
+        width: '600px',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-upload"></i> Subir Avatar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#A2CB8D',
+        cancelButtonColor: '#6c757d',
+        didOpen: () => {
+            // Inicializar Cropper.js cuando el modal se abre
+            const image = document.getElementById('cropperImage');
+            window.cropper = new Cropper(image, {
+                aspectRatio: 1, // Forzar cuadrado (1:1)
+                viewMode: 1, // Mostrar imagen completa
+                dragMode: 'move',
+                autoCropArea: 0.8, // 80% del área inicial
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+                responsive: true,
+                checkOrientation: true
+            });
+        },
+        willClose: () => {
+            // NO destruir cropper aquí, lo haremos después del upload
+            URL.revokeObjectURL(imageUrl);
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Obtener datos del cropper ANTES de destruirlo
+            if (window.cropper) {
+                const cropData = window.cropper.getData();
+                console.log('=== DATOS DE RECORTE OBTENIDOS ===');
+                console.log('Crop data:', cropData);
+                
+                // Destruir cropper después de obtener datos
+                window.cropper.destroy();
+                window.cropper = null;
+                
+                // Subir con los datos obtenidos
+                uploadCroppedImageWithData(file, cropData);
+            } else {
+                console.error('❌ No hay cropper disponible');
+                Swal.fire({
+                    title: '❌ Error',
+                    text: 'Error en el recortador de imagen',
+                    icon: 'error',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            }
+        } else {
+            // Si cancela, destruir cropper
+            if (window.cropper) {
+                window.cropper.destroy();
+                window.cropper = null;
+            }
+        }
+    });
+}
+
+// FUNCIÓN MEJORADA PARA SUBIR LA IMAGEN RECORTADA
+// Recibe los datos del cropper como parámetro (no depende de window.cropper)
+function uploadCroppedImageWithData(originalFile, cropData) {
+    // Validar que los datos de recorte sean válidos
+    if (!cropData || typeof cropData.x === 'undefined' || typeof cropData.y === 'undefined' ||
+        typeof cropData.width === 'undefined' || typeof cropData.height === 'undefined') {
+        Swal.fire({
+            title: '❌ Error',
+            text: 'Los datos de recorte no son válidos. Intenta de nuevo.',
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+        return;
+    }
+    
+    // Mostrar loading
+    Swal.fire({
+        title: '📤 Subiendo Avatar...',
+        html: `
+            <div style="text-align: center;">
+                <div style="margin-bottom: 15px;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 15px; border: 4px solid #f3f3f3; border-top: 4px solid #A2CB8D; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                </div>
+                <p>Procesando tu imagen...</p>
+                <small style="color: #666;">Esto puede tomar unos segundos</small>
+            </div>
+            <style>
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        `,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false
+    });
+    
+    // Crear FormData para enviar el archivo y datos del recorte
+    const formData = new FormData();
+    formData.append('avatar', originalFile);
+    formData.append('cropData', JSON.stringify({ cropData }));
+    
+    console.log('FormData creado, enviando a upload-avatar.php...');
+    
+    // Enviar directamente al endpoint principal (saltamos el test de conectividad)
+    fetch('api/upload-avatar.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.text();
+    })
+    .then(textData => {
+        try {
+            const data = JSON.parse(textData);
+            
+            if (data.success) {
+                // Primero cerrar el loading
+                Swal.close();
+                
+                // Éxito: actualizar la imagen en la página
+                const avatarImg = document.querySelector('.profile-avatar img');
+                
+                if (avatarImg) {
+                    const newPath = data.data.avatar_path + '?t=' + Date.now();
+                    avatarImg.src = newPath; // Cache busting
+                    
+                    // También actualizar el avatar del menú si existe
+                    const menuAvatar = document.querySelector('.dropdown-header img');
+                    if (menuAvatar) {
+                        menuAvatar.src = newPath;
+                    }
+                }
+                
+                // Pequeña pausa para que se vea el cambio de imagen
+                setTimeout(() => {
+                    Swal.fire({
+                        title: '✅ ¡Avatar Actualizado!',
+                        text: 'Tu foto de perfil se ha actualizado correctamente',
+                        icon: 'success',
+                        confirmButtonColor: '#A2CB8D',
+                        timer: 2000, // Se cierra automáticamente en 2 segundos
+                        showConfirmButton: true
+                    });
+                }, 300);
+            } else {
+                // Error del servidor
+                Swal.close(); // Cerrar loading
+                
+                setTimeout(() => {
+                    Swal.fire({
+                        title: '❌ Error al Subir',
+                        text: data.message || 'Hubo un problema al subir tu avatar',
+                        icon: 'error',
+                        confirmButtonColor: '#A2CB8D'
+                    });
+                }, 200);
+            }
+        } catch (parseError) {
+            Swal.close(); // Cerrar loading
+            
+            setTimeout(() => {
+                Swal.fire({
+                    title: '❌ Error de Formato',
+                    text: 'Error en la respuesta del servidor',
+                    icon: 'error',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            }, 200);
+        }
+    })
+    .catch(error => {
+        // Error de red o JS
+        Swal.close(); // Cerrar loading
+        
+        setTimeout(() => {
+            Swal.fire({
+                title: '❌ Error de Conexión',
+                text: 'No se pudo conectar con el servidor. Verifica tu conexión.',
+                icon: 'error',
+                confirmButtonColor: '#A2CB8D'
+            });
+        }, 200);
+    });
+}
+
+// FUNCIÓN PARA SUBIR LA IMAGEN RECORTADA (VERSIÓN ANTIGUA - MANTENER PARA COMPATIBILIDAD)
+// Obtiene los datos del recorte y envía todo al servidor
+function uploadCroppedImage(originalFile) {
+    if (!window.cropper) {
+        Swal.fire({
+            title: '❌ Error',
+            text: 'Error en el recortador de imagen',
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+        return;
+    }
+    
+    // Obtener datos del recorte
+    const cropData = window.cropper.getData();
+    
+    // Debug: Log de los datos de recorte
+    console.log('Datos de recorte:', cropData);
+    
+    // Validar que los datos de recorte sean válidos
+    if (!cropData || typeof cropData.x === 'undefined' || typeof cropData.y === 'undefined' ||
+        typeof cropData.width === 'undefined' || typeof cropData.height === 'undefined') {
+        Swal.fire({
+            title: '❌ Error',
+            text: 'Los datos de recorte no son válidos. Intenta de nuevo.',
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+        return;
+    }
+    
+    // Mostrar loading
+    Swal.fire({
+        title: '📤 Subiendo Avatar...',
+        html: `
+            <div style="text-align: center;">
+                <div style="margin-bottom: 15px;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 15px; border: 4px solid #f3f3f3; border-top: 4px solid #A2CB8D; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                </div>
+                <p>Procesando tu imagen...</p>
+                <small style="color: #666;">Esto puede tomar unos segundos</small>
+            </div>
+            <style>
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        `,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false
+    });
+    
+    // Crear FormData para enviar el archivo y datos del recorte
+    const formData = new FormData();
+    formData.append('avatar', originalFile);
+    formData.append('cropData', JSON.stringify({ cropData }));
+    
+    // Debug: Log del FormData
+    console.log('Enviando archivo:', originalFile.name, originalFile.size, 'bytes');
+    console.log('Datos de recorte JSON:', JSON.stringify({ cropData }));
+    
+    // PRIMERA PRUEBA: Enviar al test simple para verificar conectividad
+    console.log('=== INICIANDO TEST DE CONECTIVIDAD ===');
+    
+    // Enviar al test simple primero
+    fetch('api/test-simple.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('Test simple - Respuesta:', response.status, response.statusText);
+        return response.json();
+    })
+    .then(testData => {
+        console.log('Test simple - Datos:', testData);
+        
+        if (testData.success) {
+            console.log('✅ Test simple exitoso, probando upload real...');
+            
+            // Si el test funciona, intentar el upload real
+            return fetch('api/upload-avatar.php', {
+                method: 'POST',
+                body: formData
+            });
+        } else {
+            throw new Error('Test simple falló: ' + testData.error);
+        }
+    })
+    .then(response => {
+        console.log('Respuesta del servidor:', response.status, response.statusText);
+        return response.json();
+    })
+    .then(data => {
+        console.log('=== RESPUESTA DEL UPLOAD NORMAL ===');
+        console.log('Datos recibidos:', data);
+        console.log('Success:', data.success);
+        console.log('Avatar path:', data.data ? data.data.avatar_path : 'NO DATA');
+        
+        if (data.success) {
+            // Éxito: actualizar la imagen en la página
+            const avatarImg = document.querySelector('.profile-avatar img');
+            console.log('Avatar img element:', avatarImg);
+            
+            if (avatarImg) {
+                const newPath = data.data.avatar_path + '?t=' + Date.now();
+                console.log('Actualizando imagen a:', newPath);
+                avatarImg.src = newPath; // Cache busting
+                
+                // También actualizar el avatar del menú si existe
+                const menuAvatar = document.querySelector('.dropdown-header img');
+                if (menuAvatar) {
+                    console.log('Actualizando avatar del menú también');
+                    menuAvatar.src = newPath;
+                }
+            } else {
+                console.error('❌ No se encontró el elemento de imagen del avatar');
+            }
+            
+            Swal.fire({
+                title: '✅ ¡Avatar Actualizado!',
+                text: 'Tu foto de perfil se ha actualizado correctamente',
+                icon: 'success',
+                confirmButtonColor: '#A2CB8D'
+            });
+        } else {
+            // Error del servidor
+            console.error('Error del servidor:', data.message);
+            Swal.fire({
+                title: '❌ Error al Subir',
+                text: data.message || 'Hubo un problema al subir tu avatar',
+                icon: 'error',
+                confirmButtonColor: '#A2CB8D'
+            });
+        }
+    })
+    .catch(error => {
+        // Error de red o JS
+        console.error('Error de conexión:', error);
+        Swal.fire({
+            title: '❌ Error de Conexión',
+            text: 'No se pudo conectar con el servidor. Verifica tu conexión.',
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+    })
+    .finally(() => {
+        // Limpiar cropper
+        if (window.cropper) {
+            window.cropper.destroy();
+            window.cropper = null;
+        }
     });
 }
 

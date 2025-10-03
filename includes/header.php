@@ -46,19 +46,20 @@ require_once __DIR__ . '/functions.php';
                             ?>
                             <!-- Opciones para usuarios logueados -->
                             <div class="dropdown-header">
-                                <img src="img/usuario.png" alt="usuario">
+                                <img src="<?php echo isset($currentUser['avatar_path']) && !empty($currentUser['avatar_path']) ? htmlspecialchars($currentUser['avatar_path']) : 'img/usuario.png'; ?>" 
+                                     alt="usuario" 
+                                     onerror="this.src='img/usuario.png'"
+                                     style="border-radius: 50%; object-fit: cover;">
                                 <span>Hola, <?php echo htmlspecialchars($currentUser['username']); ?></span>
                             </div>
                             <div class="dropdown-divider"></div>
                             <a href="perfil.php">
                                 <button class="dropdown-item">
-                                    <div class="profile"></div>
                                     Mi Perfil
                                 </button>
                             </a>
                             <a href="#" onclick="showWipMessage('Mensajes'); return false;">
                                 <button class="dropdown-item">
-                                    <img src="img/chat.png" alt="mensajes">
                                     Mensajes <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(WIP)</span>
                                 </button>
                             </a>
