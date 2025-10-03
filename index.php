@@ -41,7 +41,14 @@ include 'includes/header.php';
                     </div>
                     <div class="cardfooter">
                         <div class="sellerinfo">
-                            <div class="profile"></div>
+                            <div class="profile">
+                                <?php if (!empty($producto['avatar_path'])): ?>
+                                    <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>" 
+                                         alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
+                                         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"
+                                         onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
+                                <?php endif; ?>
+                            </div>
                             <div class="usercontainer">
                                 <div class="name"><?php echo htmlspecialchars($producto['vendedor_name']); ?></div>
                                 <div class="stars">

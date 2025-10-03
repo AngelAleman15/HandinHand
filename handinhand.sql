@@ -1,220 +1,178 @@
--- IF NOT EXISTS: Cláusula que evita errores si la base de datos ya existe
-CREATE DATABASE IF NOT EXISTS handinhand;
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: 127.0.0.1:3306
+-- Tiempo de generación: 02-10-2025 a las 23:18:02
+-- Versión del servidor: 9.1.0
+-- Versión de PHP: 8.3.14
 
--- USE: Comando que selecciona la base de datos a utilizar para las siguientes operaciones
--- Todas las tablas y consultas posteriores se ejecutarán en esta base de datos
-USE handinhand;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
-CREATE TABLE usuarios (
-    -- AUTO_INCREMENT: MySQL incrementa automáticamente este valor con cada nuevo registro
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    
-    fullname VARCHAR(100) NOT NULL,
 
-    -- UNIQUE: Garantiza que no haya dos usuarios con el mismo username
-    -- NOT NULL: Campo obligatorio
-    username VARCHAR(50) UNIQUE NOT NULL,
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
-    email VARCHAR(100) UNIQUE NOT NULL,
-    
-    phone VARCHAR(20) NOT NULL,
+--
+-- Base de datos: `handinhand`
+--
 
-    password VARCHAR(255) NOT NULL,
+-- --------------------------------------------------------
 
-    birthdate DATE NOT NULL,
-    
-    -- created_at: Timestamp de cuando se creó el registro
-    -- TIMESTAMP: Tipo de dato fecha y hora
-    -- DEFAULT CURRENT_TIMESTAMP: Automáticamente establece la fecha/hora actual al crear el registro
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- updated_at: Timestamp de la última actualización del registro
-    -- ON UPDATE CURRENT_TIMESTAMP: Actualiza automáticamente cuando se modifica el registro
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+--
+-- Estructura de tabla para la tabla `categorias`
+--
 
-CREATE TABLE productos (
+DROP TABLE IF EXISTS `categorias`;
+CREATE TABLE IF NOT EXISTS `categorias` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(50) NOT NULL,
+  `descripcion` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    
-    user_id INT NOT NULL,
-    
+--
+-- Volcado de datos para la tabla `categorias`
+--
 
-    nombre VARCHAR(100) NOT NULL,
-    
-    descripcion TEXT,
-    
-    imagen VARCHAR(255) NOT NULL,
+INSERT INTO `categorias` (`id`, `nombre`, `descripcion`, `created_at`) VALUES
+(1, 'Calzado', 'Zapatos, zapatillas y todo tipo de calzado', '2025-10-02 19:10:12'),
+(2, 'Ropa', 'Vestimenta en general', '2025-10-02 19:10:12'),
+(3, 'Electrónicos', 'Dispositivos electrónicos y tecnología', '2025-10-02 19:10:12'),
+(4, 'Hogar', 'Artículos para el hogar y decoración', '2025-10-02 19:10:12'),
+(5, 'Deportes', 'Artículos deportivos y fitness', '2025-10-02 19:10:12'),
+(6, 'Libros', 'Libros, revistas y material educativo', '2025-10-02 19:10:12'),
+(7, 'Música', 'Instrumentos musicales y equipos de audio', '2025-10-02 19:10:12'),
+(8, 'Juguetes', 'Juguetes y juegos para todas las edades', '2025-10-02 19:10:12'),
+(9, 'Herramientas', 'Herramientas y equipos de trabajo', '2025-10-02 19:10:12'),
+(10, 'Accesorios', 'Accesorios y complementos diversos', '2025-10-02 19:10:12');
 
-    categoria VARCHAR(50),
-    
-    -- estado: Estado actual del producto en el sistema de trueques
-    -- ENUM: Tipo de dato que limita los valores a una lista específica
-    -- 'disponible': Producto disponible para intercambio
-    -- 'intercambiado': Producto ya intercambiado (historial)
-    -- 'reservado': Producto reservado para intercambio pendiente
-    -- DEFAULT 'disponible': Valor por defecto cuando se crea un producto
-    estado ENUM('disponible', 'intercambiado', 'reservado') DEFAULT 'disponible',
-    
-    -- created_at: Timestamp de creación del producto
-    -- TIMESTAMP: Fecha y hora de cuando se publicó el producto
-    -- DEFAULT CURRENT_TIMESTAMP: Se establece automáticamente al crear
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- updated_at: Timestamp de última actualización
-    -- ON UPDATE CURRENT_TIMESTAMP: Se actualiza automáticamente cuando se modifica
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+-- --------------------------------------------------------
 
-    -- ON DELETE CASCADE: Si se elimina un usuario, se eliminan automáticamente todos sus productos
-    FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
-);
+--
+-- Estructura de tabla para la tabla `mensajes`
+--
 
-CREATE TABLE categorias (
+DROP TABLE IF EXISTS `mensajes`;
+CREATE TABLE IF NOT EXISTS `mensajes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `producto_id` int NOT NULL,
+  `remitente_id` int NOT NULL,
+  `destinatario_id` int NOT NULL,
+  `mensaje` text NOT NULL,
+  `leido` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `producto_id` (`producto_id`),
+  KEY `remitente_id` (`remitente_id`),
+  KEY `destinatario_id` (`destinatario_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    id INT PRIMARY KEY AUTO_INCREMENT,
+-- --------------------------------------------------------
 
-    nombre VARCHAR(50) NOT NULL,
+--
+-- Estructura de tabla para la tabla `productos`
+--
 
-    descripcion TEXT,
+DROP TABLE IF EXISTS `productos`;
+CREATE TABLE IF NOT EXISTS `productos` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `descripcion` text,
+  `imagen` varchar(255) NOT NULL,
+  `categoria` varchar(50) DEFAULT NULL,
+  `estado` enum('disponible','intercambiado','reservado') DEFAULT 'disponible',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+--
+-- Volcado de datos para la tabla `productos`
+--
 
-CREATE TABLE mensajes (
+INSERT INTO `productos` (`id`, `user_id`, `nombre`, `descripcion`, `imagen`, `categoria`, `estado`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Zapatos Deportivos Nike', 'Zapatos deportivos en excelente estado, poco uso. Perfectos para correr o hacer ejercicio.', 'img/productos/Zapatosdeportivosnike.jpg', 'Calzado', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(2, 1, 'Guitarra Acústica', 'Guitarra acústica en buen estado, ideal para principiantes. Incluye funda protectora.', 'img/productos/Guitarraacustica.jpg', 'Música', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(3, 1, 'Libro \"El Principito\"', 'Clásico de la literatura en perfecto estado. Edición especial con ilustraciones.', 'img/productos/elprincipito.jpg', 'Libros', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(4, 2, 'Smartphone Samsung', 'Samsung Galaxy en excelente estado, con cargador y protector. Funciona perfectamente.', 'img/productos/smartphonesamsungjpg.jpg', 'Electrónicos', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(5, 2, 'Chaqueta de Cuero', 'Chaqueta de cuero genuino, talla M. Muy poco uso, perfecta para invierno.', 'img/productos/chaquetadecuerojpg.jpg', 'Ropa', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(6, 2, 'Bicicleta de Montaña', 'Bicicleta en muy buen estado, ideal para aventuras al aire libre. Incluye casco.', 'img/productos/bicicletademontaña.jpg', 'Deportes', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(7, 3, 'Cafetera Express', 'Cafetera express automática, hace café delicioso. Incluye manual de uso.', 'img/productos/cafeteraexpress.jpg', 'Hogar', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(8, 3, 'Juego de Mesa Monopoly', 'Monopoly clásico en excelente estado, completo con todas las piezas.', 'img/productos/monopoly.jpg', 'Juguetes', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(9, 3, 'Taladro Eléctrico', 'Taladro eléctrico con set de brocas. Perfecto para proyectos de hogar.', 'img/productos/taladroelectrico.jpg', 'Herramientas', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(10, 4, 'Reloj Vintage', 'Reloj de pulsera vintage en perfecto funcionamiento. Estilo clásico y elegante.', 'img/productos/relojvintage.jpg', 'Accesorios', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14');
 
-    id INT PRIMARY KEY AUTO_INCREMENT,
+-- --------------------------------------------------------
 
-    producto_id INT NOT NULL,
+--
+-- Estructura de tabla para la tabla `usuarios`
+--
 
-    remitente_id INT NOT NULL,
-    
-    destinatario_id INT NOT NULL,
+DROP TABLE IF EXISTS `usuarios`;
+CREATE TABLE IF NOT EXISTS `usuarios` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `fullname` varchar(100) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `birthdate` date NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `avatar_path` varchar(255) DEFAULT NULL COMMENT 'Ruta del archivo de avatar del usuario. NULL = usar avatar por defecto',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    mensaje TEXT NOT NULL,
-    
-    -- BOOLEAN: Tipo de dato verdadero/falso (1/0 en MySQL)
-    -- DEFAULT FALSE: Por defecto, los mensajes nuevos no han sido leídos
-    leido BOOLEAN DEFAULT FALSE,
-    
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- CLAVES FORÁNEAS: Establecen relaciones con otras tablas
-    -- ON DELETE CASCADE: Si se elimina el producto/usuario, se eliminan los mensajes relacionados
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    FOREIGN KEY (remitente_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (destinatario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-);
+--
+-- Volcado de datos para la tabla `usuarios`
+--
 
-CREATE TABLE valoraciones (
+INSERT INTO `usuarios` (`id`, `fullname`, `username`, `email`, `phone`, `password`, `birthdate`, `created_at`, `updated_at`, `avatar_path`) VALUES
+(1, 'Angel Alemán', 'Angel', 'angel@example.com', '+598123456789', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '1995-05-15', '2025-10-02 19:10:12', '2025-10-02 23:06:47', 'uploads/avatars/avatar_1_68df05875c7c9.jpg'),
+(2, 'Alejo García', 'Alejo', 'alejo@example.com', '+598987654321', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '1998-03-20', '2025-10-02 19:10:12', '2025-10-02 19:10:12', NULL),
+(3, 'Milagros Pérez', 'Milagros', 'milagros@example.com', '+598456789123', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '1997-08-10', '2025-10-02 19:10:12', '2025-10-02 19:10:12', NULL),
+(4, 'Usuario Test', 'test', 'test@example.com', '+598999999999', '$2y$10$tSYWBxR9Im1bivzvfd0CmOTDBVp79ta/wc.tA86PbNSyfaSYcCYYa', '2000-01-01', '2025-10-02 19:10:12', '2025-10-02 19:10:12', NULL);
 
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    
-    usuario_id INT NOT NULL,
+-- --------------------------------------------------------
 
-    valorador_id INT NOT NULL,
-    
-    -- puntuacion: Puntuación numérica de la valoración
-    -- CHECK: Restricción que valida que la puntuación esté entre 1 y 5
-    -- >= 1 AND <= 5: Escala de 1 estrella (mínimo) a 5 estrellas (máximo)
-    puntuacion INT CHECK (puntuacion >= 1 AND puntuacion <= 5),
+--
+-- Estructura de tabla para la tabla `valoraciones`
+--
 
-    comentario TEXT,
+DROP TABLE IF EXISTS `valoraciones`;
+CREATE TABLE IF NOT EXISTS `valoraciones` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `usuario_id` int NOT NULL,
+  `valorador_id` int NOT NULL,
+  `puntuacion` int DEFAULT NULL,
+  `comentario` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_valoracion` (`usuario_id`,`valorador_id`),
+  KEY `valorador_id` (`valorador_id`)
+) ;
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--
+-- Volcado de datos para la tabla `valoraciones`
+--
 
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (valorador_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+INSERT INTO `valoraciones` (`id`, `usuario_id`, `valorador_id`, `puntuacion`, `comentario`, `created_at`) VALUES
+(1, 1, 2, 5, 'Excelente persona para hacer trueques, muy recomendable', '2025-10-02 19:10:12'),
+(2, 1, 3, 4, 'Buen trato y productos de calidad para intercambiar', '2025-10-02 19:10:12'),
+(3, 2, 1, 5, 'Intercambio perfecto, muy confiable y puntual', '2025-10-02 19:10:12'),
+(4, 3, 4, 4, 'Gran experiencia de trueque, productos tal como se describían', '2025-10-02 19:10:12');
+COMMIT;
 
-    UNIQUE KEY unique_valoracion (usuario_id, valorador_id)
-);
-
--- Los datos de prueba permiten probar la funcionalidad sin tener que crear usuarios manualmente
-
--- USUARIOS DE PRUEBA CON CONTRASEÑAS CONOCIDAS:
--- Angel / password    (Hash: $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi)
--- Alejo / password    (mismo hash para pruebas)
--- Milagros / password (mismo hash para pruebas)  
--- test / 123456       (Hash: $2y$10$tSYWBxR9Im1bivzvfd0CmOTDBVp79ta/wc.tA86PbNSyfaSYcCYYa)
-
-INSERT INTO usuarios (fullname, username, email, phone, password, birthdate) VALUES
--- Usuario 1: Angel Alemán
--- '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi': Hash bcrypt de "password"
--- '1995-05-15': Fecha de nacimiento en formato YYYY-MM-DD (mayo 15, 1995)
-('Angel Alemán', 'Angel', 'angel@example.com', '+598123456789', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '1995-05-15'),
-
--- Usuario 2: Alejo García
--- Mismo hash de contraseña que Angel (ambos usan "password")
--- '1998-03-20': Nacido el 20 de marzo de 1998
-('Alejo García', 'Alejo', 'alejo@example.com', '+598987654321', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '1998-03-20'),
-
--- Usuario 3: Milagros Pérez
--- '1997-08-10': Nacida el 10 de agosto de 1997
-('Milagros Pérez', 'Milagros', 'milagros@example.com', '+598456789123', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '1997-08-10'),
-
--- Usuario 4: Usuario Test
--- '$2y$10$tSYWBxR9Im1bivzvfd0CmOTDBVp79ta/wc.tA86PbNSyfaSYcCYYa': Hash bcrypt de "123456"
--- '2000-01-01': Nacido el 1 de enero del 2000
-('Usuario Test', 'test', 'test@example.com', '+598999999999', '$2y$10$tSYWBxR9Im1bivzvfd0CmOTDBVp79ta/wc.tA86PbNSyfaSYcCYYa', '2000-01-01');
-
-INSERT INTO productos (user_id, nombre, descripcion, imagen, categoria) VALUES
-
-(1, 'Zapatos Deportivos Nike', 'Zapatos deportivos en excelente estado, poco uso. Perfectos para correr o hacer ejercicio.', 'img/zapato.jpg', 'Calzado'),
-
-(1, 'Guitarra Acústica', 'Guitarra acústica en buen estado, ideal para principiantes. Incluye funda protectora.', 'img/zapato.jpg', 'Música'),
-
-(1, 'Libro "El Principito"', 'Clásico de la literatura en perfecto estado. Edición especial con ilustraciones.', 'img/zapato.jpg', 'Libros'),
-
-(2, 'Smartphone Samsung', 'Samsung Galaxy en excelente estado, con cargador y protector. Funciona perfectamente.', 'img/zapato.jpg', 'Electrónicos'),
-
-(2, 'Chaqueta de Cuero', 'Chaqueta de cuero genuino, talla M. Muy poco uso, perfecta para invierno.', 'img/zapato.jpg', 'Ropa'),
-
-(2, 'Bicicleta de Montaña', 'Bicicleta en muy buen estado, ideal para aventuras al aire libre. Incluye casco.', 'img/zapato.jpg', 'Deportes'),
-
-(3, 'Cafetera Express', 'Cafetera express automática, hace café delicioso. Incluye manual de uso.', 'img/zapato.jpg', 'Hogar'),
-
-(3, 'Juego de Mesa Monopoly', 'Monopoly clásico en excelente estado, completo con todas las piezas.', 'img/zapato.jpg', 'Juguetes'),
-
-(3, 'Taladro Eléctrico', 'Taladro eléctrico con set de brocas. Perfecto para proyectos de hogar.', 'img/zapato.jpg', 'Herramientas'),
-
-(4, 'Reloj Vintage', 'Reloj de pulsera vintage en perfecto funcionamiento. Estilo clásico y elegante.', 'img/zapato.jpg', 'Accesorios');
-
-INSERT INTO categorias (nombre, descripcion) VALUES
--- Categoría 1: Calzado
-('Calzado', 'Zapatos, zapatillas y todo tipo de calzado'),
-
--- Categoría 2: Ropa
-('Ropa', 'Vestimenta en general'),
-
--- Categoría 3: Electrónicos
-('Electrónicos', 'Dispositivos electrónicos y tecnología'),
-
--- Categoría 4: Hogar
-('Hogar', 'Artículos para el hogar y decoración'),
-
--- Categoría 5: Deportes
-('Deportes', 'Artículos deportivos y fitness'),
-
--- Categoría 6: Libros
-('Libros', 'Libros, revistas y material educativo'),
-
--- Categoría 7: Música
-('Música', 'Instrumentos musicales y equipos de audio'),
-
--- Categoría 8: Juguetes
-('Juguetes', 'Juguetes y juegos para todas las edades'),
-
--- Categoría 9: Herramientas
-('Herramientas', 'Herramientas y equipos de trabajo'),
-
--- Categoría 10: Accesorios
-('Accesorios', 'Accesorios y complementos diversos');
-
-INSERT INTO valoraciones (usuario_id, valorador_id, puntuacion, comentario) VALUES
-
-(1, 2, 5, 'Excelente persona para hacer trueques, muy recomendable'),
-
-(1, 3, 4, 'Buen trato y productos de calidad para intercambiar'),
-
-(2, 1, 5, 'Intercambio perfecto, muy confiable y puntual'),
-
-(3, 4, 4, 'Gran experiencia de trueque, productos tal como se describían');
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

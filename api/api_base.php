@@ -100,8 +100,18 @@ function sendError($message = 'Error en la operación', $code = 400, $details = 
         $response['details'] = $details;
     }
     
+    // Limpiar cualquier output previo (warnings, etc.)
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    
     // json_encode(): Convertimos nuestro array PHP en JSON para mandarlo
     // echo: Lo imprimimos para que llegue al navegador/aplicación que pidió la info
+    // Limpiar cualquier output previo (warnings, etc.)
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    
     echo json_encode($response, JSON_UNESCAPED_UNICODE);
     
     exit();
@@ -275,8 +285,4 @@ function sanitizeData($data) {
     return htmlspecialchars(strip_tags(trim($data)));
 }
 
-// ETIQUETA DE CIERRE PHP
-// ?>: Indica el final del código PHP
-// Opcional al final de archivos que solo contienen PHP
-// Si hay contenido HTML después, esta etiqueta es necesaria
-?>
+// Final del archivo - sin etiqueta de cierre para evitar problemas de output

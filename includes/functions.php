@@ -10,6 +10,7 @@ function isLoggedIn() {
 
 /**
  * Función para obtener datos del usuario actual
+ * Ahora incluye avatar_path para mostrar la foto de perfil personalizada
  */
 function getCurrentUser() {
     if (!isLoggedIn()) {
@@ -18,7 +19,8 @@ function getCurrentUser() {
     
     require_once __DIR__ . '/../config/database.php';
     $pdo = getConnection();
-    $stmt = $pdo->prepare("SELECT id, fullname, username, email FROM usuarios WHERE id = ?");
+    // Incluimos avatar_path en la consulta para obtener la ruta de la foto de perfil
+    $stmt = $pdo->prepare("SELECT id, fullname, username, email, avatar_path, created_at FROM usuarios WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
@@ -57,7 +59,7 @@ function getProductos($limit = null, $busqueda = null) {
     require_once __DIR__ . '/../config/database.php';
     $pdo = getConnection();
     
-    $sql = "SELECT p.*, u.username as vendedor_username, u.fullname as vendedor_name,
+    $sql = "SELECT p.*, u.username as vendedor_username, u.fullname as vendedor_name, u.avatar_path,
                    COALESCE(AVG(v.puntuacion), 0) as promedio_estrellas
             FROM productos p 
             JOIN usuarios u ON p.user_id = u.id 
@@ -90,7 +92,7 @@ function getProducto($id) {
     require_once __DIR__ . '/../config/database.php';
     $pdo = getConnection();
     
-    $stmt = $pdo->prepare("SELECT p.*, u.username as vendedor_username, u.fullname as vendedor_name,
+    $stmt = $pdo->prepare("SELECT p.*, u.username as vendedor_username, u.fullname as vendedor_name, u.avatar_path,
                                   COALESCE(AVG(v.puntuacion), 0) as promedio_estrellas
                            FROM productos p 
                            JOIN usuarios u ON p.user_id = u.id 
