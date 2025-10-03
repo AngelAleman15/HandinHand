@@ -86,41 +86,44 @@
         border-radius: 50px;
     }
     .user-profile img {
-        width: 100%;
+        width: 65%;
         height: 100%;
-        border-radius: 30px;
+        border-radius: 50%;
         background-color: whitesmoke;
         cursor: pointer;
         transition: ease-in-out 0.3s;
         background-size: cover;
     }
     .contact-info {
-        display: flex;
-        justify-content: flex-start;
+        display: grid;
+        grid-template-columns: 20% 70% 10%;
         align-items: center;
-        width: 85%;
-        height: 10%;
+        justify-content: center;
+        width: 30vw;
+        height: 10vh;
         background-color: greenyellow;
         border-radius: 20px;
         padding: 1%;
         margin: 3%;
+        grid-template-rows: 100%;
     }
     .contact-info img {
-        width: 6vw;
+        width: 5vw;
         height: 8vh;
         background-color: whitesmoke;
         border-radius: 50%;
         cursor: pointer;
         transition: ease-in-out 0.3s;
     }
-    .contact-name {
-        margin-left: 5%;
+    .contact-name-message {
         color: white;
         display: flex;
-        justify-content: flex-start;
+        justify-content: center;
         align-items: flex-start;
-        width: 60%;
-        height: 100%;
+        flex-direction: column;
+        width: 20vw;
+        height: 20vh;
+        font-size: 3vh;
         font-family: Arial, Helvetica, sans-serif;
     }
     .contact-message {
@@ -131,6 +134,21 @@
         color: black;
         font-size: 0.8rem;
         margin-left: 5%;
+    }
+    .contact-name {
+        width: 100%;
+        height: 40%;
+        font-weight: bold;
+        font-size: 1.5rem;
+        margin: 2%;
+    }
+    .contact-status {
+        position: absolute;
+        width: 1vw;
+        height: 2vh;
+        border-radius: 50px;
+        background-color: green;
+        left: 35%;
     }
 </style>
 
@@ -151,15 +169,20 @@
             <div class="contact-pf">
                 <img src="img/profile-example.png" alt="contact">
             </div>
-            <div class="contact-name">
-                <h3>Nombre Contacto</h3>
-            </div>
-            <div class="contact-message">
-                <p>Che, ayer a victoria...</p>
+            <div class="contact-name-message">
+                <div class="contact-name">
+                    <h3>Alejo García</h3>
+                </div>
+                <div class="contact-message">
+                    <p>Che, ayer vi a...</p>
+                </div>
+                <div class="contact-status"></div>
             </div>
         </div>
     </div>
-    <div class="chat-utu"></div>
+    <div class="chat-utu">
+
+    </div>
 </div>
 </body>
 </html>
