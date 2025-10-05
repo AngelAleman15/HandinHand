@@ -17,23 +17,25 @@
         height: 100%;
         margin: 0;
         padding: 0;
-        background-color: yellowgreen;
+        background: linear-gradient(45deg, #005C53, #9FC131);
+
     }
     .chat-container {
         display: flex;
-        width: 100%;
-        height: 100%;
+        width: 99%;
+        height: 99%;
         flex-direction: row;
+        gap: 10px;
     }
     .chat-user-opt {
-        width: 8%;
+        width: 10%;
         height: 100%;
-        background-color: darkgreen;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        gap: 0;
+        background-color: #005C5380;
+        border-radius: 10px;
     }
     .chat-user-opt img {
         background-color: whitesmoke;
@@ -46,18 +48,14 @@
     .chat-user-opt img:hover {
         transform: scale(1.1);
         background-color: greenyellow;
+        border: solid 2px whitesmoke;
     }
 
     .user-contacts {
         width: 40%;
         height: 100%;
-        background-color: whitesmoke;
-
-    }
-    .chat-utu {
-        width: 70%;
-        height: 100%;
-        background-color: blueviolet;
+        background-color: #005C5380;
+        border-radius: 10px;
     }
 
     .users-chat-contacts {
@@ -95,17 +93,17 @@
         background-size: cover;
     }
     .contact-info {
-        display: grid;
-        grid-template-columns: 20% 70% 10%;
+        display: flex;
+        flex-direction: row;
         align-items: center;
-        justify-content: center;
+        justify-content: space-around;
         width: 30vw;
         height: 10vh;
         background-color: greenyellow;
         border-radius: 20px;
         padding: 1%;
         margin: 3%;
-        grid-template-rows: 100%;
+        transition: ease-in-out 0.1s;
     }
     .contact-info img {
         width: 5vw;
@@ -113,7 +111,9 @@
         background-color: whitesmoke;
         border-radius: 50%;
         cursor: pointer;
-        transition: ease-in-out 0.3s;
+    }
+    .contact-info:hover {
+        background-color: yellowgreen;
     }
     .contact-name-message {
         color: white;
@@ -150,6 +150,77 @@
         background-color: green;
         left: 35%;
     }
+
+    .chat-utu {
+        width: 70%;
+        height: 100%;
+        display: grid;
+        grid-template-rows: 10% 80% 10%;
+        background-color: #005C5380;
+        border-radius: 10px;
+    }
+    .chat-header {
+        width: 100%;
+        height: 10vh;
+        background-color: #005C5380;
+        margin: 0%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 10px 10px 0px 0px;
+    }
+    .contact-pf {
+        width: 10%;
+        height: 100%;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .contact-pf img {
+        width: 5vw;
+        height: 7vh;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: ease-in-out 0.3s;
+        background-size: cover;
+    }
+    .chat-header-contact-name {
+        color: greenyellow;
+        font-size: 3vh;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .chat-header-options {
+        width: 10vw;
+        height: 6vh;
+        background-color: whitesmoke;
+        border-radius: 50px;
+        cursor: pointer;
+        margin-right: 5%;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+    .chat-header-options img {
+        width: 4vh;
+        height: 4vh;
+        cursor: pointer;
+    }
+    .header-option {
+        width: 4vh;
+        height: 4vh;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: ease-in-out 0.3s;
+    }
+    .header-option:hover {
+        background: linear-gradient(45deg, #005C53, #9FC131);
+        transform: scale(1.1);
+    }
 </style>
 
 <div class="chat-container">
@@ -181,7 +252,25 @@
         </div>
     </div>
     <div class="chat-utu">
-
+        <div class="chat-header">
+            <div class="contact-pf">
+                <img src="img/profile-example.png" alt="contact">
+            </div>
+            <div class="chat-header-contact-name">
+                <h2>Alejo García</h2>
+            </div>
+            <div class="chat-header-options">
+                <div class="header-option">
+                    <img src="img/earth-globe.png" alt="Geolocate">
+                </div>
+                <div class="header-option">
+                    <img src="img/earth-globe.png" alt="Geolocate">
+                </div>
+                <div class="header-option">
+                    <img src="img/earth-globe.png" alt="Geolocate">
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>
