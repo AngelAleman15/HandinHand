@@ -1,5 +1,5 @@
 const UserInput = document.getElementById('userinput');
-
+const ContactMessage = document.getElementById('contactmessage');
 
 UserInput.addEventListener('keypress', (e) => {
 if (e.key === 'Enter' && !e.shiftKey) {
@@ -8,5 +8,6 @@ if (e.key === 'Enter' && !e.shiftKey) {
 }
 });
   async function SendMessage() {
-    const mensajeUsuario = UserInput.value;
+    const mensajeUsuario = UserInput.value.trim();
+    if (mensajeUsuario === '') return;
   }
