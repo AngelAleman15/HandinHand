@@ -1128,17 +1128,17 @@ body.no-header-padding {
     padding: 0 10px;
     height: 60px;
   }
-  
+
   .logo img {
     width: 100px;
     height: 35px;
   }
-  
+
   .menu li img {
     width: 25px;
     height: 25px;
   }
-  
+
   /* Navbar responsivo */
   .navbar-container {
     height: 40vh;
@@ -1146,24 +1146,24 @@ body.no-header-padding {
     margin-top: -60px;
     padding-top: 70px;
   }
-  
+
   .quote {
     font-size: 28px;
     margin: 10px 0;
   }
-  
+
   .inputnav {
     width: 90%;
     max-width: 300px;
     height: 40px;
     font-size: 14px;
   }
-  
+
   .btnnav {
     width: 50px;
     height: 40px;
   }
-  
+
   /* Cards container - 1 columna en móvil */
   .cardscontainer {
     grid-template-columns: 1fr;
@@ -1171,7 +1171,7 @@ body.no-header-padding {
     gap: 15px;
     margin: 10px 0;
   }
-  
+
   /* Cards responsivas */
   .card {
     min-height: 280px;
@@ -1180,20 +1180,20 @@ body.no-header-padding {
     margin: 0 auto;
     max-width: 95%;
   }
-  
+
   .cardimg {
     width: 90%;
     height: 120px;
   }
-  
+
   .cardtitle {
     font-size: 16px;
   }
-  
+
   .carddescription {
     font-size: 11px;
   }
-  
+
   /* Botones responsivos */
   .btncontact, .btn-edit {
     padding: 6px 8px;
@@ -1203,12 +1203,12 @@ body.no-header-padding {
     width: auto;
     letter-spacing: 0.1px;
   }
-  
+
   .owner-actions {
     gap: 4px;
     margin: 10px 5px 0px 5px;
   }
-  
+
   /* Formularios responsivos */
   .field {
     width: 90%;
@@ -1216,22 +1216,22 @@ body.no-header-padding {
     height: 45px;
     font-size: 16px;
   }
-  
+
   .field::placeholder {
     font-size: 16px;
   }
-  
+
   /* Body padding para header móvil */
   body {
     padding-top: 60px;
   }
-  
+
   /* Dropdown menu móvil */
   .dropdown-menu {
     min-width: 180px;
     top: 45px;
   }
-  
+
   /* Chatbot responsivo */
   #chatbot-icon {
     width: 50px;
@@ -1239,12 +1239,12 @@ body.no-header-padding {
     bottom: 15px;
     right: 15px;
   }
-  
+
   #chatbot-icon img {
     width: 25px;
     height: 25px;
   }
-  
+
   #chatbot-container {
     width: calc(100vw - 20px);
     right: 10px;
@@ -1259,32 +1259,32 @@ body.no-header-padding {
   .header {
     padding: 0 15px;
   }
-  
+
   .logo img {
     width: 120px;
     height: 40px;
   }
-  
+
   .menu li img {
     width: 30px;
     height: 30px;
   }
-  
+
   /* Navbar */
   .navbar-container {
     height: 45vh;
     padding: 15px;
   }
-  
+
   .quote {
     font-size: 36px;
   }
-  
+
   .inputnav {
     width: 80%;
     max-width: 350px;
   }
-  
+
   /* Cards container - 2 columnas en tablet pequeña */
   .cardscontainer {
     grid-template-columns: repeat(2, 1fr);
@@ -1292,21 +1292,21 @@ body.no-header-padding {
     gap: 20px;
     margin: 15px 5px;
   }
-  
+
   .card {
     min-height: 290px;
     max-height: 370px;
     max-width: 100%;
   }
-  
+
   .cardimg {
     height: 130px;
   }
-  
+
   .cardtitle {
     font-size: 18px;
   }
-  
+
   .btncontact, .btn-edit {
     padding: 7px 10px;
     font-size: 9px;
@@ -1323,22 +1323,22 @@ body.no-header-padding {
     width: 125px;
     height: 42px;
   }
-  
+
   .menu li img {
     width: 32px;
     height: 32px;
   }
-  
+
   /* Navbar */
   .quote {
     font-size: 42px;
   }
-  
+
   .inputnav {
     width: 70%;
     max-width: 400px;
   }
-  
+
   /* Cards container - 3 columnas en tablet */
   .cardscontainer {
     grid-template-columns: repeat(3, 1fr);
@@ -1346,17 +1346,17 @@ body.no-header-padding {
     padding: 20px 15px;
     margin: 20px 10px;
   }
-  
+
   .card {
     min-height: 280px;
     max-height: 360px;
     max-width: 100%;
   }
-  
+
   .cardimg {
     height: 140px;
   }
-  
+
   .btncontact, .btn-edit {
     min-width: 75px;
     width: auto;
@@ -1372,7 +1372,7 @@ body.no-header-padding {
   .cardscontainer {
     grid-template-columns: repeat(4, 1fr);
   }
-  
+
   .quote {
     font-size: 46px;
   }
@@ -1384,7 +1384,7 @@ body.no-header-padding {
   .cardscontainer {
     grid-template-columns: repeat(5, 1fr);
   }
-  
+
   .quote {
     font-size: 50px;
   }
@@ -1395,12 +1395,12 @@ body.no-header-padding {
   .login-title {
     font-size: 20px;
   }
-  
+
   .main-content {
     margin: 15px 10px;
     flex-direction: column;
   }
-  
+
   .cardquote {
     padding: 15px 20px 15px 20px;
     font-size: 16px;
@@ -1411,7 +1411,7 @@ body.no-header-padding {
   .main-content {
     margin: 20px 50px;
   }
-  
+
   .cardquote {
     font-size: 18px;
   }
@@ -1424,16 +1424,16 @@ body.no-header-padding {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .socialcontainer {
     gap: 10px;
   }
-  
+
   .social img {
     width: 20px;
     height: 20px;
   }
-  
+
   .footerinfo {
     font-size: 10px;
   }
@@ -1444,16 +1444,16 @@ body.no-header-padding {
   .navbar-container {
     height: 80vh;
   }
-  
+
   .quote {
     font-size: 24px;
     margin: 5px 0;
   }
-  
+
   body {
     padding-top: 50px;
   }
-  
+
   .header {
     height: 50px;
   }

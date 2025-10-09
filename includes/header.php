@@ -13,13 +13,13 @@ require_once __DIR__ . '/functions.php';
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/perseo-actions.css?v=<?php echo time(); ?>">
     <title><?php echo isset($page_title) ? $page_title : 'HandinHand'; ?></title>
-    
+
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <!-- Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Scripts adicionales si están definidos -->
     <?php if (isset($additional_scripts) && is_array($additional_scripts)): ?>
         <?php foreach ($additional_scripts as $script): ?>
@@ -41,13 +41,13 @@ require_once __DIR__ . '/functions.php';
                     <img src="img/menudesplegable.png" alt="menú desplegable" id="menu-toggle" class="menutoggle">
                     <div class="dropdown-menu" id="dropdown-menu">
                         <?php if (isLoggedIn()): ?>
-                            <?php 
+                            <?php
                             $currentUser = getCurrentUser();
                             ?>
                             <!-- Opciones para usuarios logueados -->
                             <div class="dropdown-header">
-                                <img src="<?php echo isset($currentUser['avatar_path']) && !empty($currentUser['avatar_path']) ? htmlspecialchars($currentUser['avatar_path']) : 'img/usuario.png'; ?>" 
-                                     alt="usuario" 
+                                <img src="<?php echo isset($currentUser['avatar_path']) && !empty($currentUser['avatar_path']) ? htmlspecialchars($currentUser['avatar_path']) : 'img/usuario.png'; ?>"
+                                     alt="usuario"
                                      onerror="this.src='img/usuario.png'"
                                      style="border-radius: 50%; object-fit: cover;">
                                 <span>Hola, <?php echo htmlspecialchars($currentUser['username']); ?></span>
@@ -58,9 +58,9 @@ require_once __DIR__ . '/functions.php';
                                     Mi Perfil
                                 </button>
                             </a>
-                            <a href="#" onclick="showWipMessage('Mensajes'); return false;">
+                            <a href="mensajeria.php" onclick="showWipMessage('Mensajes');">
                                 <button class="dropdown-item">
-                                    Mensajes <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(WIP)</span>
+                                    Mensajes <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;"></span>
                                 </button>
                             </a>
                             <a href="#" onclick="showWipMessage('Mis Productos'); return false;">
