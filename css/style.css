@@ -353,6 +353,10 @@ a{
     font-size: 12px;
     font-weight: bold;
     text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
 }
 
 .stars{

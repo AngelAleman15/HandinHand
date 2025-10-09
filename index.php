@@ -33,7 +33,7 @@ include 'includes/header.php';
         <div class="cardscontainer">
             <?php if (!empty($productos)): ?>
                 <?php foreach ($productos as $producto): ?>
-                <div class="card">
+                <div class="card" onclick="window.location.href='producto.php?id=<?php echo $producto['id']; ?>'">
                     <div class="cardcontent">
                         <div class="cardimg"><img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>"></div>
                         <div class="cardtitle"><?php echo htmlspecialchars($producto['nombre']); ?></div>

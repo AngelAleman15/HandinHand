@@ -49,6 +49,11 @@ try {
         sendError('No se pudo subir la imagen. Inténtalo de nuevo.', 400);
     }
     
+    // Validación específica para GIFs
+    if ($_FILES['avatar']['type'] === 'image/gif') {
+        sendError('Los archivos GIF no están permitidos como avatar. Por favor, utiliza una imagen JPG, PNG o WebP.', 400);
+    }
+    
     // $file: Variable con toda la info del archivo subido
     $file = $_FILES['avatar'];
     
@@ -66,11 +71,11 @@ try {
         sendError('El archivo no es una imagen válida.', 400);
     }
     
-    // Tipos MIME permitidos: Solo imágenes comunes y seguras
+    // Tipos MIME permitidos: Solo imágenes estáticas comunes y seguras
     // MIME: Tipo estándar que identifica el formato del archivo
-    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!in_array($imageInfo['mime'], $allowedTypes)) {
-        sendError('Tipo de imagen no permitido. Usa JPG, PNG, GIF o WebP.', 400);
+        sendError('Tipo de imagen no permitido. Solo se aceptan imágenes en formato JPG, PNG o WebP. Los GIFs no están permitidos.', 400);
     }
     
     // Validar dimensiones mínimas: Avatar debe ser al menos 100x100
@@ -104,13 +109,35 @@ try {
         $cropDataRaw = $_POST['cropData'];
         error_log("Raw crop data: " . $cropDataRaw);
         
-        $cropData = json_decode($cropDataRaw, true);
-        error_log("Decoded crop data: " . print_r($cropData, true));
-        
-        // Verificar si la decodificación fue exitosa
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("JSON decode error en upload-avatar: " . json_last_error_msg());
-            sendError('Error al procesar datos de recorte: ' . json_last_error_msg(), 400);
+        // Intentar decodificar con manejo de errores mejorado
+        try {
+            $cropData = json_decode($cropDataRaw, true, 512, JSON_THROW_ON_ERROR);
+            error_log("Decoded crop data: " . print_r($cropData, true));
+            
+            // Validación adicional de la estructura de datos
+            if (!is_array($cropData) || !isset($cropData['cropData'])) {
+                throw new Exception('Estructura de datos de recorte inválida');
+            }
+            
+            // Validar que todos los campos necesarios estén presentes
+            $requiredFields = ['x', 'y', 'width', 'height'];
+            foreach ($requiredFields as $field) {
+                if (!isset($cropData['cropData'][$field])) {
+                    throw new Exception("Campo requerido faltante: {$field}");
+                }
+            }
+            
+            // Validar que los valores sean numéricos y positivos
+            foreach ($requiredFields as $field) {
+                $value = $cropData['cropData'][$field];
+                if (!is_numeric($value) || $value < 0) {
+                    throw new Exception("Valor inválido para {$field}: debe ser un número positivo");
+                }
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error procesando datos de recorte: " . $e->getMessage());
+            sendError('Error al procesar datos de recorte: ' . $e->getMessage(), 400);
         }
     } else {
         error_log("No se encontraron datos de cropData en POST");
@@ -153,7 +180,34 @@ try {
                 break;
             case 'image/gif':
                 error_log("Procesando GIF...");
-                $sourceImage = imagecreatefromgif($file['tmp_name']);
+                // Verificar si es un GIF animado
+                $isAnimated = false;
+                if (($fh = @fopen($file['tmp_name'], 'rb')) !== false) {
+                    try {
+                        $count = 0;
+                        while (!feof($fh) && $count < 2) {
+                            $chunk = fread($fh, 1024 * 100); // Leer 100kb
+                            $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00[\x2C\x21]#s', $chunk, $matches);
+                        }
+                        $isAnimated = $count > 1;
+                    } finally {
+                        fclose($fh);
+                    }
+                }
+                
+                error_log("GIF es animado: " . ($isAnimated ? "Sí" : "No"));
+                
+                // Si es animado, tomar solo el primer frame
+                if ($isAnimated) {
+                    error_log("Extrayendo primer frame del GIF animado...");
+                }
+                
+                $sourceImage = @imagecreatefromgif($file['tmp_name']);
+                if ($sourceImage !== false) {
+                    // Preservar transparencia para GIFs
+                    imagealphablending($sourceImage, true);
+                    imagesavealpha($sourceImage, true);
+                }
                 break;
             case 'image/webp':
                 error_log("Procesando WebP...");
