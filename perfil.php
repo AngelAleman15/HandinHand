@@ -37,7 +37,11 @@ try {
     }
 
     // Contar productos totales
+<<<<<<< HEAD
     $stmt = executeQuery($pdo,
+=======
+    $stmt = executeQuery($pdo, 
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
         "SELECT COUNT(*) as total FROM productos WHERE user_id = ?",
         [$user['id']]
     );
@@ -65,7 +69,11 @@ try {
     $mensajesRecibidos = $stmt->fetch()['mensajes'];
 
     $pdo->commit();
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Contar seguidores (usuarios que siguen a este usuario)
     // Por ahora simulamos los datos ya que no existe la tabla de seguimientos
     $seguidores = rand(5, 50); // Simular seguidores
@@ -92,7 +100,11 @@ try {
         $pdo->rollBack();
     }
     Logger::logDBError($e, "Error obteniendo estadísticas de usuario", ['user_id' => $user['id']]);
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     $totalProductos = 0;
     $productosDisponibles = 0;
     $productosIntercambiados = 0;
@@ -1073,22 +1085,38 @@ document.addEventListener('DOMContentLoaded', function() {
 function validateInput(data) {
     const validator = new Validator();
     let isValid = true;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Validar email
     if (!validator.validateEmail(data.email)) {
         isValid = false;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Validar teléfono si se proporciona
     if (data.phone && !validator.validatePhone(data.phone)) {
         isValid = false;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Validar username
     if (!validator.validateUsername(data.username)) {
         isValid = false;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Si hay errores, mostrarlos
     if (validator.hasErrors()) {
         Swal.showValidationMessage(
@@ -1096,7 +1124,11 @@ function validateInput(data) {
         );
         return false;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     return isValid;
 }
 
