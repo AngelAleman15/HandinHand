@@ -43,7 +43,7 @@ include 'includes/header.php';
                         <div class="sellerinfo">
                             <div class="profile">
                                 <?php if (!empty($producto['avatar_path'])): ?>
-                                    <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>" 
+                                    <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
                                          alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
                                          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"
                                          onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
@@ -96,7 +96,7 @@ include 'includes/header.php';
             timerProgressBar: true
         });
     <?php endif; ?>
-    
+
     function showWipMessage(feature) {
         Swal.fire({
             icon: 'info',
@@ -106,24 +106,24 @@ include 'includes/header.php';
             confirmButtonText: 'Entendido'
         });
     }
-    
+
     function contactarVendedor(productoId) {
         <?php if (isLoggedIn()): ?>
             // Si está logueado, redirigir a página de mensajes
-            window.location.href = 'mensajes.php?producto=' + productoId;
+            window.location.href = 'mensajeria.php?producto=' + productoId;
         <?php else: ?>
             // Si no está logueado, redirigir a login
             alert('Debes iniciar sesión para contactar al vendedor');
             window.location.href = 'iniciarsesion.php';
         <?php endif; ?>
     }
-    
+
     // Funciones para gestionar productos propios
     function editProduct(productoId) {
         // Redirigir a página de edición de producto
         window.location.href = 'editar-producto.php?id=' + productoId;
     }
-    
+
     function deleteProduct(productoId) {
         Swal.fire({
             title: '⚠️ ¿Eliminar Producto?',
@@ -146,7 +146,7 @@ include 'includes/header.php';
                         Swal.showLoading();
                     }
                 });
-                
+
                 // Realizar petición AJAX para eliminar el producto
                 fetch('api/productos.php?id=' + productoId, {
                     method: 'DELETE',

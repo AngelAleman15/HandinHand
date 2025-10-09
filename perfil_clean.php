@@ -1,8 +1,6 @@
 ﻿<?php
 session_start();
 require_once 'includes/functions.php';
-require_once 'includes/logger.php';
-require_once 'includes/validator.php';
 
 // Verificar que esté logueado
 requireLogin();
@@ -20,51 +18,25 @@ $pdo = getConnection();
 
 // Estadísticas del usuario
 try {
-    $pdo->beginTransaction();
-
-    // Función auxiliar para ejecutar consultas de manera segura
-    function executeQuery($pdo, $sql, $params = []) {
-        try {
-            $stmt = $pdo->prepare($sql);
-            if (!$stmt->execute($params)) {
-                throw new PDOException("Error ejecutando consulta: " . implode(" ", $stmt->errorInfo()));
-            }
-            return $stmt;
-        } catch (PDOException $e) {
-            Logger::logDBError($e, $sql, $params);
-            throw $e;
-        }
-    }
-
     // Contar productos totales
-    $stmt = executeQuery($pdo, 
-        "SELECT COUNT(*) as total FROM productos WHERE user_id = ?",
-        [$user['id']]
-    );
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM productos WHERE user_id = ?");
+    $stmt->execute([$user['id']]);
     $totalProductos = $stmt->fetch()['total'];
     
     // Contar productos disponibles
-    $stmt = executeQuery($pdo,
-        "SELECT COUNT(*) as disponibles FROM productos WHERE user_id = ? AND estado = 'disponible'",
-        [$user['id']]
-    );
+    $stmt = $pdo->prepare("SELECT COUNT(*) as disponibles FROM productos WHERE user_id = ? AND estado = 'disponible'");
+    $stmt->execute([$user['id']]);
     $productosDisponibles = $stmt->fetch()['disponibles'];
     
     // Contar productos intercambiados
-    $stmt = executeQuery($pdo,
-        "SELECT COUNT(*) as intercambiados FROM productos WHERE user_id = ? AND estado = 'intercambiado'",
-        [$user['id']]
-    );
+    $stmt = $pdo->prepare("SELECT COUNT(*) as intercambiados FROM productos WHERE user_id = ? AND estado = 'intercambiado'");
+    $stmt->execute([$user['id']]);
     $productosIntercambiados = $stmt->fetch()['intercambiados'];
     
     // Contar mensajes recibidos
-    $stmt = executeQuery($pdo,
-        "SELECT COUNT(*) as mensajes FROM mensajes WHERE destinatario_id = ?",
-        [$user['id']]
-    );
+    $stmt = $pdo->prepare("SELECT COUNT(*) as mensajes FROM mensajes WHERE destinatario_id = ?");
+    $stmt->execute([$user['id']]);
     $mensajesRecibidos = $stmt->fetch()['mensajes'];
-
-    $pdo->commit();
     
     // Contar seguidores (usuarios que siguen a este usuario)
     // Por ahora simulamos los datos ya que no existe la tabla de seguimientos
@@ -88,11 +60,6 @@ try {
     $diasMiembro = $fechaActual->diff($fechaRegistro)->days;
     
 } catch (Exception $e) {
-    if ($pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
-    Logger::logDBError($e, "Error obteniendo estadísticas de usuario", ['user_id' => $user['id']]);
-    
     $totalProductos = 0;
     $productosDisponibles = 0;
     $productosIntercambiados = 0;
@@ -994,7 +961,7 @@ body {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-<script src="js/test-functions.js"></script>
+
 
 <script>
 // === FUNCIONES DE INTERACCIÓN ===
@@ -1069,36 +1036,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 200 + (index * 150));
     });
 });
-
-function validateInput(data) {
-    const validator = new Validator();
-    let isValid = true;
-    
-    // Validar email
-    if (!validator.validateEmail(data.email)) {
-        isValid = false;
-    }
-    
-    // Validar teléfono si se proporciona
-    if (data.phone && !validator.validatePhone(data.phone)) {
-        isValid = false;
-    }
-    
-    // Validar username
-    if (!validator.validateUsername(data.username)) {
-        isValid = false;
-    }
-    
-    // Si hay errores, mostrarlos
-    if (validator.hasErrors()) {
-        Swal.showValidationMessage(
-            validator.getErrors().join('<br>')
-        );
-        return false;
-    }
-    
-    return isValid;
-}
 
 function editPersonalInfo() {
     Swal.fire({
@@ -1280,7 +1217,7 @@ function updatePersonalInfo(userData) {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error("HTTP " + response.status + ": " + response.statusText + "");
         }
         return response.text();
     })
@@ -1312,14 +1249,14 @@ function updatePersonalInfo(userData) {
                 if (data.details && data.details.errors && Array.isArray(data.details.errors)) {
                     errorDetails = data.details.errors.map((error, index) => {
                         // Agregar números y hacer más visual
-                        return `<li style="margin: 8px 0; text-align: left; padding: 5px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 3px;">${error}</li>`;
+                        return "<li style="margin: 8px 0; text-align: left; padding: 5px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 3px;">" + error + "</li>";
                     }).join('');
                     
-                    errorMessage = `
+                    errorMessage = "
                         <div style="text-align: left;">
-                            <p><strong>❌ Se encontraron ${data.details.errors.length} problema(s):</strong></p>
+                            <p><strong>❌ Se encontraron " + data.details.errors.length + " problema(s):</strong></p>
                             <ul style="margin: 15px 0; padding: 0; list-style: none;">
-                                ${errorDetails}
+                                " + errorDetails + "
                             </ul>
                             <div style="background: #e3f2fd; padding: 12px; border-radius: 6px; margin-top: 15px; border-left: 4px solid #2196f3;">
                                 <strong>💡 Sugerencias:</strong>
@@ -1330,18 +1267,18 @@ function updatePersonalInfo(userData) {
                                 </ul>
                             </div>
                         </div>
-                    `;
+                    ";
                 } else {
                     // Error simple sin detalles
-                    errorMessage = `
+                    errorMessage = "
                         <div style="text-align: left;">
-                            <p>${errorMessage}</p>
+                            <p>" + errorMessage + "</p>
                             <div style="background: #ffebee; padding: 10px; border-radius: 4px; margin-top: 10px;">
                                 <strong>🔍 Detalles técnicos:</strong><br>
-                                <code style="font-size: 12px;">${JSON.stringify(data, null, 2)}</code>
+                                <code style="font-size: 12px;">" + JSON.stringify(data, null, 2) + "</code>
                             </div>
                         </div>
-                    `;
+                    ";
                 }
                 
                 Swal.fire({
@@ -1359,6 +1296,10 @@ function updatePersonalInfo(userData) {
                         // Volver a abrir el formulario de edición
                         editPersonalInfo();
                     }
+                });
+                    `,
+                    icon: 'error',
+                    confirmButtonColor: '#A2CB8D'
                 });
             }
         } catch (parseError) {
@@ -1421,9 +1362,9 @@ function updatePageWithNewInfo(newData) {
             }
         });
         
-        // Actualizar título de la página
+        // Actualizar titulo de la pagina
         if (newData.fullname) {
-            document.title = `${newData.fullname} - Mi Perfil - HandinHand`;
+            document.title = newData.fullname + ' - Mi Perfil - HandinHand';
         }
         
         console.log('✅ Información de la página actualizada correctamente');
@@ -1447,8 +1388,8 @@ function testConnectivity() {
                 if (element) {
                     runConnectivityTests();
                 } else {
-                    console.error('Elemento connectivityResults no encontrado después del timeout');
-                    // Intentar una vez más con un delay mayor
+                    console.error('Elemento connectivityResults no encontrado despues del timeout');
+                    // Intentar una vez mas con un delay mayor
                     setTimeout(() => {
                         const elementRetry = document.getElementById('connectivityResults');
                         if (elementRetry) {
@@ -1473,7 +1414,7 @@ function runConnectivityTests() {
         // Intentar mostrar el error en el Swal
         Swal.fire({
             title: '❌ Error Interno',
-            text: 'No se pudo inicializar el sistema de diagnóstico. Revisa la consola para más detalles.',
+            text: 'No se pudo inicializar el sistema de diagnostico. Revisa la consola para mas detalles.',
             icon: 'error',
             confirmButtonColor: '#A2CB8D'
         });
@@ -1507,25 +1448,23 @@ function runConnectivityTests() {
         try {
             const data = JSON.parse(textData);
             
-            currentDiv.innerHTML = `
-                <div style="color: green; padding: 5px;">✅ Test 1: Conectividad OK</div>
-                <div style="margin: 10px 0; color: blue; padding: 5px;">🔄 Test 2: Probando update-profile.php...</div>
-            `;
+            currentDiv.innerHTML = 
+                '<div style="color: green; padding: 5px;">✅ Test 1: Conectividad OK</div>' +
+                '<div style="margin: 10px 0; color: blue; padding: 5px;">🔄 Test 2: Probando update-profile.php...</div>';
             
             // Test 2: API de update-profile con delay
             setTimeout(() => testUpdateProfileAPI(), 500);
             
         } catch (parseError) {
             console.error('Error parsing JSON:', parseError);
-            currentDiv.innerHTML = `
-                <div style="color: red; padding: 5px;">❌ Test 1: Error de JSON</div>
-                <div style="background: #f8f8f8; padding: 10px; font-family: monospace; font-size: 12px; margin: 10px 0; max-height: 200px; overflow-y: auto; border-radius: 4px;">
-                    <strong>Error:</strong> ${parseError.message}<br><br>
-                    <strong>Respuesta:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                </div>
-                <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>
-            `;
+            currentDiv.innerHTML = 
+                '<div style="color: red; padding: 5px;">❌ Test 1: Error de JSON</div>' +
+                '<div style="background: #f8f8f8; padding: 10px; font-family: monospace; font-size: 12px; margin: 10px 0; max-height: 200px; overflow-y: auto; border-radius: 4px;">' +
+                    '<strong>Error:</strong> ' + parseError.message + '<br><br>' +
+                    '<strong>Respuesta:</strong><br>' +
+                    textData.replace(/</g, '&lt;').replace(/>/g, '&gt;') +
+                '</div>' +
+                '<button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>';
         }
     })
     .catch(error => {
@@ -1533,19 +1472,18 @@ function runConnectivityTests() {
         
         const currentDiv = document.getElementById('connectivityResults');
         if (currentDiv) {
-            currentDiv.innerHTML = `
-                <div style="color: red; padding: 5px;">❌ Test 1: Error de conexión</div>
-                <div style="margin: 10px 0; color: #666; padding: 5px;">
-                    <strong>Error:</strong> ${error.message}<br>
-                    <strong>Posibles causas:</strong>
-                    <ul style="margin: 5px 0; padding-left: 20px;">
-                        <li>Servidor web no está ejecutándose</li>
-                        <li>Archivo test-connectivity.php no existe</li>
-                        <li>Problema de permisos</li>
-                    </ul>
-                </div>
-                <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>
-            `;
+            currentDiv.innerHTML = 
+                '<div style="color: red; padding: 5px;">❌ Test 1: Error de conexion</div>' +
+                '<div style="margin: 10px 0; color: #666; padding: 5px;">' +
+                    '<strong>Error:</strong> ' + error.message + '<br>' +
+                    '<strong>Posibles causas:</strong>' +
+                    '<ul style="margin: 5px 0; padding-left: 20px;">' +
+                        '<li>Servidor web no esta ejecutandose</li>' +
+                        '<li>Archivo test-connectivity.php no existe</li>' +
+                        '<li>Problema de permisos</li>' +
+                    '</ul>' +
+                '</div>' +
+                '<button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>';
         }
     });
 }
@@ -1586,32 +1524,32 @@ function testUpdateProfileAPI() {
                     <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px;">Cerrar</button>
                 `;
             } else {
-                resultsDiv.innerHTML = `
+                resultsDiv.innerHTML = "
                     <div style="color: green;">✅ Test 1: Conectividad OK</div>
                     <div style="color: orange;">⚠️ Test 2: Error en API</div>
-                    <div style="margin: 10px 0; color: #666;">${data.message}</div>
+                    <div style="margin: 10px 0; color: #666;">" + data.message + "</div>
                     <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px;">Cerrar</button>
-                `;
+                ";
             }
         } catch (parseError) {
-            resultsDiv.innerHTML = `
+            resultsDiv.innerHTML = "
                 <div style="color: green;">✅ Test 1: Conectividad OK</div>
                 <div style="color: red;">❌ Test 2: Error de JSON en update-profile.php</div>
                 <div style="background: #f8f8f8; padding: 10px; font-family: monospace; font-size: 12px; margin: 10px 0; max-height: 200px; overflow-y: auto;">
-                    <strong>Error de parsing:</strong> ${parseError.message}<br><br>
+                    <strong>Error de parsing:</strong> " + parseError.message + "<br><br>
                     <strong>Respuesta cruda:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                    " + textData.replace(/</g, '&lt;').replace(/>/g, '&gt;') + "
                 </div>
                 <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px;">Cerrar</button>
-            `;
+            ";
         }
     })
     .catch(error => {
-        resultsDiv.innerHTML = `
+        resultsDiv.innerHTML = "
             <div style="color: green;">✅ Test 1: Conectividad OK</div>
             <div style="color: red;">❌ Test 2: Error de conexión en update-profile.php</div>
             <div style="margin: 10px 0; color: #666;">
-                <strong>Error:</strong> ${error.message}<br>
+                <strong>Error:</strong> " + error.message + "<br>
                 <strong>Posibles causas:</strong>
                 <ul style="margin: 5px 0; padding-left: 20px;">
                     <li>Archivo update-profile.php no existe o no es accesible</li>
@@ -1621,11 +1559,11 @@ function testUpdateProfileAPI() {
                 </ul>
             </div>
             <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px;">Cerrar</button>
-        `;
+        ";
     });
 }
 
-// Función simple de test de conectividad (más confiable)
+// Funcion simple de test de conectividad (mas confiable)
 function testConnectivitySimple() {
     // Test directo sin elementos DOM complejos
     fetch('api/test-connectivity.php', {
@@ -1645,20 +1583,20 @@ function testConnectivitySimple() {
             // Test exitoso
             Swal.fire({
                 title: '✅ Conectividad OK',
-                html: `
+                html: "
                     <div style="text-align: left;">
                         <p><strong>✅ Servidor web:</strong> Funcionando</p>
                         <p><strong>✅ PHP:</strong> Funcionando</p>
                         <p><strong>✅ JSON:</strong> Válido</p>
                         <p><strong>📊 Respuesta:</strong></p>
                         <div style="background: #f8f8f8; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px;">
-                            ${JSON.stringify(data, null, 2)}
+                            " + JSON.stringify(data, null, 2) + "
                         </div>
                         <div style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 4px;">
                             <strong>🎉 ¡Todo funciona!</strong> Puedes intentar cambiar la contraseña.
                         </div>
                     </div>
-                `,
+                ",
                 icon: 'success',
                 confirmButtonColor: '#A2CB8D',
                 width: '500px'
@@ -1668,17 +1606,17 @@ function testConnectivitySimple() {
             // Error de JSON
             Swal.fire({
                 title: '⚠️ Error de JSON',
-                html: `
+                html: "
                     <div style="text-align: left;">
                         <p><strong>✅ Servidor web:</strong> Funcionando</p>
                         <p><strong>❌ JSON:</strong> Inválido</p>
-                        <p><strong>🐛 Error:</strong> ${parseError.message}</p>
+                        <p><strong>🐛 Error:</strong> " + parseError.message + "</p>
                         <p><strong>📄 Respuesta raw:</strong></p>
                         <div style="background: #f8f8f8; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
-                            ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                            " + textData.replace(/</g, '&lt;').replace(/>/g, '&gt;') + "
                         </div>
                     </div>
-                `,
+                ",
                 icon: 'warning',
                 confirmButtonColor: '#A2CB8D',
                 width: '600px'
@@ -1691,10 +1629,10 @@ function testConnectivitySimple() {
         
         Swal.fire({
             title: '❌ Error de Conexión',
-            html: `
+            html: "
                 <div style="text-align: left;">
                     <p><strong>❌ Servidor web:</strong> No responde</p>
-                    <p><strong>🐛 Error:</strong> ${error.message}</p>
+                    <p><strong>🐛 Error:</strong> " + error.message + "</p>
                     <p><strong>🔧 Posibles soluciones:</strong></p>
                     <ul style="margin: 10px 0; padding-left: 20px;">
                         <li>Verificar que WAMP esté ejecutándose</li>
@@ -1703,7 +1641,7 @@ function testConnectivitySimple() {
                         <li>Verificar configuración del servidor</li>
                     </ul>
                 </div>
-            `,
+            ",
             icon: 'error',
             confirmButtonColor: '#A2CB8D',
             width: '500px'
@@ -1746,7 +1684,7 @@ function changePassword() {
                 <div style="background: #fff3cd; padding: 10px; border-radius: 6px; border-left: 3px solid #ffc107;">
                     <small style="color: #856404; font-size: 11px;">
                         <i class="fas fa-shield-alt"></i> 
-                        Por seguridad, deberás iniciar sesión nuevamente después del cambio.
+                        Por seguridad, deberas iniciar sesion nuevamente despues del cambio.
                     </small>
                 </div>
             </div>
@@ -1846,7 +1784,7 @@ function updatePassword(passwordData) {
         console.log('Headers:', response.headers);
         
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error("HTTP " + response.status + ": " + response.statusText + "");
         }
         return response.text();
     })
@@ -1877,12 +1815,12 @@ function updatePassword(passwordData) {
                 // Error del servidor
                 Swal.fire({
                     title: '❌ Error al Cambiar Contraseña',
-                    html: `
+                    html: "
                         <div style="text-align: left;">
-                            <p style="margin-bottom: 15px;">${data.message || 'Hubo un problema al cambiar tu contraseña'}</p>
-                            ${data.errors && data.errors.length > 0 ? 
+                            <p style="margin-bottom: 15px;">" + data.message || 'Hubo un problema al cambiar tu contraseña' + "</p>
+                            " + data.errors && data.errors.length > 0 ? 
                                 '<ul style="color: #dc3545; margin: 0; padding-left: 20px;">' + 
-                                data.errors.map(error => `<li>${error}</li>`).join('') + 
+                                data.errors.map(error => `<li>${error + "</li>").join('') + 
                                 '</ul>' : ''
                             }
                         </div>
@@ -1898,19 +1836,19 @@ function updatePassword(passwordData) {
             
             Swal.fire({
                 title: '❌ Error de Comunicación',
-                html: `
+                html: "
                     <div style="text-align: left;">
                         <p>Error en la respuesta del servidor.</p>
                         <details style="margin-top: 10px;">
                             <summary>Detalles técnicos (clic para expandir)</summary>
                             <div style="background: #f8f8f8; padding: 10px; margin-top: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; word-break: break-all;">
-                                <strong>Error:</strong> ${parseError.message}<br><br>
+                                <strong>Error:</strong> " + parseError.message + "<br><br>
                                 <strong>Respuesta del servidor:</strong><br>
-                                ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                                " + textData.replace(/</g, '&lt;').replace(/>/g, '&gt;') + "
                             </div>
                         </details>
                     </div>
-                `,
+                ",
                 icon: 'error',
                 confirmButtonColor: '#A2CB8D',
                 width: '600px'
@@ -1923,11 +1861,11 @@ function updatePassword(passwordData) {
         
         Swal.fire({
             title: '❌ Error de Conexión',
-            html: `
+            html: "
                 <div style="text-align: left;">
                     <p>No se pudo conectar con el servidor.</p>
                     <div style="margin-top: 10px; padding: 10px; background: #f8f8f8; border-radius: 4px;">
-                        <strong>Error:</strong> ${error.message}
+                        <strong>Error:</strong> " + error.message + "
                     </div>
                     <div style="margin-top: 10px;">
                         <button onclick="testConnectivity()" style="background: #A2CB8D; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
@@ -1935,7 +1873,7 @@ function updatePassword(passwordData) {
                         </button>
                     </div>
                 </div>
-            `,
+            ",
             icon: 'error',
             confirmButtonColor: '#A2CB8D',
             width: '500px'
@@ -1957,18 +1895,18 @@ function testVisualUpdate() {
     
     const currentSrc = avatarImg.src;
     
-    results.innerHTML = `
+    results.innerHTML = "
         <div style="color: blue;">🔄 Probando actualización visual...</div>
         <div style="background: white; padding: 10px; border-radius: 3px; margin: 10px 0;">
             <strong>Imagen actual:</strong><br>
-            <div style="font-family: monospace; font-size: 12px; word-break: break-all;">${currentSrc}</div>
+            <div style="font-family: monospace; font-size: 12px; word-break: break-all;">" + currentSrc + "</div>
         </div>
         <div style="margin: 10px 0;">
             <button onclick="forceUpdateAvatar()" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 3px;">
                 🔄 Forzar Actualización de Imagen
             </button>
         </div>
-    `;
+    ";
 }
 
 // Forzar actualización del avatar
@@ -1990,13 +1928,13 @@ function forceUpdateAvatar() {
     
     avatarImg.src = newSrc;
     
-    results.innerHTML += `
+    results.innerHTML += "
         <div style="color: green; margin-top: 10px;">✅ Imagen forzada a actualizar</div>
         <div style="background: white; padding: 10px; border-radius: 3px; margin: 10px 0;">
             <strong>Nueva URL:</strong><br>
-            <div style="font-family: monospace; font-size: 12px; word-break: break-all;">${newSrc}</div>
+            <div style="font-family: monospace; font-size: 12px; word-break: break-all;">" + newSrc + "</div>
         </div>
-    `;
+    ";
 }
 
 // Test datos de recorte
@@ -2033,22 +1971,22 @@ function testCropData() {
                     const cropData = tempCropper.getData();
                     
                     // Mostrar datos
-                    results.innerHTML = `
+                    results.innerHTML = "
                         <div style="color: green;">✅ Datos de recorte obtenidos</div>
                         <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
-Archivo: ${file.name}
-Tamaño: ${file.size} bytes
-Tipo: ${file.type}
+Archivo: " + file.name + "
+Tamaño: " + file.size + " bytes
+Tipo: " + file.type + "
 
 Datos de recorte:
-${JSON.stringify(cropData, null, 2)}
+" + JSON.stringify(cropData, null, 2) + "
                         </pre>
                         <div style="margin-top: 10px;">
                             <button onclick="testCropUpload()" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px;">
                                 📤 Probar Upload con estos datos
                             </button>
                         </div>
-                    `;
+                    ";
                     
                     // Guardar datos globalmente para el test
                     window.testCropFile = file;
@@ -2093,7 +2031,7 @@ function testCropUpload() {
         console.log('Respuesta:', response.status, response.statusText);
         
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error("HTTP " + response.status + ": " + response.statusText + "");
         }
         
         return response.text();
@@ -2103,25 +2041,25 @@ function testCropUpload() {
         
         try {
             const data = JSON.parse(textData);
-            results.innerHTML = `
+            results.innerHTML = "
                 <div style="color: green;">✅ Upload con recorte exitoso</div>
                 <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
-${JSON.stringify(data, null, 2)}
+" + JSON.stringify(data, null, 2) + "
                 </pre>
-            `;
+            ";
         } catch (parseError) {
-            results.innerHTML = `
-                <div style="color: red;">❌ Error de JSON en upload con recorte: ${parseError.message}</div>
+            results.innerHTML = "
+                <div style="color: red;">❌ Error de JSON en upload con recorte: " + parseError.message + "</div>
                 <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
                     <strong>Respuesta raw:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                    " + textData.replace(/</g, '&lt;').replace(/>/g, '&gt;') + "
                 </div>
-            `;
+            ";
         }
     })
     .catch(error => {
         console.error('Error en test crop upload:', error);
-        results.innerHTML = `<div style="color: red;">❌ Error en upload con recorte: ${error.message}</div>`;
+        results.innerHTML = "<div style="color: red;">❌ Error en upload con recorte: " + error.message + "</div>";
     });
 }
 
@@ -2136,7 +2074,7 @@ function testUltraBasic() {
         console.log('Ultra basic - Response headers:', response.headers);
         
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error("HTTP " + response.status + ": " + response.statusText + "");
         }
         
         return response.text();
@@ -2145,24 +2083,24 @@ function testUltraBasic() {
         console.log('Ultra basic - Raw response:', textData);
         
         if (textData.includes('PHP funciona correctamente')) {
-            results.innerHTML = `
+            results.innerHTML = "
                 <div style="color: green;">✅ PHP Ultra Básico OK</div>
                 <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace;">
-                    Respuesta: ${textData}
+                    Respuesta: " + textData + "
                 </div>
-            `;
+            ";
         } else {
-            results.innerHTML = `
+            results.innerHTML = "
                 <div style="color: orange;">⚠️ Respuesta inesperada</div>
                 <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace;">
-                    ${textData}
+                    " + textData + "
                 </div>
-            `;
+            ";
         }
     })
     .catch(error => {
         console.error('Ultra basic error:', error);
-        results.innerHTML = `<div style="color: red;">❌ Error ultra básico: ${error.message}</div>`;
+        results.innerHTML = "<div style="color: red;">❌ Error ultra básico: " + error.message + "</div>";
     });
 }
 
@@ -2176,7 +2114,7 @@ function testUltraJson() {
         console.log('Ultra JSON - Response status:', response.status);
         
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error("HTTP " + response.status + ": " + response.statusText + "");
         }
         
         return response.text();
@@ -2186,25 +2124,25 @@ function testUltraJson() {
         
         try {
             const data = JSON.parse(textData);
-            results.innerHTML = `
+            results.innerHTML = "
                 <div style="color: green;">✅ PHP con JSON OK</div>
                 <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
-${JSON.stringify(data, null, 2)}
+" + JSON.stringify(data, null, 2) + "
                 </pre>
-            `;
+            ";
         } catch (parseError) {
-            results.innerHTML = `
-                <div style="color: red;">❌ Error de JSON en ultra test: ${parseError.message}</div>
+            results.innerHTML = "
+                <div style="color: red;">❌ Error de JSON en ultra test: " + parseError.message + "</div>
                 <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
                     <strong>Respuesta raw:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                    " + textData.replace(/</g, '&lt;').replace(/>/g, '&gt;') + "
                 </div>
-            `;
+            ";
         }
     })
     .catch(error => {
         console.error('Ultra JSON error:', error);
-        results.innerHTML = `<div style="color: red;">❌ Error en ultra JSON: ${error.message}</div>`;
+        results.innerHTML = "<div style="color: red;">❌ Error en ultra JSON: " + error.message + "</div>";
     });
 }
 
@@ -2221,7 +2159,7 @@ function testMinimal() {
         console.log('Minimal test - Response status:', response.status);
         
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error("HTTP " + response.status + ": " + response.statusText + "");
         }
         
         return response.text();
@@ -2231,25 +2169,25 @@ function testMinimal() {
         
         try {
             const data = JSON.parse(textData);
-            results.innerHTML = `
+            results.innerHTML = "
                 <div style="color: green;">✅ PHP Básico OK</div>
                 <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
-${JSON.stringify(data, null, 2)}
+" + JSON.stringify(data, null, 2) + "
                 </pre>
-            `;
+            ";
         } catch (parseError) {
-            results.innerHTML = `
-                <div style="color: red;">❌ Error de JSON en test mínimo: ${parseError.message}</div>
+            results.innerHTML = "
+                <div style="color: red;">❌ Error de JSON en test mínimo: " + parseError.message + "</div>
                 <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
                     <strong>Respuesta raw:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                    " + textData.replace(/</g, '&lt;').replace(/>/g, '&gt;') + "
                 </div>
-            `;
+            ";
         }
     })
     .catch(error => {
         console.error('Minimal test error:', error);
-        results.innerHTML = `<div style="color: red;">❌ Error en test mínimo: ${error.message}</div>`;
+        results.innerHTML = "<div style="color: red;">❌ Error en test mínimo: " + error.message + "</div>";
     });
 }
 
@@ -2267,7 +2205,7 @@ function testConnectivity() {
         console.log('Response headers:', response.headers);
         
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error("HTTP " + response.status + ": " + response.statusText + "");
         }
         
         return response.text(); // Primero como texto para ver qué llega
@@ -2277,25 +2215,25 @@ function testConnectivity() {
         
         try {
             const data = JSON.parse(textData);
-            results.innerHTML = `
+            results.innerHTML = "
                 <div style="color: green;">✅ Conectividad OK</div>
                 <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
-${JSON.stringify(data, null, 2)}
+" + JSON.stringify(data, null, 2) + "
                 </pre>
-            `;
+            ";
         } catch (parseError) {
-            results.innerHTML = `
-                <div style="color: red;">❌ Error de JSON: ${parseError.message}</div>
+            results.innerHTML = "
+                <div style="color: red;">❌ Error de JSON: " + parseError.message + "</div>
                 <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
                     <strong>Respuesta raw:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                    " + textData.replace(/</g, '&lt;').replace(/>/g, '&gt;') + "
                 </div>
-            `;
+            ";
         }
     })
     .catch(error => {
         console.error('Connectivity test error:', error);
-        results.innerHTML = `<div style="color: red;">❌ Error de conectividad: ${error.message}</div>`;
+        results.innerHTML = "<div style="color: red;">❌ Error de conectividad: " + error.message + "</div>";
     });
 }
 
@@ -2323,7 +2261,7 @@ function testSimpleUpload() {
             console.log('Upload response status:', response.status);
             
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error("HTTP " + response.status + ": " + response.statusText + "");
             }
             
             return response.text(); // Primero como texto
@@ -2335,11 +2273,11 @@ function testSimpleUpload() {
                 const data = JSON.parse(textData);
                 
                 if (data.success) {
-                    results.innerHTML = `
+                    results.innerHTML = "
                         <div style="color: green;">✅ Upload simple exitoso</div>
-                        <div>Archivo: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)</div>
-                        <div>Avatar guardado en: ${data.data.avatar_path}</div>
-                    `;
+                        <div>Archivo: " + file.name + " (" + (file.size/1024/1024).toFixed(2) + " MB)</div>
+                        <div>Avatar guardado en: " + data.data.avatar_path + "</div>
+                    ";
                     
                     // Actualizar avatar en la página
                     const avatarImg = document.querySelector('.profile-avatar img');
@@ -2347,20 +2285,20 @@ function testSimpleUpload() {
                         avatarImg.src = data.data.avatar_path + '?t=' + Date.now();
                     }
                 } else {
-                    results.innerHTML = `<div style="color: red;">❌ Error: ${data.message}</div>`;
+                    results.innerHTML = "<div style="color: red;">❌ Error: " + data.message + "</div>";
                 }
             } catch (parseError) {
-                results.innerHTML = `
-                    <div style="color: red;">❌ Error de JSON: ${parseError.message}</div>
+                results.innerHTML = "
+                    <div style="color: red;">❌ Error de JSON: " + parseError.message + "</div>
                     <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
                         <strong>Respuesta raw:</strong><br>
-                        ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                        " + textData.replace(/</g, '&lt;').replace(/>/g, '&gt;') + "
                     </div>
-                `;
+                ";
             }
         })
         .catch(error => {
-            results.innerHTML = `<div style="color: red;">❌ Error de red: ${error.message}</div>`;
+            results.innerHTML = "<div style="color: red;">❌ Error de red: " + error.message + "</div>";
         });
     };
     
@@ -2470,7 +2408,7 @@ function handleFileSelection(event) {
         return;
     }
     
-    // Si todo está bien, mostrar el recortador
+    // Si todo esta bien, mostrar el recortador
     showImageCropper(file);
 }
 
@@ -2485,13 +2423,13 @@ function showImageCropper(file) {
     
     Swal.fire({
         title: '✂️ Recortar Imagen',
-        html: `
+        html: "
             <div style="max-width: 100%; margin: 0 auto;">
                 <div style="margin-bottom: 15px;">
                     <p style="color: #666; margin: 0;">Arrastra para ajustar el área de tu foto de perfil</p>
                 </div>
                 <div style="max-height: 400px; overflow: hidden; border-radius: 8px;">
-                    <img id="cropperImage" src="${imageUrl}" style="max-width: 100%; display: block;">
+                    <img id="cropperImage" src="" + imageUrl + "" style="max-width: 100%; display: block;">
                 </div>
                 <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
                     <small style="color: #666;">
@@ -2500,7 +2438,7 @@ function showImageCropper(file) {
                     </small>
                 </div>
             </div>
-        `,
+        ",
         width: '600px',
         showCancelButton: true,
         confirmButtonText: '<i class="fas fa-upload"></i> Subir Avatar',
@@ -2527,7 +2465,7 @@ function showImageCropper(file) {
             });
         },
         willClose: () => {
-            // NO destruir cropper aquí, lo haremos después del upload
+            // NO destruir cropper aqui, lo haremos despues del upload
             URL.revokeObjectURL(imageUrl);
         }
     }).then((result) => {
@@ -2538,7 +2476,7 @@ function showImageCropper(file) {
                 console.log('=== DATOS DE RECORTE OBTENIDOS ===');
                 console.log('Crop data:', cropData);
                 
-                // Destruir cropper después de obtener datos
+                // Destruir cropper despues de obtener datos
                 window.cropper.destroy();
                 window.cropper = null;
                 
@@ -2615,7 +2553,7 @@ function uploadCroppedImageWithData(originalFile, cropData) {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error("HTTP " + response.status + ": " + response.statusText + "");
         }
         
         return response.text();
@@ -2635,7 +2573,7 @@ function uploadCroppedImageWithData(originalFile, cropData) {
                     const newPath = data.data.avatar_path + '?t=' + Date.now();
                     avatarImg.src = newPath; // Cache busting
                     
-                    // También actualizar el avatar del menú si existe
+                    // Tambien actualizar el avatar del menu si existe
                     const menuAvatar = document.querySelector('.dropdown-header img');
                     if (menuAvatar) {
                         menuAvatar.src = newPath;
@@ -2914,7 +2852,7 @@ function exportData() {
         title: '🚧 Exportar Datos (WIP)',
         html: `
             <div style="text-align: left;">
-                <p style="color: #666; margin-bottom: 20px;">Esta funcionalidad está en desarrollo. Por seguridad, ingresa tu contraseña:</p>
+                <p style="color: #666; margin-bottom: 20px;">Esta funcionalidad esta en desarrollo. Por seguridad, ingresa tu contrasena:</p>
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 600;">Contraseña:</label>
                     <input type="password" id="exportPassword" class="swal2-input" placeholder="Tu contraseña actual">
@@ -2945,7 +2883,7 @@ function exportData() {
             // Simular procesamiento WIP
             Swal.fire({
                 title: '📧 Solicitud Registrada',
-                html: `
+                html: "
                     <div style="text-align: center;">
                         <p>Tu solicitud de exportación de datos ha sido registrada.</p>
                         <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin: 15px 0;">
@@ -2953,9 +2891,9 @@ function exportData() {
                             <strong>⏱️ Tiempo estimado:</strong> 24-48 horas<br>
                             <strong>📧 Notificación:</strong> Recibirás un email cuando esté listo
                         </div>
-                        <small style="color: #666;">Ticket: #EXP-${Math.random().toString(36).substr(2, 9).toUpperCase()}</small>
+                        <small style="color: #666;">Ticket: #EXP-" + Math.random().toString(36).substr(2, 9).toUpperCase() + "</small>
                     </div>
-                `,
+                ",
                 icon: 'success',
                 confirmButtonColor: '#A2CB8D'
             });
@@ -3064,9 +3002,133 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 200 + (index * 150));
     });
 });
+
+// Funciones de testing para APIs
+function testPasswordAPI() {
+    const formData = new FormData();
+    formData.append('action', 'test_connection');
+    
+    fetch('api/update-profile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('🔑 Password API Test - Status:', response.status);
+        return response.text();
+    })
+    .then(textData => {
+        console.log('🔑 Password API Test - Response:', textData);
+        
+        try {
+            const data = JSON.parse(textData);
+            
+            if (data.success) {
+                Swal.fire({
+                    title: '✅ API de Contraseñas OK',
+                    text: 'La API de contrasenas esta funcionando correctamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            } else {
+                Swal.fire({
+                    title: '⚠️ API con Problemas',
+                    text: data.message || 'Error desconocido en la API',
+                    icon: 'warning',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            }
+        } catch (parseError) {
+            Swal.fire({
+                title: '❌ Error en API',
+                text: 'Error al procesar la respuesta: ' + parseError.message,
+                icon: 'error',
+                confirmButtonColor: '#A2CB8D'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            title: '❌ API No Accesible',
+            text: 'Error: ' + error.message,
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+    });
+}
+
+function testPersonalInfoAPI() {
+    const formData = new FormData();
+    formData.append('action', 'update_personal_info');
+    formData.append('fullname', 'TEST NAME');
+    formData.append('username', 'testuser');
+    formData.append('email', 'test@example.com');
+    formData.append('phone', '+123456789');
+    formData.append('current_password', 'wrongpassword');
+    
+    fetch('api/update-profile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('📝 Personal Info API Test - Status:', response.status);
+        return response.text();
+    })
+    .then(textData => {
+        console.log('📝 Personal Info API Test - Response:', textData);
+        
+        try {
+            const data = JSON.parse(textData);
+            
+            if (!data.success && data.details && data.details.errors) {
+                const hasPasswordError = data.details.errors.some(error => 
+                    error.includes('contraseña actual no es correcta')
+                );
+                
+                if (hasPasswordError) {
+                    Swal.fire({
+                        title: '✅ API de Edición OK',
+                        text: 'La API de edicion esta funcionando correctamente.',
+                        icon: 'success',
+                        confirmButtonColor: '#A2CB8D'
+                    });
+                } else {
+                    Swal.fire({
+                        title: '⚠️ Respuesta Inesperada',
+                        text: 'La API respondió pero no como se esperaba',
+                        icon: 'warning',
+                        confirmButtonColor: '#A2CB8D'
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: '⚠️ Respuesta Inesperada',
+                    text: 'La API respondió pero no como se esperaba',
+                    icon: 'warning',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            }
+        } catch (parseError) {
+            Swal.fire({
+                title: '❌ Error en API de Edición',
+                text: 'Error al procesar la respuesta: ' + parseError.message,
+                icon: 'error',
+                confirmButtonColor: '#A2CB8D'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            title: '❌ API de Edición No Accesible',
+            text: 'Error: ' + error.message,
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+    });
+}
 </script>
 
 <?php
 // Incluir footer
 include 'includes/footer.php';
 ?>
+

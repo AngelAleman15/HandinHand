@@ -1,8 +1,6 @@
 ﻿<?php
 session_start();
 require_once 'includes/functions.php';
-require_once 'includes/logger.php';
-require_once 'includes/validator.php';
 
 // Verificar que esté logueado
 requireLogin();
@@ -20,51 +18,25 @@ $pdo = getConnection();
 
 // Estadísticas del usuario
 try {
-    $pdo->beginTransaction();
-
-    // Función auxiliar para ejecutar consultas de manera segura
-    function executeQuery($pdo, $sql, $params = []) {
-        try {
-            $stmt = $pdo->prepare($sql);
-            if (!$stmt->execute($params)) {
-                throw new PDOException("Error ejecutando consulta: " . implode(" ", $stmt->errorInfo()));
-            }
-            return $stmt;
-        } catch (PDOException $e) {
-            Logger::logDBError($e, $sql, $params);
-            throw $e;
-        }
-    }
-
     // Contar productos totales
-    $stmt = executeQuery($pdo, 
-        "SELECT COUNT(*) as total FROM productos WHERE user_id = ?",
-        [$user['id']]
-    );
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM productos WHERE user_id = ?");
+    $stmt->execute([$user['id']]);
     $totalProductos = $stmt->fetch()['total'];
     
     // Contar productos disponibles
-    $stmt = executeQuery($pdo,
-        "SELECT COUNT(*) as disponibles FROM productos WHERE user_id = ? AND estado = 'disponible'",
-        [$user['id']]
-    );
+    $stmt = $pdo->prepare("SELECT COUNT(*) as disponibles FROM productos WHERE user_id = ? AND estado = 'disponible'");
+    $stmt->execute([$user['id']]);
     $productosDisponibles = $stmt->fetch()['disponibles'];
     
     // Contar productos intercambiados
-    $stmt = executeQuery($pdo,
-        "SELECT COUNT(*) as intercambiados FROM productos WHERE user_id = ? AND estado = 'intercambiado'",
-        [$user['id']]
-    );
+    $stmt = $pdo->prepare("SELECT COUNT(*) as intercambiados FROM productos WHERE user_id = ? AND estado = 'intercambiado'");
+    $stmt->execute([$user['id']]);
     $productosIntercambiados = $stmt->fetch()['intercambiados'];
     
     // Contar mensajes recibidos
-    $stmt = executeQuery($pdo,
-        "SELECT COUNT(*) as mensajes FROM mensajes WHERE destinatario_id = ?",
-        [$user['id']]
-    );
+    $stmt = $pdo->prepare("SELECT COUNT(*) as mensajes FROM mensajes WHERE destinatario_id = ?");
+    $stmt->execute([$user['id']]);
     $mensajesRecibidos = $stmt->fetch()['mensajes'];
-
-    $pdo->commit();
     
     // Contar seguidores (usuarios que siguen a este usuario)
     // Por ahora simulamos los datos ya que no existe la tabla de seguimientos
@@ -88,11 +60,6 @@ try {
     $diasMiembro = $fechaActual->diff($fechaRegistro)->days;
     
 } catch (Exception $e) {
-    if ($pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
-    Logger::logDBError($e, "Error obteniendo estadísticas de usuario", ['user_id' => $user['id']]);
-    
     $totalProductos = 0;
     $productosDisponibles = 0;
     $productosIntercambiados = 0;
@@ -994,7 +961,7 @@ body {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-<script src="js/test-functions.js"></script>
+
 
 <script>
 // === FUNCIONES DE INTERACCIÓN ===
@@ -1069,36 +1036,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 200 + (index * 150));
     });
 });
-
-function validateInput(data) {
-    const validator = new Validator();
-    let isValid = true;
-    
-    // Validar email
-    if (!validator.validateEmail(data.email)) {
-        isValid = false;
-    }
-    
-    // Validar teléfono si se proporciona
-    if (data.phone && !validator.validatePhone(data.phone)) {
-        isValid = false;
-    }
-    
-    // Validar username
-    if (!validator.validateUsername(data.username)) {
-        isValid = false;
-    }
-    
-    // Si hay errores, mostrarlos
-    if (validator.hasErrors()) {
-        Swal.showValidationMessage(
-            validator.getErrors().join('<br>')
-        );
-        return false;
-    }
-    
-    return isValid;
-}
 
 function editPersonalInfo() {
     Swal.fire({
@@ -1360,6 +1297,10 @@ function updatePersonalInfo(userData) {
                         editPersonalInfo();
                     }
                 });
+                    `,
+                    icon: 'error',
+                    confirmButtonColor: '#A2CB8D'
+                });
             }
         } catch (parseError) {
             console.error('Error parsing JSON:', parseError);
@@ -1421,9 +1362,9 @@ function updatePageWithNewInfo(newData) {
             }
         });
         
-        // Actualizar título de la página
+        // Actualizar titulo de la pagina
         if (newData.fullname) {
-            document.title = `${newData.fullname} - Mi Perfil - HandinHand`;
+            document.title = newData.fullname + ' - Mi Perfil - HandinHand';
         }
         
         console.log('✅ Información de la página actualizada correctamente');
@@ -1447,8 +1388,8 @@ function testConnectivity() {
                 if (element) {
                     runConnectivityTests();
                 } else {
-                    console.error('Elemento connectivityResults no encontrado después del timeout');
-                    // Intentar una vez más con un delay mayor
+                    console.error('Elemento connectivityResults no encontrado despues del timeout');
+                    // Intentar una vez mas con un delay mayor
                     setTimeout(() => {
                         const elementRetry = document.getElementById('connectivityResults');
                         if (elementRetry) {
@@ -1473,7 +1414,7 @@ function runConnectivityTests() {
         // Intentar mostrar el error en el Swal
         Swal.fire({
             title: '❌ Error Interno',
-            text: 'No se pudo inicializar el sistema de diagnóstico. Revisa la consola para más detalles.',
+            text: 'No se pudo inicializar el sistema de diagnostico. Revisa la consola para mas detalles.',
             icon: 'error',
             confirmButtonColor: '#A2CB8D'
         });
@@ -1507,25 +1448,23 @@ function runConnectivityTests() {
         try {
             const data = JSON.parse(textData);
             
-            currentDiv.innerHTML = `
-                <div style="color: green; padding: 5px;">✅ Test 1: Conectividad OK</div>
-                <div style="margin: 10px 0; color: blue; padding: 5px;">🔄 Test 2: Probando update-profile.php...</div>
-            `;
+            currentDiv.innerHTML = 
+                '<div style="color: green; padding: 5px;">✅ Test 1: Conectividad OK</div>' +
+                '<div style="margin: 10px 0; color: blue; padding: 5px;">🔄 Test 2: Probando update-profile.php...</div>';
             
             // Test 2: API de update-profile con delay
             setTimeout(() => testUpdateProfileAPI(), 500);
             
         } catch (parseError) {
             console.error('Error parsing JSON:', parseError);
-            currentDiv.innerHTML = `
-                <div style="color: red; padding: 5px;">❌ Test 1: Error de JSON</div>
-                <div style="background: #f8f8f8; padding: 10px; font-family: monospace; font-size: 12px; margin: 10px 0; max-height: 200px; overflow-y: auto; border-radius: 4px;">
-                    <strong>Error:</strong> ${parseError.message}<br><br>
-                    <strong>Respuesta:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                </div>
-                <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>
-            `;
+            currentDiv.innerHTML = 
+                '<div style="color: red; padding: 5px;">❌ Test 1: Error de JSON</div>' +
+                '<div style="background: #f8f8f8; padding: 10px; font-family: monospace; font-size: 12px; margin: 10px 0; max-height: 200px; overflow-y: auto; border-radius: 4px;">' +
+                    '<strong>Error:</strong> ' + parseError.message + '<br><br>' +
+                    '<strong>Respuesta:</strong><br>' +
+                    textData.replace(/</g, '&lt;').replace(/>/g, '&gt;') +
+                '</div>' +
+                '<button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>';
         }
     })
     .catch(error => {
@@ -1533,19 +1472,18 @@ function runConnectivityTests() {
         
         const currentDiv = document.getElementById('connectivityResults');
         if (currentDiv) {
-            currentDiv.innerHTML = `
-                <div style="color: red; padding: 5px;">❌ Test 1: Error de conexión</div>
-                <div style="margin: 10px 0; color: #666; padding: 5px;">
-                    <strong>Error:</strong> ${error.message}<br>
-                    <strong>Posibles causas:</strong>
-                    <ul style="margin: 5px 0; padding-left: 20px;">
-                        <li>Servidor web no está ejecutándose</li>
-                        <li>Archivo test-connectivity.php no existe</li>
-                        <li>Problema de permisos</li>
-                    </ul>
-                </div>
-                <button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>
-            `;
+            currentDiv.innerHTML = 
+                '<div style="color: red; padding: 5px;">❌ Test 1: Error de conexion</div>' +
+                '<div style="margin: 10px 0; color: #666; padding: 5px;">' +
+                    '<strong>Error:</strong> ' + error.message + '<br>' +
+                    '<strong>Posibles causas:</strong>' +
+                    '<ul style="margin: 5px 0; padding-left: 20px;">' +
+                        '<li>Servidor web no esta ejecutandose</li>' +
+                        '<li>Archivo test-connectivity.php no existe</li>' +
+                        '<li>Problema de permisos</li>' +
+                    '</ul>' +
+                '</div>' +
+                '<button onclick="Swal.close()" style="background: #A2CB8D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar</button>';
         }
     });
 }
@@ -1625,7 +1563,7 @@ function testUpdateProfileAPI() {
     });
 }
 
-// Función simple de test de conectividad (más confiable)
+// Funcion simple de test de conectividad (mas confiable)
 function testConnectivitySimple() {
     // Test directo sin elementos DOM complejos
     fetch('api/test-connectivity.php', {
@@ -1746,7 +1684,7 @@ function changePassword() {
                 <div style="background: #fff3cd; padding: 10px; border-radius: 6px; border-left: 3px solid #ffc107;">
                     <small style="color: #856404; font-size: 11px;">
                         <i class="fas fa-shield-alt"></i> 
-                        Por seguridad, deberás iniciar sesión nuevamente después del cambio.
+                        Por seguridad, deberas iniciar sesion nuevamente despues del cambio.
                     </small>
                 </div>
             </div>
@@ -2470,7 +2408,7 @@ function handleFileSelection(event) {
         return;
     }
     
-    // Si todo está bien, mostrar el recortador
+    // Si todo esta bien, mostrar el recortador
     showImageCropper(file);
 }
 
@@ -2527,7 +2465,7 @@ function showImageCropper(file) {
             });
         },
         willClose: () => {
-            // NO destruir cropper aquí, lo haremos después del upload
+            // NO destruir cropper aqui, lo haremos despues del upload
             URL.revokeObjectURL(imageUrl);
         }
     }).then((result) => {
@@ -2538,7 +2476,7 @@ function showImageCropper(file) {
                 console.log('=== DATOS DE RECORTE OBTENIDOS ===');
                 console.log('Crop data:', cropData);
                 
-                // Destruir cropper después de obtener datos
+                // Destruir cropper despues de obtener datos
                 window.cropper.destroy();
                 window.cropper = null;
                 
@@ -2635,7 +2573,7 @@ function uploadCroppedImageWithData(originalFile, cropData) {
                     const newPath = data.data.avatar_path + '?t=' + Date.now();
                     avatarImg.src = newPath; // Cache busting
                     
-                    // También actualizar el avatar del menú si existe
+                    // Tambien actualizar el avatar del menu si existe
                     const menuAvatar = document.querySelector('.dropdown-header img');
                     if (menuAvatar) {
                         menuAvatar.src = newPath;
@@ -2914,7 +2852,7 @@ function exportData() {
         title: '🚧 Exportar Datos (WIP)',
         html: `
             <div style="text-align: left;">
-                <p style="color: #666; margin-bottom: 20px;">Esta funcionalidad está en desarrollo. Por seguridad, ingresa tu contraseña:</p>
+                <p style="color: #666; margin-bottom: 20px;">Esta funcionalidad esta en desarrollo. Por seguridad, ingresa tu contrasena:</p>
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 600;">Contraseña:</label>
                     <input type="password" id="exportPassword" class="swal2-input" placeholder="Tu contraseña actual">
@@ -3064,6 +3002,129 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 200 + (index * 150));
     });
 });
+
+// Funciones de testing para APIs
+function testPasswordAPI() {
+    const formData = new FormData();
+    formData.append('action', 'test_connection');
+    
+    fetch('api/update-profile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('🔑 Password API Test - Status:', response.status);
+        return response.text();
+    })
+    .then(textData => {
+        console.log('🔑 Password API Test - Response:', textData);
+        
+        try {
+            const data = JSON.parse(textData);
+            
+            if (data.success) {
+                Swal.fire({
+                    title: '✅ API de Contraseñas OK',
+                    text: 'La API de contrasenas esta funcionando correctamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            } else {
+                Swal.fire({
+                    title: '⚠️ API con Problemas',
+                    text: data.message || 'Error desconocido en la API',
+                    icon: 'warning',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            }
+        } catch (parseError) {
+            Swal.fire({
+                title: '❌ Error en API',
+                text: 'Error al procesar la respuesta: ' + parseError.message,
+                icon: 'error',
+                confirmButtonColor: '#A2CB8D'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            title: '❌ API No Accesible',
+            text: 'Error: ' + error.message,
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+    });
+}
+
+function testPersonalInfoAPI() {
+    const formData = new FormData();
+    formData.append('action', 'update_personal_info');
+    formData.append('fullname', 'TEST NAME');
+    formData.append('username', 'testuser');
+    formData.append('email', 'test@example.com');
+    formData.append('phone', '+123456789');
+    formData.append('current_password', 'wrongpassword');
+    
+    fetch('api/update-profile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('📝 Personal Info API Test - Status:', response.status);
+        return response.text();
+    })
+    .then(textData => {
+        console.log('📝 Personal Info API Test - Response:', textData);
+        
+        try {
+            const data = JSON.parse(textData);
+            
+            if (!data.success && data.details && data.details.errors) {
+                const hasPasswordError = data.details.errors.some(error => 
+                    error.includes('contraseña actual no es correcta')
+                );
+                
+                if (hasPasswordError) {
+                    Swal.fire({
+                        title: '✅ API de Edición OK',
+                        text: 'La API de edicion esta funcionando correctamente.',
+                        icon: 'success',
+                        confirmButtonColor: '#A2CB8D'
+                    });
+                } else {
+                    Swal.fire({
+                        title: '⚠️ Respuesta Inesperada',
+                        text: 'La API respondió pero no como se esperaba',
+                        icon: 'warning',
+                        confirmButtonColor: '#A2CB8D'
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: '⚠️ Respuesta Inesperada',
+                    text: 'La API respondió pero no como se esperaba',
+                    icon: 'warning',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            }
+        } catch (parseError) {
+            Swal.fire({
+                title: '❌ Error en API de Edición',
+                text: 'Error al procesar la respuesta: ' + parseError.message,
+                icon: 'error',
+                confirmButtonColor: '#A2CB8D'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            title: '❌ API de Edición No Accesible',
+            text: 'Error: ' + error.message,
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
+    });
+}
 </script>
 
 <?php
