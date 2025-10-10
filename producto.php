@@ -3,6 +3,30 @@ session_start();
 require_once 'config/database.php';
 require_once 'includes/header.php';
 
+?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si un producto está en favoritos
+    fetch(`api/favoritos.php?producto_id=<?php echo $producto_id; ?>`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.data && data.data.isFavorite) {
+                document.getElementById('saveBtn').classList.add('saved');
+                document.getElementById('saveText').textContent = 'Guardado';
+            }
+        })
+        .catch(error => {
+            console.error('Error al verificar favoritos:', error);
+        });
+});
+</script>
+<?php
+
 if (!isset($_GET['id'])) {
     header('Location: error404.php');
     exit();
@@ -113,23 +137,41 @@ try {
                             producto_id: <?php echo $producto_id; ?>
                         })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                window.location.href = 'iniciarsesion.php';
+                                throw new Error('No autenticado');
+                            }
+                            throw new Error(`Error HTTP: ${response.status}`);
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             const btn = document.getElementById('saveBtn');
                             const text = document.getElementById('saveText');
-                            if (data.isFavorite) {
+                            if (data.data && data.data.isFavorite) {
                                 btn.classList.add('saved');
                                 text.textContent = 'Guardado';
                             } else {
                                 btn.classList.remove('saved');
                                 text.textContent = 'Guardar';
                             }
+                        } else {
+                            throw new Error(data.message || 'Error al procesar la solicitud');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error al guardar el producto');
+                        if (error.message !== 'No autenticado') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'No se pudo guardar el producto en favoritos',
+                                confirmButtonColor: '#6a994e'
+                            });
+                        }
                     });
                 });
                 </script>

@@ -1,13 +1,9 @@
 <?php
+require_once 'api_base_new.php';
 require_once '../config/database.php';
-session_start();
 
 // Verificar que el usuario está logueado
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Usuario no autenticado']);
-    exit;
-}
+$usuario_id = requireAuth();
 
 $usuario_id = $_SESSION['user_id'];
 

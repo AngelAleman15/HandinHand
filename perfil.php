@@ -1,5 +1,5 @@
 ﻿<?php
-session_start();
+require_once 'config/session.php';
 require_once 'includes/functions.php';
 require_once 'includes/logger.php';
 require_once 'includes/validator.php';
@@ -105,12 +105,7 @@ try {
 include 'includes/header.php';
 ?>
 
-<style>
-/* Remover el padding-top del body para esta página */
-body {
-    padding-top: 0 !important;
-}
-</style>
+<link rel="stylesheet" href="css/profile.css">
 
 <div class="profile-container">
     <!-- Header del perfil -->
@@ -995,9 +990,7 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script src="js/test-functions.js"></script>
-
-<script>
-// === FUNCIONES DE INTERACCIÓN ===
+<script src="js/profile.js"></script>
 
 // Verificar si hay que resaltar el botón de cambiar contraseña
 document.addEventListener('DOMContentLoaded', function() {
