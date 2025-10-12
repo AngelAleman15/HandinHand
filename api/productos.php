@@ -227,7 +227,7 @@ function updateProducto($id) {
         $fields = [];
         $params = [];
         
-        $allowedFields = ['nombre', 'descripcion', 'imagen', 'categoria', 'estado'];
+        $allowedFields = ['nombre', 'descripcion', 'imagen', 'categoria', 'estado', 'ubicacion_lat', 'ubicacion_lng', 'ubicacion_nombre'];
         
         foreach ($allowedFields as $field) {
             if (isset($data[$field])) {

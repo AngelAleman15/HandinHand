@@ -1,0 +1,82 @@
+/* Estilos para el diálogo de compartir */
+.share-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px;
+}
+
+.share-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.share-button:hover {
+    transform: translateY(-2px);
+}
+
+.share-button img, .share-button i {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.share-button.whatsapp {
+    background-color: #25D366;
+    color: white;
+}
+
+.share-button.telegram {
+    background-color: #0088cc;
+    color: white;
+}
+
+.share-button.twitter {
+    background-color: #1DA1F2;
+    color: white;
+}
+
+.share-link-container {
+    display: flex;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.share-link {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background-color: #f8f8f8;
+    font-size: 14px;
+}
+
+.copy-link {
+    padding: 0 15px;
+    border: none;
+    background-color: #6a994e;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.copy-link:hover {
+    background-color: #386641;
+}
+
+.copy-link.copied {
+    background-color: #386641;
+}
+
+.copy-link i {
+    font-size: 16px;
+}

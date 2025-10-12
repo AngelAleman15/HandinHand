@@ -1,5 +1,5 @@
 ﻿<?php
-session_start();
+require_once 'config/session.php';
 require_once 'includes/functions.php';
 require_once 'includes/logger.php';
 require_once 'includes/validator.php';
@@ -38,7 +38,11 @@ try {
 }
 
     // Contar productos totales
+<<<<<<< HEAD
     $stmt = executeQuery($pdo,
+=======
+    $stmt = executeQuery($pdo,
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
         "SELECT COUNT(*) as total FROM productos WHERE user_id = ?",
         [$user['id']]
     );
@@ -66,6 +70,11 @@ try {
     $mensajesRecibidos = $stmt->fetch()['mensajes'];
 
     $pdo->commit();
+<<<<<<< HEAD
+
+=======
+
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Contar seguidores (usuarios que siguen a este usuario)
     // Por ahora simulamos los datos ya que no existe la tabla de seguimientos
     $seguidores = rand(5, 50); // Simular seguidores
@@ -87,11 +96,16 @@ try {
     $fechaActual = new DateTime();
     $diasMiembro = $fechaActual->diff($fechaRegistro)->days;
 
-    catch (Exception $e) {
+} catch (Exception $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
     Logger::logDBError($e, "Error obteniendo estadísticas de usuario", ['user_id' => $user['id']]);
+<<<<<<< HEAD
+
+=======
+
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     $totalProductos = 0;
     $productosDisponibles = 0;
     $productosIntercambiados = 0;
@@ -104,12 +118,7 @@ try {
 include 'includes/header.php';
 ?>
 
-<style>
-/* Remover el padding-top del body para esta página */
-body {
-    padding-top: 0 !important;
-}
-</style>
+<link rel="stylesheet" href="css/profile.css">
 
 <div class="profile-container">
     <!-- Header del perfil -->
@@ -994,9 +1003,7 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script src="js/test-functions.js"></script>
-
-<script>
-// === FUNCIONES DE INTERACCIÓN ===
+<script src="js/profile.js"></script>
 
 // Verificar si hay que resaltar el botón de cambiar contraseña
 document.addEventListener('DOMContentLoaded', function() {
@@ -1111,6 +1118,11 @@ function validateInput(data) {
         );
         return false;
     }
+<<<<<<< HEAD
+
+=======
+
+>>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     return isValid;
 }
 
@@ -2422,7 +2434,7 @@ function showAvatarUploader() {
                     <p style="color: #666; margin-bottom: 20px;">Selecciona una imagen para tu foto de perfil</p>
                 </div>
 
-                <input type="file" id="avatarFile" accept="image/*" style="display: none;">
+                <input type="file" id="avatarFile" accept="image/jpeg,image/png,image/webp" style="display: none;">
                 <button type="button" class="btn btn-primary" onclick="document.getElementById('avatarFile').click()">
                     <i class="fas fa-images"></i> Seleccionar Imagen
                 </button>
@@ -2431,7 +2443,7 @@ function showAvatarUploader() {
                     <small style="color: #666;">
                         <strong>📋 Requisitos:</strong><br>
                         • Tamaño máximo: 25MB<br>
-                        • Formatos: JPG, PNG, GIF, WebP<br>
+                        • Formatos permitidos: JPG, PNG, WebP<br>
                         • Dimensión mínima: 100x100px<br>
                         • Recomendado: Imagen cuadrada
                     </small>
@@ -2457,6 +2469,30 @@ function handleFileSelection(event) {
 
     // Validar que se seleccionó un archivo
     if (!file) {
+        return;
+    }
+
+    // Verificar si es un GIF
+    if (file.type === 'image/gif') {
+        Swal.fire({
+            title: '❌ Formato no permitido',
+            html: `
+                <div style="text-align: left;">
+                    <p>Los archivos GIF no están permitidos como avatar.</p>
+                    <p style="margin-top: 10px;"><strong>Formatos permitidos:</strong></p>
+                    <ul style="margin-top: 5px;">
+                        <li>JPG/JPEG</li>
+                        <li>PNG</li>
+                        <li>WebP</li>
+                    </ul>
+                    <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                        <i class="fas fa-info-circle"></i> Por favor, selecciona una imagen estática en uno de los formatos permitidos.
+                    </div>
+                </div>
+            `,
+            icon: 'error',
+            confirmButtonColor: '#A2CB8D'
+        });
         return;
     }
 
