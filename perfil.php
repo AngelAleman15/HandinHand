@@ -35,7 +35,6 @@ try {
             throw $e;
         }
     }
-}
 
     // Contar productos totales
     $stmt = executeQuery($pdo,
