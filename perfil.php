@@ -35,13 +35,10 @@ try {
             throw $e;
         }
     }
+}
 
     // Contar productos totales
-<<<<<<< HEAD
     $stmt = executeQuery($pdo,
-=======
-    $stmt = executeQuery($pdo, 
->>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
         "SELECT COUNT(*) as total FROM productos WHERE user_id = ?",
         [$user['id']]
     );
@@ -69,11 +66,6 @@ try {
     $mensajesRecibidos = $stmt->fetch()['mensajes'];
 
     $pdo->commit();
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Contar seguidores (usuarios que siguen a este usuario)
     // Por ahora simulamos los datos ya que no existe la tabla de seguimientos
     $seguidores = rand(5, 50); // Simular seguidores
@@ -95,16 +87,11 @@ try {
     $fechaActual = new DateTime();
     $diasMiembro = $fechaActual->diff($fechaRegistro)->days;
 
-} catch (Exception $e) {
+    catch (Exception $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
     Logger::logDBError($e, "Error obteniendo estadísticas de usuario", ['user_id' => $user['id']]);
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     $totalProductos = 0;
     $productosDisponibles = 0;
     $productosIntercambiados = 0;
@@ -113,7 +100,7 @@ try {
     $diasMiembro = 0;
 }
 
-// Incluir header
+// Incluir header y navbar
 include 'includes/header.php';
 ?>
 
@@ -1088,7 +1075,7 @@ function validateInput(data) {
 <<<<<<< HEAD
 
 =======
-    
+
 >>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Validar email
     if (!validator.validateEmail(data.email)) {
@@ -1097,7 +1084,7 @@ function validateInput(data) {
 <<<<<<< HEAD
 
 =======
-    
+
 >>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Validar teléfono si se proporciona
     if (data.phone && !validator.validatePhone(data.phone)) {
@@ -1106,7 +1093,7 @@ function validateInput(data) {
 <<<<<<< HEAD
 
 =======
-    
+
 >>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Validar username
     if (!validator.validateUsername(data.username)) {
@@ -1115,7 +1102,7 @@ function validateInput(data) {
 <<<<<<< HEAD
 
 =======
-    
+
 >>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     // Si hay errores, mostrarlos
     if (validator.hasErrors()) {
@@ -1124,11 +1111,6 @@ function validateInput(data) {
         );
         return false;
     }
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 41e6a2471d9fdb9e7687c1397ec07e0ab9623e75
     return isValid;
 }
 
