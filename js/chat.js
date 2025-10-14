@@ -285,16 +285,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('📡 Emitiendo mensaje por Socket.IO:', messageData);
                     socket.emit('chat_message', messageData);
                     console.log('✅ Mensaje emitido exitosamente');
+                    // El mensaje se mostrará cuando el servidor lo devuelva via Socket.IO
                 } else {
                     console.error('❌ Socket.IO NO está conectado!');
                     console.log('🔄 Intentando reconectar...');
                     if (socket) {
                         socket.connect();
                     }
+                    // Si no hay conexión Socket.IO, mostrar mensaje localmente
+                    appendMessage(messageData);
                 }
-
-                // Mostrar mensaje en el chat
-                appendMessage(messageData);
 
                 // Limpiar input
                 messageInput.value = '';
