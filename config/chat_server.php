@@ -12,14 +12,9 @@ function getChatServerUrl() {
         $_SERVER['SERVER_ADDR'] === '127.0.0.1' ||
         substr($_SERVER['SERVER_ADDR'], 0, 8) === '192.168.') {
         
-        // Intentar usar la IP local si está configurada
-        $local_ip = gethostbyname(gethostname());
-        if ($local_ip && $local_ip !== gethostname()) {
-            return 'http://' . $local_ip . ':' . CHAT_SERVER_PORT;
-        }
-        
-        // Si no se puede obtener la IP local, usar localhost
-        return 'http://localhost:' . CHAT_SERVER_PORT;
+        // Usar la IP del servidor actual (la que usa el usuario para acceder)
+        // Esto asegura que siempre use la IP correcta de la red WiFi
+        return 'http://' . $_SERVER['SERVER_ADDR'] . ':' . CHAT_SERVER_PORT;
     }
     
     // Si hay una URL de producción configurada, usarla
