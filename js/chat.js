@@ -2,6 +2,161 @@
 let currentChatUserId = null;
 let socket = null;
 let onlineUsers = new Set();
+let replyingToMessage = null; // Para almacenar el mensaje al que se está respondiendo
+
+// Funciones globales (necesarias para ser llamadas desde HTML inline)
+function replyToMessage(messageId, messageText, senderName) {
+    replyingToMessage = {
+        id: messageId,
+        text: messageText,
+        sender: senderName
+    };
+
+    // Mostrar vista previa de respuesta
+    const replyPreview = document.getElementById('reply-preview');
+    const replyUsername = document.getElementById('reply-preview-username');
+    const replyText = document.getElementById('reply-preview-text');
+
+    if (replyPreview && replyUsername && replyText) {
+        replyUsername.textContent = `Respondiendo a ${senderName}`;
+        replyText.textContent = messageText;
+        replyPreview.classList.add('show');
+    }
+
+    // Enfocar el input
+    const messageInput = document.getElementById('message-input');
+    if (messageInput) {
+        messageInput.focus();
+    }
+
+    // Cerrar el menú de opciones
+    document.querySelectorAll('.message-options-menu').forEach(menu => {
+        menu.classList.remove('show');
+    });
+}
+
+function cancelReply() {
+    replyingToMessage = null;
+    const replyPreview = document.getElementById('reply-preview');
+    if (replyPreview) {
+        replyPreview.classList.remove('show');
+    }
+}
+
+// Función para mostrar el modal de confirmación
+function deleteChatHistory() {
+    if (!currentChatUserId) return;
+    
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal) {
+        modal.classList.add('show');
+    }
+    
+    // Cerrar el menú de opciones
+    const chatOptionsMenu = document.getElementById('chat-options-menu');
+    if (chatOptionsMenu) {
+        chatOptionsMenu.classList.remove('show');
+    }
+}
+
+// Función para cerrar el modal
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
+}
+
+// Función para confirmar la eliminación
+async function confirmDeleteHistory() {
+    if (!currentChatUserId) return;
+
+    try {
+        const response = await fetch('/2025PracticasAAleman/HandinHand/api/delete-chat-history.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                other_user_id: currentChatUserId
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            // Limpiar mensajes de la pantalla
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages) {
+                chatMessages.innerHTML = '';
+            }
+            
+            // Cerrar el modal
+            closeDeleteModal();
+            
+            // Mostrar notificación de éxito
+            showSuccessNotification('Historial eliminado correctamente');
+        } else {
+            // Cerrar el modal
+            closeDeleteModal();
+            
+            // Mostrar error
+            showErrorNotification('Error al eliminar el historial');
+        }
+    } catch (error) {
+        console.error('Error al eliminar historial:', error);
+        
+        // Cerrar el modal
+        closeDeleteModal();
+        
+        // Mostrar error
+        showErrorNotification('Error de conexión');
+    }
+}
+
+// Función para mostrar notificación de éxito
+function showSuccessNotification(message) {
+    // Crear elemento de notificación
+    const notification = document.createElement('div');
+    notification.className = 'chat-notification success';
+    notification.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Mostrar con animación
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Función para mostrar notificación de error
+function showErrorNotification(message) {
+    // Crear elemento de notificación
+    const notification = document.createElement('div');
+    notification.className = 'chat-notification error';
+    notification.innerHTML = `
+        <i class="fas fa-exclamation-circle"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Mostrar con animación
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
 
 // Esperar a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,6 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-contacts');
     const welcomeScreen = document.getElementById('welcome-screen');
     const chatPanel = document.getElementById('chat-panel');
+    const chatOptionsBtn = document.getElementById('chat-options-btn');
+    const chatOptionsMenu = document.getElementById('chat-options-menu');
+    const deleteChatHistoryBtn = document.getElementById('delete-chat-history');
+    const replyPreview = document.getElementById('reply-preview');
+    const cancelReplyBtn = document.getElementById('cancel-reply');
 
     // Inicializar Socket.IO
     initializeSocket();
@@ -27,6 +187,45 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.addEventListener('input', (e) => {
             filterContacts(e.target.value);
         });
+    }
+
+    // Eventos para menú de opciones del chat
+    if (chatOptionsBtn) {
+        chatOptionsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            chatOptionsMenu.classList.toggle('show');
+        });
+    }
+
+    // Cerrar menú al hacer clic fuera
+    document.addEventListener('click', () => {
+        if (chatOptionsMenu) {
+            chatOptionsMenu.classList.remove('show');
+        }
+        // Cerrar todos los menús de opciones de mensajes
+        document.querySelectorAll('.message-options-menu').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    });
+
+    // Event listener para cerrar modal al hacer clic fuera
+    const deleteModal = document.getElementById('deleteConfirmModal');
+    if (deleteModal) {
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+    }
+
+    // Eliminar historial de chat
+    if (deleteChatHistoryBtn) {
+        deleteChatHistoryBtn.addEventListener('click', deleteChatHistory);
+    }
+
+    // Cancelar respuesta
+    if (cancelReplyBtn) {
+        cancelReplyBtn.addEventListener('click', cancelReply);
     }
 
     // Eventos de envío de mensajes
@@ -219,8 +418,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isOwnMessage ? 'own' : ''}`;
+        messageDiv.dataset.messageId = messageData.id || '';
 
         const avatarSrc = isOwnMessage ? CURRENT_USER_AVATAR : document.getElementById('chat-user-avatar')?.src || 'img/usuario.png';
+        const senderName = isOwnMessage ? 'Tú' : (document.getElementById('chat-user-name')?.textContent || 'Usuario');
+
+        // HTML para la respuesta si existe
+        let replyHTML = '';
+        if (messageData.reply_to_message_id && messageData.reply_to_message) {
+            replyHTML = `
+                <div class="message-reply-preview">
+                    <div class="reply-username">${escapeHtml(messageData.reply_to_username || 'Usuario')}</div>
+                    <div class="reply-text">${escapeHtml(messageData.reply_to_message)}</div>
+                </div>
+            `;
+        }
 
         messageDiv.innerHTML = `
             <div class="message-avatar">
@@ -228,9 +440,21 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="message-content">
                 <div class="message-bubble">
-                    ${escapeHtml(messageData.message)}
+                    ${replyHTML}
+                    ${escapeHtml(messageData.message || messageData.mensaje)}
                 </div>
                 <div class="message-time">${time}</div>
+            </div>
+            <div class="message-options">
+                <button class="message-options-btn" onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle('show')">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="message-options-menu">
+                    <div class="message-option-item" onclick="replyToMessage(${messageData.id || 0}, '${escapeHtml(messageData.message || messageData.mensaje).replace(/'/g, "\\'")}', '${senderName}')">
+                        <i class="fas fa-reply"></i>
+                        <span>Responder</span>
+                    </div>
+                </div>
             </div>
         `;
 
@@ -258,7 +482,8 @@ document.addEventListener('DOMContentLoaded', () => {
             message: message,
             sender_id: CURRENT_USER_ID,
             receiver_id: currentChatUserId,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            reply_to_message_id: replyingToMessage ? replyingToMessage.id : null
         };
 
         try {
@@ -270,7 +495,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     message: message,
-                    receiver_id: currentChatUserId
+                    receiver_id: currentChatUserId,
+                    reply_to_message_id: replyingToMessage ? replyingToMessage.id : null
                 })
             });
 
@@ -278,6 +504,16 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('💾 Respuesta del servidor:', result);
 
             if (result.status === 'success') {
+                // Si había una respuesta, añadirla a los datos del mensaje
+                if (replyingToMessage) {
+                    messageData.reply_to_message = replyingToMessage.text;
+                    messageData.reply_to_username = replyingToMessage.sender;
+                    messageData.reply_to_message_id = replyingToMessage.id;
+                }
+
+                // Añadir el ID del mensaje
+                messageData.id = result.message_id;
+
                 // Verificar estado de Socket.IO
                 console.log('🔌 Socket conectado:', socket?.connected);
                 console.log('🔌 Socket ID:', socket?.id);
@@ -296,6 +532,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     // Si no hay conexión Socket.IO, mostrar mensaje localmente
                     appendMessage(messageData);
+                }
+
+                // Cancelar respuesta si había una
+                if (replyingToMessage) {
+                    cancelReply();
                 }
 
                 // Limpiar input
