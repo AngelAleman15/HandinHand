@@ -31,8 +31,18 @@ io.on('connection', (socket) => {
 
     // Cuando un usuario se identifica
     socket.on('user_connected', async (userId) => {
-        console.log('Usuario identificado:', userId);
+        console.log('👤 Usuario identificado:', userId, 'Socket:', socket.id);
+        
+        // Si el usuario ya estaba conectado, eliminar el socket antiguo
+        const oldSocketId = connectedUsers.get(userId);
+        if (oldSocketId && oldSocketId !== socket.id) {
+            console.log('   ⚠️ Usuario ya tenía un socket, actualizando:', oldSocketId, '->', socket.id);
+        }
+        
+        // Guardar el nuevo socket
         connectedUsers.set(userId, socket.id);
+        
+        console.log('   📊 Usuarios conectados:', Array.from(connectedUsers.entries()));
         
         // Notificar a todos los usuarios conectados
         io.emit('users_online', Array.from(connectedUsers.keys()));
@@ -42,24 +52,29 @@ io.on('connection', (socket) => {
     socket.on('chat_message', async (data) => {
         console.log('📨 Mensaje recibido:', data);
         console.log('   Emisor:', data.sender_id, 'Receptor:', data.receiver_id);
+        console.log('   📊 Map actual de usuarios:', Array.from(connectedUsers.entries()));
         
         // Obtener el socket del destinatario
         const receiverSocket = connectedUsers.get(data.receiver_id.toString());
         const senderSocket = connectedUsers.get(data.sender_id.toString());
         
-        console.log('   Socket receptor:', receiverSocket ? 'Encontrado' : 'No encontrado');
-        console.log('   Socket emisor:', senderSocket ? 'Encontrado' : 'No encontrado');
+        console.log('   Socket receptor (' + data.receiver_id + '):', receiverSocket || 'No encontrado');
+        console.log('   Socket emisor (' + data.sender_id + '):', senderSocket || 'No encontrado');
         
         // Enviar el mensaje al destinatario
         if (receiverSocket) {
-            console.log('   ✅ Enviando mensaje al receptor');
+            console.log('   ✅ Enviando mensaje al receptor en socket:', receiverSocket);
             io.to(receiverSocket).emit('chat_message', data);
+        } else {
+            console.log('   ❌ Receptor NO encontrado en connectedUsers');
         }
         
         // Enviar confirmación al emisor para que vea su propio mensaje
         if (senderSocket) {
-            console.log('   ✅ Enviando confirmación al emisor');
+            console.log('   ✅ Enviando confirmación al emisor en socket:', senderSocket);
             io.to(senderSocket).emit('chat_message', data);
+        } else {
+            console.log('   ❌ Emisor NO encontrado en connectedUsers');
         }
     });
 

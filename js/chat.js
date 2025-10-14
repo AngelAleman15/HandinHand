@@ -59,10 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             socket.on('chat_message', (data) => {
+                console.log('🔔 Evento chat_message recibido del servidor!', data);
                 handleIncomingMessage(data);
             });
 
             socket.on('users_online', (users) => {
+                console.log('👥 Evento users_online recibido:', users);
                 updateOnlineStatus(users);
             });
 
