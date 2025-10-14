@@ -22,7 +22,7 @@ include 'includes/header.php';
 /* Ajustar el body para mensajería */
 body.body-messaging {
     margin: 0;
-    padding-top: 0 !important;
+    padding-top: 0 !important; /* Se ajustará dinámicamente con JS */
     height: 100vh;
     overflow: hidden;
     display: flex;
@@ -31,6 +31,11 @@ body.body-messaging {
 
 body.body-messaging .header {
     margin-bottom: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
 }
 
 .messaging-container {
@@ -41,16 +46,19 @@ body.body-messaging .header {
     flex-direction: column;
     flex: 1;
     overflow: hidden;
+    height: 100vh; /* Se ajustará dinámicamente con JS */
 }
 
 /* Contenedor principal del chat */
 .chat-main-container {
     display: flex;
     flex: 1;
-    overflow: hidden;
+    overflow: visible;
     height: 100%;
     background: white;
     margin: 0;
+    position: relative;
+    padding-top: 50px; /* Espacio para el header principal */
 }
 
 /* Panel de contactos */
@@ -280,8 +288,8 @@ body.body-messaging .header {
     display: none;
     flex-direction: column;
     height: 100%;
-    min-width: 0; /* Permite que se contraiga */
-    overflow: hidden; /* Evita desbordamiento */
+    min-width: 0;
+    position: relative;
 }
 
 .chat-panel.active {
@@ -290,12 +298,16 @@ body.body-messaging .header {
 
 .chat-header {
     background: linear-gradient(135deg, #313C26, #273122);
-    padding: 12px 20px;
+    padding: 15px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid rgba(0,0,0,0.05);
     flex-shrink: 0;
+    height: auto;
+    min-height: 70px;
+    z-index: 10;
+    width: 100%;
 }
 
 .chat-header-info {
@@ -365,6 +377,7 @@ body.body-messaging .header {
     background: linear-gradient(to bottom, #f8f9fa, #ffffff);
     display: flex;
     flex-direction: column;
+    height: auto;
 }
 
 .message {
@@ -374,6 +387,10 @@ body.body-messaging .header {
     animation: messageSlideIn 0.3s ease;
     align-items: flex-start;
     margin-bottom: 8px;
+    background: transparent !important;
+    padding: 0 !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 @keyframes messageSlideIn {
@@ -413,6 +430,7 @@ body.body-messaging .header {
     flex-direction: column;
     gap: 4px;
     max-width: calc(100% - 46px);
+    background: transparent;
 }
 
 .message.own .message-content {
@@ -434,6 +452,17 @@ body.body-messaging .header {
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     display: inline-block;
     max-width: 100%;
+    transition: all 0.2s ease;
+}
+
+.message:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.message:hover .message-bubble {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
 
 .message:not(.own) .message-bubble {
@@ -852,6 +881,37 @@ body.body-messaging .header {
     const CHAT_SERVER_URL = '<?php echo getChatServerUrl(); ?>';
     const CURRENT_USER_ID = '<?php echo $user['id']; ?>';
     const CURRENT_USER_AVATAR = '<?php echo isset($user['avatar_path']) && !empty($user['avatar_path']) ? $user['avatar_path'] : 'img/usuario.png'; ?>';
+    
+    // Ajustar altura del contenedor basado en el header
+    function adjustMessagingContainerHeight() {
+        const header = document.querySelector('.header');
+        const body = document.body;
+        const messagingContainer = document.querySelector('.messaging-container');
+        const chatMainContainer = document.querySelector('.chat-main-container');
+        
+        if (header && messagingContainer) {
+            const headerHeight = header.offsetHeight;
+            body.style.paddingTop = headerHeight + 'px';
+            messagingContainer.style.height = `calc(100vh - ${headerHeight}px)`;
+            messagingContainer.style.marginTop = '0';
+            
+            if (chatMainContainer) {
+                chatMainContainer.style.height = '100%';
+            }
+            
+            console.log('📏 Header height:', headerHeight + 'px');
+            console.log('📐 Container height:', messagingContainer.style.height);
+        }
+    }
+    
+    // Ejecutar al cargar la página
+    window.addEventListener('DOMContentLoaded', adjustMessagingContainerHeight);
+    
+    // Ejecutar también al redimensionar
+    window.addEventListener('resize', adjustMessagingContainerHeight);
+    
+    // Ejecutar después de un pequeño delay para asegurar que todo esté renderizado
+    setTimeout(adjustMessagingContainerHeight, 100);
 </script>
 <script src="js/chat.js"></script>
 <script src="js/dropdownmenu.js?v=<?php echo time(); ?>"></script>

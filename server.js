@@ -40,14 +40,26 @@ io.on('connection', (socket) => {
 
     // Cuando un usuario envía un mensaje
     socket.on('chat_message', async (data) => {
-        console.log('Mensaje recibido:', data);
+        console.log('📨 Mensaje recibido:', data);
+        console.log('   Emisor:', data.sender_id, 'Receptor:', data.receiver_id);
         
         // Obtener el socket del destinatario
         const receiverSocket = connectedUsers.get(data.receiver_id.toString());
+        const senderSocket = connectedUsers.get(data.sender_id.toString());
         
+        console.log('   Socket receptor:', receiverSocket ? 'Encontrado' : 'No encontrado');
+        console.log('   Socket emisor:', senderSocket ? 'Encontrado' : 'No encontrado');
+        
+        // Enviar el mensaje al destinatario
         if (receiverSocket) {
-            // Enviar el mensaje al destinatario
+            console.log('   ✅ Enviando mensaje al receptor');
             io.to(receiverSocket).emit('chat_message', data);
+        }
+        
+        // Enviar confirmación al emisor para que vea su propio mensaje
+        if (senderSocket) {
+            console.log('   ✅ Enviando confirmación al emisor');
+            io.to(senderSocket).emit('chat_message', data);
         }
     });
 
