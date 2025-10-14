@@ -59,10 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             socket.on('chat_message', (data) => {
+                console.log('🔔 Evento chat_message recibido del servidor!', data);
                 handleIncomingMessage(data);
             });
 
             socket.on('users_online', (users) => {
+                console.log('👥 Evento users_online recibido:', users);
                 updateOnlineStatus(users);
             });
 
@@ -269,10 +271,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Emitir a través de Socket.io
                 if (socket && socket.connected) {
                     socket.emit('chat_message', messageData);
+                    console.log('✅ Mensaje emitido exitosamente');
+                    // El mensaje se mostrará cuando el servidor lo devuelva via Socket.IO
+                } else {
+                    console.error('❌ Socket.IO NO está conectado!');
+                    console.log('🔄 Intentando reconectar...');
+                    if (socket) {
+                        socket.connect();
+                    }
+                    // Si no hay conexión Socket.IO, mostrar mensaje localmente
+                    appendMessage(messageData);
                 }
-
-                // Mostrar mensaje en el chat
-                appendMessage(messageData);
 
                 // Limpiar input
                 messageInput.value = '';
@@ -298,9 +307,11 @@ document.addEventListener('DOMContentLoaded', () => {
             appendMessage(data);
 
             // Si no es nuestro mensaje, marcarlo como leído
-            if (data.sender_id.toString() !== CURRENT_USER_ID.toString()) {
+            if (senderId !== myId) {
                 markMessagesAsRead(data.sender_id);
             }
+        } else if (receiverId === myId) {
+            console.log('📬 Mensaje para otro chat, incrementando badge');
         } else if (data.receiver_id.toString() === CURRENT_USER_ID.toString()) {
             // Mensaje para otro chat, incrementar badge
             incrementUnreadBadge(data.sender_id);

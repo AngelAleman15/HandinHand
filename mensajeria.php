@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+// Desactivar caché para desarrollo
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 require_once 'includes/functions.php';
 
 // Verificar que esté logueado
@@ -913,7 +919,7 @@ body.body-messaging .header {
     // Ejecutar después de un pequeño delay para asegurar que todo esté renderizado
     setTimeout(adjustMessagingContainerHeight, 100);
 </script>
-<script src="js/chat.js"></script>
+<script src="js/chat.js?v=<?php echo time(); ?>"></script>
 <script src="js/dropdownmenu.js?v=<?php echo time(); ?>"></script>
 
 </body>
