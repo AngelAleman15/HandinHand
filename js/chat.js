@@ -464,19 +464,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para enviar mensaje
     async function sendMessage() {
-        if (!messageInput || !currentChatUserId) {
-            console.warn('⚠️ No hay input o usuario seleccionado');
-            return;
-        }
+        if (!messageInput || !currentChatUserId) return;
 
         const message = messageInput.value.trim();
-        if (!message) {
-            console.warn('⚠️ Mensaje vacío');
-            return;
-        }
-
-        console.log('📤 Enviando mensaje:', message);
-        console.log('👤 De usuario:', CURRENT_USER_ID, 'Para usuario:', currentChatUserId);
+        if (!message) return;
 
         const messageData = {
             message: message,
@@ -501,7 +492,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const result = await response.json();
-            console.log('💾 Respuesta del servidor:', result);
 
             if (result.status === 'success') {
                 // Si había una respuesta, añadirla a los datos del mensaje
@@ -520,7 +510,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Emitir a través de Socket.io
                 if (socket && socket.connected) {
-                    console.log('📡 Emitiendo mensaje por Socket.IO:', messageData);
                     socket.emit('chat_message', messageData);
                     console.log('✅ Mensaje emitido exitosamente');
                     // El mensaje se mostrará cuando el servidor lo devuelva via Socket.IO
@@ -543,41 +532,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 messageInput.value = '';
                 messageInput.focus();
             } else {
-                console.error('❌ Error al guardar mensaje:', result);
+                console.error('Error al guardar mensaje:', result);
                 alert('Error al enviar el mensaje. Por favor, intenta de nuevo.');
             }
         } catch (error) {
-            console.error('❌ Error al enviar mensaje:', error);
+            console.error('Error al enviar mensaje:', error);
             alert('Error de conexión. Por favor, verifica tu conexión e intenta de nuevo.');
         }
     }
 
     // Función para manejar mensajes entrantes
     function handleIncomingMessage(data) {
-        console.log('📨 Mensaje entrante recibido:', data);
-        console.log('👤 De:', data.sender_id, 'Para:', data.receiver_id);
-        console.log('💬 Chat actual con:', currentChatUserId);
-        console.log('🆔 CURRENT_USER_ID:', CURRENT_USER_ID);
-        
-        // Convertir todos los IDs a string para comparación
-        const senderId = String(data.sender_id);
-        const receiverId = String(data.receiver_id);
-        const myId = String(CURRENT_USER_ID);
-        const chatWithId = currentChatUserId ? String(currentChatUserId) : null;
-        
-        console.log('🔢 IDs convertidos:', { senderId, receiverId, myId, chatWithId });
-        
-        // El mensaje es para el chat actual si:
-        // 1. Yo lo envié (sender_id === mi ID) y el destinatario es con quien estoy chateando
-        // 2. Me lo enviaron (receiver_id === mi ID) y el remitente es con quien estoy chateando
-        const isFromCurrentChat = chatWithId &&
-            ((senderId === myId && receiverId === chatWithId) ||
-             (receiverId === myId && senderId === chatWithId));
+        const isForCurrentChat = currentChatUserId &&
+            (data.sender_id.toString() === currentChatUserId.toString() ||
+             data.sender_id.toString() === CURRENT_USER_ID.toString());
 
-        console.log('🎯 Es para el chat actual?', isFromCurrentChat);
-
-        if (isFromCurrentChat) {
-            console.log('✅ Mostrando mensaje en el chat actual');
+        if (isForCurrentChat) {
             // Mensaje para el chat actual
             appendMessage(data);
 
@@ -587,10 +557,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (receiverId === myId) {
             console.log('📬 Mensaje para otro chat, incrementando badge');
+        } else if (data.receiver_id.toString() === CURRENT_USER_ID.toString()) {
             // Mensaje para otro chat, incrementar badge
             incrementUnreadBadge(data.sender_id);
-        } else {
-            console.log('⚠️ Mensaje no es para mí');
         }
     }
 
