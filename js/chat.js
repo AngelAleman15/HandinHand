@@ -314,15 +314,22 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('📨 Mensaje entrante recibido:', data);
         console.log('👤 De:', data.sender_id, 'Para:', data.receiver_id);
         console.log('💬 Chat actual con:', currentChatUserId);
+        console.log('🆔 CURRENT_USER_ID:', CURRENT_USER_ID);
+        
+        // Convertir todos los IDs a string para comparación
+        const senderId = String(data.sender_id);
+        const receiverId = String(data.receiver_id);
+        const myId = String(CURRENT_USER_ID);
+        const chatWithId = currentChatUserId ? String(currentChatUserId) : null;
+        
+        console.log('🔢 IDs convertidos:', { senderId, receiverId, myId, chatWithId });
         
         // El mensaje es para el chat actual si:
         // 1. Yo lo envié (sender_id === mi ID) y el destinatario es con quien estoy chateando
         // 2. Me lo enviaron (receiver_id === mi ID) y el remitente es con quien estoy chateando
-        const isFromCurrentChat = currentChatUserId &&
-            ((data.sender_id.toString() === CURRENT_USER_ID.toString() && 
-              data.receiver_id.toString() === currentChatUserId.toString()) ||
-             (data.receiver_id.toString() === CURRENT_USER_ID.toString() && 
-              data.sender_id.toString() === currentChatUserId.toString()));
+        const isFromCurrentChat = chatWithId &&
+            ((senderId === myId && receiverId === chatWithId) ||
+             (receiverId === myId && senderId === chatWithId));
 
         console.log('🎯 Es para el chat actual?', isFromCurrentChat);
 
@@ -332,10 +339,10 @@ document.addEventListener('DOMContentLoaded', () => {
             appendMessage(data);
 
             // Si no es nuestro mensaje, marcarlo como leído
-            if (data.sender_id.toString() !== CURRENT_USER_ID.toString()) {
+            if (senderId !== myId) {
                 markMessagesAsRead(data.sender_id);
             }
-        } else if (data.receiver_id.toString() === CURRENT_USER_ID.toString()) {
+        } else if (receiverId === myId) {
             console.log('📬 Mensaje para otro chat, incrementando badge');
             // Mensaje para otro chat, incrementar badge
             incrementUnreadBadge(data.sender_id);

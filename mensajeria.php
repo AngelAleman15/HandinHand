@@ -913,7 +913,7 @@ body.body-messaging .header {
     // Ejecutar después de un pequeño delay para asegurar que todo esté renderizado
     setTimeout(adjustMessagingContainerHeight, 100);
 </script>
-<script src="js/chat.js"></script>
+<script src="js/chat.js?v=<?php echo time(); ?>"></script>
 <script src="js/dropdownmenu.js?v=<?php echo time(); ?>"></script>
 
 </body>
