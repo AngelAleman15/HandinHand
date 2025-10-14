@@ -567,7 +567,7 @@ Perseo puede responder preguntas sobre:
 
 ## 📸 Capturas de Pantalla
 
-> **Nota:** Agrega capturas de pantalla de tu aplicación aquí para mostrar:
+> **Nota:** Agregar capturas de pantalla de tu aplicación acá para mostrar:
 > - Página principal con productos
 > - Interfaz de chat
 > - Perfil de usuario
@@ -588,7 +588,7 @@ Perseo puede responder preguntas sobre:
 - ✅ **CORS configurado** para el servidor WebSocket
 - ✅ **Gestión segura de archivos** en uploads
 
-### Recomendaciones Adicionales
+### Medidas a Implementar
 
 - Cambiar las credenciales de base de datos en producción
 - Usar HTTPS en producción
@@ -614,25 +614,6 @@ Perseo puede responder preguntas sobre:
 
 ---
 
-## 🤝 Contribución
-
-¡Las contribuciones son bienvenidas! Si quieres contribuir:
-
-1. **Fork** el proyecto
-2. Crea una **rama** para tu feature (`git checkout -b feature/AmazingFeature`)
-3. **Commit** tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un **Pull Request**
-
-### Guía de Estilo
-
-- Usa nombres de variables descriptivos
-- Comenta código complejo
-- Sigue las convenciones de PHP y JavaScript
-- Mantén la estructura de archivos organizada
-
----
-
 ## 🐛 Reportar Problemas
 
 Si encuentras un bug o tienes una sugerencia:
@@ -653,29 +634,15 @@ Este proyecto está bajo la Licencia ISC.
 
 ---
 
-## 👨‍💻 Autor
+## 👨‍💻 Autores
 
-**Ángel Alemán**
+**Ángel Alemán** - *Desarrollador Principal*
 - GitHub: [@AngelAleman15](https://github.com/AngelAleman15)
-- Proyecto: [HandinHand](https://github.com/AngelAleman15/HandinHand)
 
----
+**Alejo Santos** - *Desarrollador Principal y Tester*
+- GitHub: [@AlejoSantos007](https://github.com/AlejoSantos007)
 
-## 🙏 Agradecimientos
-
-- A todos los que han contribuido al proyecto
-- A la comunidad de código abierto
-- A los usuarios que prueban y mejoran la plataforma
-
----
-
-## 📞 Contacto y Soporte
-
-Para preguntas, sugerencias o soporte:
-
-- **Email:** [Tu email aquí]
-- **GitHub Issues:** [Reportar problema](https://github.com/AngelAleman15/HandinHand/issues)
-- **Redes Sociales:** [Enlaces a redes sociales]
+**Proyecto:** [HandinHand](https://github.com/AngelAleman15/HandinHand)
 
 ---
 
