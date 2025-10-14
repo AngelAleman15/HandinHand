@@ -3,13 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 09-10-2025 a las 23:52:28
+-- Tiempo de generación: 02-10-2025 a las 23:18:02
 -- Versión del servidor: 9.1.0
 -- Versión de PHP: 8.3.14
 
--- Crear y seleccionar la base de datos
-CREATE DATABASE IF NOT EXISTS `handinhand`;
-USE `handinhand`;
+-- Crear y usar la base de datos
+CREATE DATABASE IF NOT EXISTS handinhand;
+USE handinhand;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -59,27 +59,6 @@ INSERT INTO `categorias` (`id`, `nombre`, `descripcion`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `denuncias_productos`
---
-
-DROP TABLE IF EXISTS `denuncias_productos`;
-CREATE TABLE IF NOT EXISTS `denuncias_productos` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `usuario_id` int NOT NULL,
-  `producto_id` int NOT NULL,
-  `motivo` varchar(255) NOT NULL,
-  `descripcion` text,
-  `estado` enum('pendiente','revisada','resuelta','desestimada') DEFAULT 'pendiente',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `usuario_id` (`usuario_id`),
-  KEY `producto_id` (`producto_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `mensajes`
 --
 
@@ -113,9 +92,6 @@ CREATE TABLE IF NOT EXISTS `productos` (
   `imagen` varchar(255) NOT NULL,
   `categoria` varchar(50) DEFAULT NULL,
   `estado` enum('disponible','intercambiado','reservado') DEFAULT 'disponible',
-  `ubicacion_lat` decimal(10,8) DEFAULT NULL,
-  `ubicacion_lng` decimal(11,8) DEFAULT NULL,
-  `ubicacion_nombre` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -126,70 +102,17 @@ CREATE TABLE IF NOT EXISTS `productos` (
 -- Volcado de datos para la tabla `productos`
 --
 
-INSERT INTO `productos` (`id`, `user_id`, `nombre`, `descripcion`, `imagen`, `categoria`, `estado`, `ubicacion_lat`, `ubicacion_lng`, `ubicacion_nombre`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Zapatos Deportivos Nike', 'Zapatos deportivos en excelente estado, poco uso. Perfectos para correr o hacer ejercicio.', 'img/productos/Zapatosdeportivosnike.jpg', 'Calzado', 'disponible', NULL, NULL, NULL, '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(2, 1, 'Guitarra Acústica', 'Guitarra acústica en buen estado, ideal para principiantes. Incluye funda protectora.', 'img/productos/Guitarraacustica.jpg', 'Música', 'disponible', NULL, NULL, NULL, '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(3, 1, 'Libro \"El Principito\"', 'Clásico de la literatura en perfecto estado. Edición especial con ilustraciones.', 'img/productos/elprincipito.jpg', 'Libros', 'disponible', NULL, NULL, NULL, '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(4, 2, 'Smartphone Samsung', 'Samsung Galaxy en excelente estado, con cargador y protector. Funciona perfectamente.', 'img/productos/smartphonesamsungjpg.jpg', 'Electrónicos', 'disponible', NULL, NULL, NULL, '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(5, 2, 'Chaqueta de Cuero', 'Chaqueta de cuero genuino, talla M. Muy poco uso, perfecta para invierno.', 'img/productos/chaquetadecuerojpg.jpg', 'Ropa', 'disponible', NULL, NULL, NULL, '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(6, 2, 'Bicicleta de Montaña', 'Bicicleta en muy buen estado, ideal para aventuras al aire libre. Incluye casco.', 'img/productos/bicicletademontaña.jpg', 'Deportes', 'disponible', NULL, NULL, NULL, '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(7, 3, 'Cafetera Express', 'Cafetera express automática, hace café delicioso. Incluye manual de uso.', 'img/productos/cafeteraexpress.jpg', 'Hogar', 'disponible', NULL, NULL, NULL, '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(8, 3, 'Juego de Mesa Monopoly', 'Monopoly clásico en excelente estado, completo con todas las piezas.', 'img/productos/monopoly.jpg', 'Juguetes', 'disponible', NULL, NULL, NULL, '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(9, 3, 'Taladro Eléctrico', 'Taladro eléctrico con set de brocas. Perfecto para proyectos de hogar.', 'img/productos/taladroelectrico.jpg', 'Herramientas', 'disponible', NULL, NULL, NULL, '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(10, 4, 'Reloj Vintage', 'Reloj de pulsera vintage en perfecto funcionamiento. Estilo clásico y elegante.', 'img/productos/relojvintage.jpg', 'Accesorios', 'disponible', NULL, NULL, NULL, '2025-10-02 19:10:12', '2025-10-02 23:11:14');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `productos_favoritos`
---
-
-DROP TABLE IF EXISTS `productos_favoritos`;
-CREATE TABLE IF NOT EXISTS `productos_favoritos` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `usuario_id` int NOT NULL,
-  `producto_id` int NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_favorito` (`usuario_id`,`producto_id`),
-  KEY `usuario_id` (`usuario_id`),
-  KEY `producto_id` (`producto_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `producto_categoria`
---
-
-DROP TABLE IF EXISTS `producto_categoria`;
-CREATE TABLE IF NOT EXISTS `producto_categoria` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `producto_id` int NOT NULL,
-  `categoria_id` int NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_producto_categoria` (`producto_id`,`categoria_id`),
-  KEY `categoria_id` (`categoria_id`),
-  KEY `producto_id` (`producto_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Volcado de datos para la tabla `producto_categoria`
---
-
-INSERT INTO `producto_categoria` (`id`, `producto_id`, `categoria_id`, `created_at`) VALUES
-(1, 1, 1, '2025-10-09 23:35:03'),
-(2, 1, 5, '2025-10-09 23:35:03'),
-(3, 2, 7, '2025-10-09 23:35:03'),
-(4, 3, 6, '2025-10-09 23:35:03'),
-(5, 4, 3, '2025-10-09 23:35:03'),
-(6, 5, 2, '2025-10-09 23:35:03'),
-(7, 6, 5, '2025-10-09 23:35:03'),
-(8, 7, 4, '2025-10-09 23:35:03'),
-(9, 8, 8, '2025-10-09 23:35:03'),
-(10, 9, 9, '2025-10-09 23:35:03'),
-(11, 10, 10, '2025-10-09 23:35:03');
+INSERT INTO `productos` (`id`, `user_id`, `nombre`, `descripcion`, `imagen`, `categoria`, `estado`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Zapatos Deportivos Nike', 'Zapatos deportivos en excelente estado, poco uso. Perfectos para correr o hacer ejercicio.', 'img/productos/Zapatosdeportivosnike.jpg', 'Calzado', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(2, 1, 'Guitarra Acústica', 'Guitarra acústica en buen estado, ideal para principiantes. Incluye funda protectora.', 'img/productos/Guitarraacustica.jpg', 'Música', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(3, 1, 'Libro \"El Principito\"', 'Clásico de la literatura en perfecto estado. Edición especial con ilustraciones.', 'img/productos/elprincipito.jpg', 'Libros', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(4, 2, 'Smartphone Samsung', 'Samsung Galaxy en excelente estado, con cargador y protector. Funciona perfectamente.', 'img/productos/smartphonesamsungjpg.jpg', 'Electrónicos', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(5, 2, 'Chaqueta de Cuero', 'Chaqueta de cuero genuino, talla M. Muy poco uso, perfecta para invierno.', 'img/productos/chaquetadecuerojpg.jpg', 'Ropa', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(6, 2, 'Bicicleta de Montaña', 'Bicicleta en muy buen estado, ideal para aventuras al aire libre. Incluye casco.', 'img/productos/bicicletademontaña.jpg', 'Deportes', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(7, 3, 'Cafetera Express', 'Cafetera express automática, hace café delicioso. Incluye manual de uso.', 'img/productos/cafeteraexpress.jpg', 'Hogar', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(8, 3, 'Juego de Mesa Monopoly', 'Monopoly clásico en excelente estado, completo con todas las piezas.', 'img/productos/monopoly.jpg', 'Juguetes', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(9, 3, 'Taladro Eléctrico', 'Taladro eléctrico con set de brocas. Perfecto para proyectos de hogar.', 'img/productos/taladroelectrico.jpg', 'Herramientas', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(10, 4, 'Reloj Vintage', 'Reloj de pulsera vintage en perfecto funcionamiento. Estilo clásico y elegante.', 'img/productos/relojvintage.jpg', 'Accesorios', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14');
 
 -- --------------------------------------------------------
 
@@ -241,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `valoraciones` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_valoracion` (`usuario_id`,`valorador_id`),
   KEY `valorador_id` (`valorador_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ;
 
 --
 -- Volcado de datos para la tabla `valoraciones`

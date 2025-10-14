@@ -1,353 +1,896 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mensajeria</title>
+<?php
+session_start();
+require_once 'includes/functions.php';
 
-</head>
-<body>
+// Verificar que esté logueado
+requireLogin();
+
+// Obtener datos del usuario
+$user = getCurrentUser();
+
+// Configuración de la página
+$page_title = "Mensajería - HandinHand";
+$body_class = "body-messaging";
+
+// Incluir header
+include 'includes/header.php';
+?>
+
 <style>
-    html {
-        width: 100%;
-        height: 100%;
-    }
-    body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        background: linear-gradient(45deg, #005C53, #9FC131);
+/* === ESTILOS MODERNOS PARA MENSAJERÍA === */
 
+/* Remover el padding-top del body para esta página */
+body {
+    padding-top: 0 !important;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.messaging-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* Header de mensajería - COMPACTO */
+.messaging-header {
+    background: linear-gradient(135deg, #313C26 0%, #273122 100%);
+    padding: 12px 0;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.messaging-header-content {
+    max-width: 100%;
+    margin: 0;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.messaging-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.messaging-header-left h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.messaging-header-left h1 i {
+    color: #C9F89B;
+    font-size: 20px;
+}
+
+.messaging-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.header-action-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(201,249,155,0.3);
+    color: #C9F89B;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+}
+
+.header-action-btn:hover {
+    background: rgba(201,249,155,0.2);
+    border-color: #C9F89B;
+    transform: translateY(-1px);
+}
+
+/* Contenedor principal del chat */
+.chat-main-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    gap: 0;
+    overflow: hidden;
+}
+
+/* Panel de contactos */
+.contacts-panel {
+    width: 320px;
+    background: white;
+    border-right: 1px solid #e9ecef;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.contacts-header {
+    background: #f8f9fa;
+    padding: 12px 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.contacts-header h2 {
+    margin: 0;
+    color: #313C26;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.contacts-header h2 i {
+    color: #A2CB8D;
+    font-size: 16px;
+}
+
+.contacts-search {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px 8px 35px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    background: white;
+    position: relative;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.search-wrapper i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 16px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #A2CB8D;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(162,203,141,0.1);
+}
+
+.contacts-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin: 0;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.contact-item:hover {
+    background: #f8f9fa;
+}
+
+.contact-item.active {
+    background: #e8f5e9;
+    border-left: 3px solid #A2CB8D;
+}
+
+.contact-item.active .contact-name {
+    color: #313C26;
+    font-weight: 600;
+}
+
+.contact-avatar {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.contact-avatar img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f0f0f0;
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.status-indicator.online {
+    background: #2ecc71;
+}
+
+.status-indicator.offline {
+    background: #95a5a6;
+}
+
+.unread-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    box-shadow: 0 3px 10px rgba(231, 76, 60, 0.5);
+    animation: bounceIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 10;
+}
+
+.unread-badge.show {
+    display: flex;
+}
+
+.unread-badge.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
     }
-    .chat-container {
-        display: flex;
-        width: 100%;
-        height: 100%;
-        flex-direction: row;
-        gap: 10px;
+    50% {
+        transform: scale(1.2);
     }
-    .chat-user-opt {
-        width: 100%;
-        height: 10%;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: flex-end;
-        background-color: #005C5380;
-        border-radius: 10px;
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
-    .chat-user-opt img {
-        background-color: whitesmoke;
-        width: 3vw;
-        height: 5vh;
-        cursor: pointer;
-        padding: 1%;
-        border-radius: 30%;
-        transition: ease-in-out 0.3s;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 3px 10px rgba(231, 76, 60, 0.5);
     }
-    .chat-user-opt img:hover {
+    50% {
         transform: scale(1.1);
-        background-color: greenyellow;
-        border: solid 2px whitesmoke;
+        box-shadow: 0 3px 15px rgba(231, 76, 60, 0.8);
     }
+}
 
-    .user-contacts {
-        width: 35%;
-        height: 100%;
-        background-color: #005C5380;
-        border-radius: 10px;
-        display: flex;
-        justify-content: space-between;
+.contact-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.contact-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2c3e50;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.contact-preview {
+    font-size: 13px;
+    color: #7f8c8d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contact-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.contact-time {
+    font-size: 11px;
+    color: #95a5a6;
+    white-space: nowrap;
+}
+
+/* Panel de chat */
+.chat-panel {
+    flex: 1;
+    background: white;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-panel.active {
+    display: flex;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #313C26, #273122);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.chat-header-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid rgba(201,249,155,0.3);
+    object-fit: cover;
+}
+
+.chat-header-details h3 {
+    color: #C9F89B;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 2px 0;
+}
+
+.chat-header-status {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chat-header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-header-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #C9F89B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 18px;
+}
+
+.chat-header-btn:hover {
+    background: #C9F89B;
+    color: #313C26;
+    transform: scale(1.1);
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message {
+    display: flex;
+    gap: 12px;
+    max-width: 70%;
+    animation: messageSlideIn 0.3s ease;
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.own {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.message-avatar img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.message-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.message.own .message-content {
+    align-items: flex-end;
+}
+
+.message-bubble {
+    padding: 12px 18px;
+    border-radius: 18px;
+    font-size: 15px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.message:not(.own) .message-bubble {
+    background: white;
+    color: #2c3e50;
+    border-bottom-left-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.message.own .message-bubble {
+    background: linear-gradient(135deg, #A2CB8D, #C9F89B);
+    color: #313C26;
+    border-bottom-right-radius: 4px;
+}
+
+.message-time {
+    font-size: 11px;
+    color: #95a5a6;
+    padding: 0 4px;
+}
+
+.message.own .message-time {
+    text-align: right;
+}
+
+/* Input de chat */
+.chat-input-container {
+    padding: 20px 25px;
+    background: white;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.chat-input-wrapper {
+    flex: 1;
+    position: relative;
+}
+
+.chat-input {
+    width: 100%;
+    padding: 14px 50px 14px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    font-size: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: #A2CB8D;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(162,203,141,0.1);
+}
+
+.chat-input:disabled {
+    background: #e9ecef;
+    cursor: not-allowed;
+}
+
+.emoji-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #95a5a6;
+    transition: all 0.3s ease;
+}
+
+.emoji-btn:hover {
+    transform: translateY(-50%) scale(1.2);
+    color: #A2CB8D;
+}
+
+.send-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #A2CB8D, #C9F89B);
+    border: none;
+    color: #313C26;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(162,203,141,0.3);
+}
+
+.send-btn:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(162,203,141,0.4);
+}
+
+.send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Mensaje de bienvenida */
+.welcome-screen {
+    flex: 1;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.welcome-screen.hidden {
+    display: none;
+}
+
+.welcome-icon {
+    font-size: 60px;
+    color: #A2CB8D;
+    margin-bottom: 20px;
+}
+
+.welcome-screen h2 {
+    color: #313C26;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.welcome-screen p {
+    color: #7f8c8d;
+    font-size: 14px;
+    max-width: 400px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.welcome-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-top: 40px;
+    max-width: 700px;
+}
+
+.welcome-feature {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.welcome-feature:hover {
+    background: linear-gradient(135deg, #A2CB8D, #C9F89B);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(162,203,141,0.3);
+}
+
+.welcome-feature:hover i {
+    color: #313C26;
+}
+
+.welcome-feature:hover h4,
+.welcome-feature:hover p {
+    color: #313C26;
+}
+
+.welcome-feature i {
+    font-size: 40px;
+    color: #A2CB8D;
+    margin-bottom: 15px;
+}
+
+.welcome-feature h4 {
+    color: #313C26;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.welcome-feature p {
+    color: #7f8c8d;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Scrollbar personalizado */
+.contacts-list::-webkit-scrollbar,
+.chat-messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.contacts-list::-webkit-scrollbar-track,
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.contacts-list::-webkit-scrollbar-thumb,
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #A2CB8D;
+    border-radius: 10px;
+}
+
+.contacts-list::-webkit-scrollbar-thumb:hover,
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #313C26;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .chat-main-container {
+        padding: 20px;
+    }
+    
+    .contacts-panel {
+        width: 320px;
+    }
+    
+    .welcome-features {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .messaging-header-content {
+        padding: 0 20px;
+    }
+    
+    .messaging-header-left h1 {
+        font-size: 22px;
+    }
+    
+    .header-action-btn span {
+        display: none;
+    }
+    
+    .chat-main-container {
+        padding: 15px;
         flex-direction: column;
+        height: auto;
     }
+    
+    .contacts-panel {
+        width: 100%;
+        height: auto;
+        max-height: 50vh;
+    }
+    
+    .chat-panel,
+    .welcome-screen {
+        width: 100%;
+        min-height: 60vh;
+    }
+    
+    .welcome-screen {
+        padding: 40px 20px;
+    }
+    
+    .welcome-icon {
+        font-size: 70px;
+    }
+    
+    .welcome-screen h2 {
+        font-size: 24px;
+    }
+    
+    .welcome-screen p {
+        font-size: 16px;
+    }
+}
 
-    .users-chat-contacts {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 30%;
-        height: 100%;
-    }
-    .wrapper {
-        width: 90%;
-        height: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .log-out-chat-section {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 100%;
-    }
-    .user-profile {
-        display: flex;
-        justify-content: center;
-        align-items: flex-end;
-        width: 4vw;
-        height: 5vh;
-        border-radius: 50px;
-    }
-    .user-profile img {
-        width: 65%;
-        height: 100%;
-        border-radius: 50%;
-        background-color: whitesmoke;
-        cursor: pointer;
-        transition: ease-in-out 0.3s;
-        background-size: cover;
-    }
-    .contact-info {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-around;
-        width: 91.8%;
-        height: 10vh;
-        background-color: greenyellow;
-        border-radius: 20px;
-        padding: 2%;
-        padding-right: 4%;
-        margin: 1%;
-        transition: ease-in-out 0.1s;
-    }
-    .contact-info img {
-        width: 5vw;
-        height: 8vh;
-        background-color: whitesmoke;
-        border-radius: 50%;
-        cursor: pointer;
-    }
-    .contact-info:hover {
-        background-color: yellowgreen;
-    }
-    .contact-name-message {
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        flex-direction: column;
-        width: 20vw;
-        height: 20vh;
-        font-size: 3vh;
-        font-family: Arial, Helvetica, sans-serif;
-    }
-    .contact-message {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        font-family: Arial, Helvetica, sans-serif;
-        color: black;
-        font-size: 1rem;
-        margin-left: 5%;
-    }
-    .contact-name {
-        width: 100%;
-        height: 20%;
-        font-weight: bold;
-        font-size: 1.5rem;
-        margin: 3vh;
-    }
-
-    .chat-utu {
-        width: 100%;
-        height: 100%;
-        display: grid;
-        grid-template-rows: 10% 80% 10%;
-        background-color: #005C5380;
-        border-radius: 10px 0px 10px 0px;
-    }
-    .chat-header {
-        width: 100%;
-        height: 10vh;
-        background-color: #005C5380;
-        margin: 0%;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        border-radius: 10px 0px 0px 0px;
-    }
-    .contact-pf {
-        width: 20%;
-        height: 100%;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .contact-pf img {
-        width: 5vw;
-        height: 7vh;
-        border-radius: 50%;
-        cursor: pointer;
-        transition: ease-in-out 0.3s;
-        background-size: cover;
-    }
-    .chat-header-contact-name {
-        color: greenyellow;
-        font-size: 3vh;
-        font-family: Arial, Helvetica, sans-serif;
-    }
-    .chat-header-options {
-        width: 10vw;
-        height: 6vh;
-        background-color: whitesmoke;
-        border-radius: 50px;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-    }
-    .chat-header-options img {
-        width: 4vh;
-        height: 4vh;
-        cursor: pointer;
-    }
-    .header-option {
-        width: 4vh;
-        height: 4vh;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: ease-in-out 0.3s;
-    }
-    .header-option:hover {
-        background: linear-gradient(45deg, #005C53, #9FC131);
-        transform: scale(1.1);
-    }
-    .options-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
-        width: 100%;
-        height: 100%;
-    }
-    .bubbles-container {
-        width: 95%;
-        height: 80vh;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 2%;
-        overflow-y: auto;
-    }
-    .user-bubble {
-        max-width: auto;
-        background-color: greenyellow;
-        color: black;
-        padding: 10px;
-        border-radius: 15px 15px 0px 15px;
-        align-self: flex-end;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 1.2rem;
-
-    }
-    .contact-bubble {
-        max-width: auto;
-        background-color: whitesmoke;
-        color: black;
-        padding: 10px;
-        border-radius: 15px 15px 15px 0px;
-        align-self: flex-start;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 1.2rem;
-    }
-    .chat-input {
-        width: 100%;
-        height: 10vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 10px;
-    }
-    .chat-input input {
-        outline: none;
-        width: 90%;
-        height: 5vh;
-        border-radius: 20px;
-        border: none;
-        font-size: 1.2rem;
-        font-family: Arial, Helvetica, sans-serif;
-    }
+/* Footer anclado al fondo */
+.footer {
+    margin-top: auto;
+    flex-shrink: 0;
+}
 </style>
 
-<div class="chat-container">
-    <div class="user-contacts">
-        <div class="contact-info">
-            <div class="contact-pf">
-                <img src="img/profile-example.png" alt="contact">
+<div class="messaging-container">
+    <!-- Header de mensajería -->
+    <div class="messaging-header">
+        <div class="messaging-header-content">
+            <div class="messaging-header-left">
+                <h1>
+                    <i class="fas fa-comments"></i>
+                    Mensajes
+                </h1>
             </div>
-            <div class="contact-name-message">
-                <div class="contact-name">
-                    <h3>Alejo García</h3>
-                </div>
-                <div class="contact-message">
-                    <p>Che, ayer vi a...</p>
-                </div>
-            </div>
-        </div>
-        <div class="chat-user-opt">
-            <div class="wrapper">
-                <a href='#'>
-                    <div class="users-chat-contacts">
-                        <img src="img/usuario.png" alt="Contacts">
-                    </div>
+            <div class="messaging-header-actions">
+                <a href="index.php" class="header-action-btn">
+                    <i class="fas fa-home"></i>
+                    <span>Inicio</span>
                 </a>
-                <a href='perfil.php'>
-                    <div class="user-profile">
-                        <img src="img/profile-example.png" alt="Config">
-                    </div>
-                </a>
-                <a href='index.php'>
-                    <div class="log-out-chat-section">
-                        <img src="img/logout.png" alt="Logout">
-                    </div>
+                <a href="perfil.php" class="header-action-btn">
+                    <i class="fas fa-user"></i>
+                    <span>Perfil</span>
                 </a>
             </div>
         </div>
     </div>
-    <div class="chat-utu">
-        <div class="chat-header">
-            <div class="options-container">
-                <div class="contact-pf">
-                    <img src="img/profile-example.png" alt="contact">
+
+    <!-- Contenedor principal del chat -->
+    <div class="chat-main-container">
+        <!-- Panel de contactos -->
+        <div class="contacts-panel">
+            <div class="contacts-header">
+                <h2>
+                    <i class="fas fa-address-book"></i>
+                    Contactos
+                </h2>
+            </div>
+            
+            <div class="contacts-search">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-input" placeholder="Buscar contactos..." id="search-contacts">
                 </div>
-                <div class="chat-header-contact-name">
-                    <h2>Alejo García</h2>
+            </div>
+            
+            <div class="contacts-list" id="contacts-list">
+                <!-- Los contactos se cargarán dinámicamente aquí -->
+            </div>
+        </div>
+
+        <!-- Pantalla de bienvenida -->
+        <div class="welcome-screen" id="welcome-screen">
+            <div class="welcome-icon">
+                <i class="fas fa-comments"></i>
+            </div>
+            <h2>¡Bienvenido a HandinHand Mensajes!</h2>
+            <p>Conecta con otros usuarios para intercambiar productos y compartir experiencias. Selecciona un contacto para comenzar a chatear.</p>
+            
+            <div class="welcome-features">
+                <div class="welcome-feature">
+                    <i class="fas fa-bolt"></i>
+                    <h4>Chat en Tiempo Real</h4>
+                    <p>Mensajes instantáneos con notificaciones</p>
                 </div>
-                <div class="chat-header-options">
-                    <div class="header-option">
-                        <img src="img/earth-globe.png" alt="Geolocate">
-                    </div>
-                    <div class="header-option">
-                        <img src="img/earth-globe.png" alt="Call">
-                    </div>
-                    <div class="header-option">
-                        <img src="img/earth-globe.png" alt="Report">
-                    </div>
+                <div class="welcome-feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>Seguro y Privado</h4>
+                    <p>Tus conversaciones están protegidas</p>
+                </div>
+                <div class="welcome-feature">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h4>Fácil Intercambio</h4>
+                    <p>Coordina tus trueques fácilmente</p>
                 </div>
             </div>
         </div>
-        <div class="bubbles-container">
-            <div class="user-bubble">
-                <p>Hola, ¿cómo estás?</p>
+
+        <!-- Panel de chat -->
+        <div class="chat-panel" id="chat-panel">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-header-avatar">
+                        <img src="img/usuario.png" alt="Avatar" id="chat-user-avatar">
+                    </div>
+                    <div class="chat-header-details">
+                        <h3 id="chat-user-name">Usuario</h3>
+                        <div class="chat-header-status">
+                            <div class="status-indicator offline" id="chat-user-status"></div>
+                            <span id="chat-user-status-text">Offline</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-header-actions">
+                    <button class="chat-header-btn" title="Buscar en conversación">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="chat-header-btn" title="Información del usuario">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                    <button class="chat-header-btn" title="Más opciones">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
             </div>
-            <div class="contact-bubble">
-                <p>¡Hola! Estoy bien, gracias. ¿Y tú?</p>
+
+            <div class="chat-messages" id="chat-messages">
+                <!-- Los mensajes se cargarán dinámicamente aquí -->
             </div>
-        </div>
-        <div class="chat-input">
-            <input type="text" placeholder="Escribe un mensaje...">
+
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <input 
+                        type="text" 
+                        class="chat-input" 
+                        placeholder="Escribe un mensaje..." 
+                        id="message-input"
+                        disabled
+                    >
+                    <button class="emoji-btn" title="Emojis">
+                        😊
+                    </button>
+                </div>
+                <button class="send-btn" id="send-btn" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
-</body>
+
+<?php include 'includes/footer.php'; ?>
+
+<?php require_once 'config/chat_server.php'; ?>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    const CHAT_SERVER_URL = '<?php echo getChatServerUrl(); ?>';
+    const CURRENT_USER_ID = '<?php echo $user['id']; ?>';
+    const CURRENT_USER_AVATAR = '<?php echo isset($user['avatar_path']) && !empty($user['avatar_path']) ? $user['avatar_path'] : 'img/usuario.png'; ?>';
+</script>
 <script src="js/chat.js"></script>
+<script src="js/dropdownmenu.js"></script>
+
+</body>
 </html>

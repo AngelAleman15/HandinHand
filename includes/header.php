@@ -58,9 +58,9 @@ require_once __DIR__ . '/functions.php';
                                     Mi Perfil
                                 </button>
                             </a>
-                            <a href="mensajeria.php" onclick="showWipMessage('Mensajes');">
+                            <a href="mensajeria.php">
                                 <button class="dropdown-item">
-                                    Mensajes <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;"></span>
+                                    💬 Mensajes
                                 </button>
                             </a>
                             <a href="#" onclick="showWipMessage('Mis Productos'); return false;">
