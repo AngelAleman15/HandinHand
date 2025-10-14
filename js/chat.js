@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar usuarios
     async function loadUsers() {
         try {
-            const response = await fetch('/2025PracticasAAleman/HandinHand/api/users.php');
+            const response = await fetch('api/users.php');
             const data = await response.json();
             
             if (data.status === 'success' && data.users) {
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar mensajes
     async function loadMessages(userId) {
         try {
-            const response = await fetch(`/2025PracticasAAleman/HandinHand/api/get-messages.php?user_id=${userId}`);
+            const response = await fetch(`api/get-messages.php?user_id=${userId}`);
             const data = await response.json();
             
             if (data.status === 'success' && data.messages) {
@@ -214,21 +214,25 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const isOwnMessage = messageData.sender_id.toString() === CURRENT_USER_ID.toString();
         const time = formatTime(messageData.timestamp);
+        const isPerseoAuto = messageData.is_perseo_auto == 1 || messageData.is_perseo_auto === true;
         
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${isOwnMessage ? 'own' : ''}`;
+        messageDiv.className = `message ${isOwnMessage ? 'own' : ''} ${isPerseoAuto ? 'perseo-auto' : ''}`;
         
         const avatarSrc = isOwnMessage ? CURRENT_USER_AVATAR : document.getElementById('chat-user-avatar')?.src || 'img/usuario.png';
+        
+        // Clase especial para el bubble si es de Perseo
+        const bubbleClass = isPerseoAuto ? 'message-bubble perseo-auto-message' : 'message-bubble';
         
         messageDiv.innerHTML = `
             <div class="message-avatar">
                 <img src="${avatarSrc}" alt="Avatar">
             </div>
             <div class="message-content">
-                <div class="message-bubble">
+                <div class="${bubbleClass}">
                     ${escapeHtml(messageData.message)}
                 </div>
-                <div class="message-time">${time}</div>
+                <div class="message-time">${time}${isPerseoAuto ? ' <span style="color: #9FC131; font-weight: 600;">• Respuesta Automática</span>' : ''}</div>
             </div>
         `;
         
@@ -252,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             // Guardar en base de datos
-            const response = await fetch('/2025PracticasAAleman/HandinHand/api/save-message.php', {
+            const response = await fetch('api/save-message.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -310,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar conteo de no leídos
     async function loadUnreadCounts() {
         try {
-            const response = await fetch('/2025PracticasAAleman/HandinHand/api/get-unread-count.php');
+            const response = await fetch('api/get-unread-count.php');
             const data = await response.json();
             
             if (data.status === 'success') {
@@ -367,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para marcar mensajes como leídos
     async function markMessagesAsRead(senderId) {
         try {
-            await fetch('/2025PracticasAAleman/HandinHand/api/mark-as-read.php', {
+            await fetch('api/mark-as-read.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

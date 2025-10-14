@@ -19,13 +19,18 @@ include 'includes/header.php';
 <style>
 /* === ESTILOS MODERNOS PARA MENSAJERÍA === */
 
-/* Remover el padding-top del body para esta página */
-body {
+/* Ajustar el body para mensajería */
+body.body-messaging {
+    margin: 0;
     padding-top: 0 !important;
+    height: 100vh;
     overflow: hidden;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+body.body-messaging .header {
+    margin-bottom: 0;
 }
 
 .messaging-container {
@@ -35,84 +40,15 @@ body {
     display: flex;
     flex-direction: column;
     flex: 1;
-}
-
-/* Header de mensajería - COMPACTO */
-.messaging-header {
-    background: linear-gradient(135deg, #313C26 0%, #273122 100%);
-    padding: 12px 0;
-    color: white;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.messaging-header-content {
-    max-width: 100%;
-    margin: 0;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.messaging-header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.messaging-header-left h1 {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.messaging-header-left h1 i {
-    color: #C9F89B;
-    font-size: 20px;
-}
-
-.messaging-header-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.header-action-btn {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(201,249,155,0.3);
-    color: #C9F89B;
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    text-decoration: none;
-}
-
-.header-action-btn:hover {
-    background: rgba(201,249,155,0.2);
-    border-color: #C9F89B;
-    transform: translateY(-1px);
+    overflow: hidden;
 }
 
 /* Contenedor principal del chat */
 .chat-main-container {
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-    flex: 1;
     display: flex;
-    gap: 0;
+    flex: 1;
     overflow: hidden;
+    height: 100%;
 }
 
 /* Panel de contactos */
@@ -122,7 +58,7 @@ body {
     border-right: 1px solid #e9ecef;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    height: 100%;
 }
 
 .contacts-header {
@@ -341,7 +277,7 @@ body {
     background: white;
     display: none;
     flex-direction: column;
-    overflow: hidden;
+    height: 100%;
 }
 
 .chat-panel.active {
@@ -355,12 +291,17 @@ body {
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid rgba(0,0,0,0.05);
+    flex-shrink: 0;
 }
 
 .chat-header-info {
     display: flex;
     align-items: center;
     gap: 15px;
+}
+
+.chat-header-avatar {
+    position: relative;
 }
 
 .chat-header-avatar img {
@@ -416,6 +357,7 @@ body {
     flex: 1;
     padding: 25px;
     overflow-y: auto;
+    overflow-x: hidden;
     background: linear-gradient(to bottom, #f8f9fa, #ffffff);
     display: flex;
     flex-direction: column;
@@ -426,6 +368,7 @@ body {
     display: flex;
     gap: 12px;
     max-width: 70%;
+    width: fit-content;
     animation: messageSlideIn 0.3s ease;
 }
 
@@ -456,6 +399,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    max-width: 100%;
 }
 
 .message.own .message-content {
@@ -469,6 +413,8 @@ body {
     line-height: 1.5;
     word-wrap: break-word;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    max-width: 100%;
+    width: fit-content;
 }
 
 .message:not(.own) .message-bubble {
@@ -502,6 +448,7 @@ body {
     display: flex;
     gap: 12px;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .chat-input-wrapper {
@@ -755,28 +702,6 @@ body {
 </style>
 
 <div class="messaging-container">
-    <!-- Header de mensajería -->
-    <div class="messaging-header">
-        <div class="messaging-header-content">
-            <div class="messaging-header-left">
-                <h1>
-                    <i class="fas fa-comments"></i>
-                    Mensajes
-                </h1>
-            </div>
-            <div class="messaging-header-actions">
-                <a href="index.php" class="header-action-btn">
-                    <i class="fas fa-home"></i>
-                    <span>Inicio</span>
-                </a>
-                <a href="perfil.php" class="header-action-btn">
-                    <i class="fas fa-user"></i>
-                    <span>Perfil</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
     <!-- Contenedor principal del chat -->
     <div class="chat-main-container">
         <!-- Panel de contactos -->
@@ -880,8 +805,6 @@ body {
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
-
 <?php require_once 'config/chat_server.php'; ?>
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script>
@@ -890,7 +813,7 @@ body {
     const CURRENT_USER_AVATAR = '<?php echo isset($user['avatar_path']) && !empty($user['avatar_path']) ? $user['avatar_path'] : 'img/usuario.png'; ?>';
 </script>
 <script src="js/chat.js"></script>
-<script src="js/dropdownmenu.js"></script>
+<script src="js/dropdownmenu.js?v=<?php echo time(); ?>"></script>
 
 </body>
 </html>

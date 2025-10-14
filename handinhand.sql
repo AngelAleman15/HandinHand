@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `fullname`, `username`, `email`, `phone`, `password`, `birthdate`, `created_at`, `updated_at`, `avatar_path`) VALUES
-(1, 'Angel Alemán', 'Angel', 'angel@example.com', '+598123456789', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '1995-05-15', '2025-10-02 19:10:12', '2025-10-02 23:06:47', 'uploads/avatars/avatar_1_68df05875c7c9.jpg'),
+(1, 'Angel Alemán', 'Angel', 'angel@example.com', '+598123456789', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '1995-05-15', '2025-10-02 19:10:12', '2025-10-02 23:06:47', 'uploads/avatars/avatar_1_68ed689b99ea0.jpg'),
 (2, 'Alejo García', 'Alejo', 'alejo@example.com', '+598987654321', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '1998-03-20', '2025-10-02 19:10:12', '2025-10-02 19:10:12', NULL),
 (3, 'Milagros Pérez', 'Milagros', 'milagros@example.com', '+598456789123', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '1997-08-10', '2025-10-02 19:10:12', '2025-10-02 19:10:12', NULL),
 (4, 'Usuario Test', 'test', 'test@example.com', '+598999999999', '$2y$10$tSYWBxR9Im1bivzvfd0CmOTDBVp79ta/wc.tA86PbNSyfaSYcCYYa', '2000-01-01', '2025-10-02 19:10:12', '2025-10-02 19:10:12', NULL);

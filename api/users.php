@@ -33,7 +33,7 @@ try {
         $users[] = [
             'id' => $row['id'],
             'username' => $row['username'],
-            'avatar' => $row['avatar'] ? '/2025PracticasAAleman/HandinHand/' . $row['avatar'] : '/2025PracticasAAleman/HandinHand/img/profile-example.png'
+            'avatar' => $row['avatar'] ? $row['avatar'] : 'img/usuario.png'
         ];
     }
     

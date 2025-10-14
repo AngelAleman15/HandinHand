@@ -50,7 +50,8 @@ try {
             'sender_id' => $row['sender_id'],
             'receiver_id' => $row['receiver_id'],
             'is_own_message' => (bool)$row['is_own_message'],
-            'is_read' => (bool)($row['is_read'] ?? false)
+            'is_read' => (bool)($row['is_read'] ?? false),
+            'is_perseo_auto' => isset($row['is_perseo_auto']) ? (bool)$row['is_perseo_auto'] : false
         ];
     }
     

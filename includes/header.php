@@ -20,6 +20,11 @@ require_once __DIR__ . '/functions.php';
     <!-- Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Sistema de notificaciones de mensajes -->
+    <?php if (isLoggedIn()): ?>
+    <script src="js/notifications.js?v=<?php echo time(); ?>" defer></script>
+    <?php endif; ?>
+
     <!-- Scripts adicionales si están definidos -->
     <?php if (isset($additional_scripts) && is_array($additional_scripts)): ?>
         <?php foreach ($additional_scripts as $script): ?>

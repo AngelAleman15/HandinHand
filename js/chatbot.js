@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
     chatbotIcon.style.display = "none";
     chatAbierto = true;
 
-    // Mostrar mensaje de bienvenida solo la primera vez
-    if (chatbotMessages.children.length === 0) {
+    // Mostrar mensaje de bienvenida solo la primera vez y si Perseo no abrió el chat
+    if (chatbotMessages.children.length === 0 && !window.perseoOpenedChat) {
       mostrarMensajesBienvenida();
     }
     

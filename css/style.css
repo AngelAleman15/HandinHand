@@ -73,6 +73,30 @@ a{
     position: relative;
 }
 
+/* Badge de mensajes no leídos */
+.unread-badge {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: auto;
+    min-width: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(255, 68, 68, 0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 2px 4px rgba(255, 68, 68, 0.3);
+    }
+    50% {
+        box-shadow: 0 2px 8px rgba(255, 68, 68, 0.6);
+    }
+}
+
 .dropdown-item:hover {
     background-color: #f5f5f5;
 }
@@ -266,21 +290,28 @@ a{
 .cardimg{
     width: 85%;
     height: 150px;
-    background-color: #eee;
+    background-color: white;
     border-radius: 5px;
     margin-bottom: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: relative;
+    padding: 5px;
 }
 
 .cardimg img{
     width: 100%;
     height: 100%;
     object-fit: contain;
+    object-position: center;
     border-radius: 5px;
-    background-color: #f9f9f9;
+    transition: transform 0.3s ease;
+}
+
+.card:hover .cardimg img{
+    transform: scale(1.02);
 }
 
 .cardfooter {
@@ -1183,7 +1214,11 @@ body.no-header-padding {
 
   .cardimg {
     width: 90%;
-    height: 120px;
+    height: 140px;
+  }
+
+  .cardimg img {
+    object-fit: contain;
   }
 
   .cardtitle {
@@ -1300,7 +1335,11 @@ body.no-header-padding {
   }
 
   .cardimg {
-    height: 130px;
+    height: 140px;
+  }
+
+  .cardimg img {
+    object-fit: contain;
   }
 
   .cardtitle {
@@ -1354,7 +1393,11 @@ body.no-header-padding {
   }
 
   .cardimg {
-    height: 140px;
+    height: 145px;
+  }
+
+  .cardimg img {
+    object-fit: contain;
   }
 
   .btncontact, .btn-edit {
@@ -1457,4 +1500,83 @@ body.no-header-padding {
   .header {
     height: 50px;
   }
+}
+
+/* ===== ESTILOS PARA RESPUESTAS AUTOMÁTICAS DE PERSEO ===== */
+.auto-reply-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.perseo-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.perseo-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.perseo-btn:active {
+  transform: translateY(0);
+}
+
+.perseo-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5 !important;
+}
+
+.perseo-btn-yes {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+}
+
+.perseo-btn-yes:hover {
+  background: linear-gradient(135deg, #20c997, #28a745);
+}
+
+.perseo-btn-no {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+}
+
+.perseo-btn-no:hover {
+  background: linear-gradient(135deg, #5a6268, #6c757d);
+}
+
+.perseo-auto-reply-buttons {
+  transition: opacity 0.3s ease;
+}
+
+/* Estilo especial para mensajes de Perseo automáticos en la mensajería */
+.perseo-auto-message {
+  background: linear-gradient(135deg, rgba(159, 193, 49, 0.15), rgba(214, 213, 142, 0.15));
+  border-left: 3px solid #9FC131;
+  padding-left: 12px;
+  position: relative;
+}
+
+.perseo-auto-message::before {
+  content: "🤖";
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  background: white;
+  border-radius: 50%;
+  padding: 2px;
 }
