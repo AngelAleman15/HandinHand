@@ -34,7 +34,7 @@ body.body-messaging .header {
 }
 
 .messaging-container {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: #f5f7fa;
     padding: 0;
     margin: 0;
     display: flex;
@@ -49,6 +49,8 @@ body.body-messaging .header {
     flex: 1;
     overflow: hidden;
     height: 100%;
+    background: white;
+    margin: 0;
 }
 
 /* Panel de contactos */
@@ -278,6 +280,8 @@ body.body-messaging .header {
     display: none;
     flex-direction: column;
     height: 100%;
+    min-width: 0; /* Permite que se contraiga */
+    overflow: hidden; /* Evita desbordamiento */
 }
 
 .chat-panel.active {
@@ -355,21 +359,21 @@ body.body-messaging .header {
 
 .chat-messages {
     flex: 1;
-    padding: 25px;
+    padding: 20px;
     overflow-y: auto;
     overflow-x: hidden;
     background: linear-gradient(to bottom, #f8f9fa, #ffffff);
     display: flex;
     flex-direction: column;
-    gap: 15px;
 }
 
 .message {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     max-width: 70%;
-    width: fit-content;
     animation: messageSlideIn 0.3s ease;
+    align-items: flex-start;
+    margin-bottom: 8px;
 }
 
 @keyframes messageSlideIn {
@@ -388,6 +392,15 @@ body.body-messaging .header {
     flex-direction: row-reverse;
 }
 
+.message:not(.own) {
+    align-self: flex-start;
+}
+
+.message-avatar {
+    flex-shrink: 0;
+    width: 36px;
+}
+
 .message-avatar img {
     width: 36px;
     height: 36px;
@@ -399,29 +412,35 @@ body.body-messaging .header {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    max-width: 100%;
+    max-width: calc(100% - 46px);
 }
 
 .message.own .message-content {
     align-items: flex-end;
 }
 
+.message:not(.own) .message-content {
+    align-items: flex-start;
+}
+
 .message-bubble {
-    padding: 12px 18px;
-    border-radius: 18px;
+    padding: 8px 14px;
+    border-radius: 16px;
     font-size: 15px;
-    line-height: 1.5;
+    line-height: 1.4;
     word-wrap: break-word;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    word-break: break-word;
+    overflow-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    display: inline-block;
     max-width: 100%;
-    width: fit-content;
 }
 
 .message:not(.own) .message-bubble {
-    background: white;
+    background: #FFFFFF;
     color: #2c3e50;
     border-bottom-left-radius: 4px;
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid #e9ecef;
 }
 
 .message.own .message-bubble {
@@ -438,6 +457,10 @@ body.body-messaging .header {
 
 .message.own .message-time {
     text-align: right;
+}
+
+.message:not(.own) .message-time {
+    text-align: left;
 }
 
 /* Input de chat */
@@ -526,7 +549,7 @@ body.body-messaging .header {
 /* Mensaje de bienvenida */
 .welcome-screen {
     flex: 1;
-    background: #fafafa;
+    background: white;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -540,73 +563,91 @@ body.body-messaging .header {
 }
 
 .welcome-icon {
-    font-size: 60px;
+    font-size: 80px;
     color: #A2CB8D;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 .welcome-screen h2 {
     color: #313C26;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .welcome-screen p {
     color: #7f8c8d;
-    font-size: 14px;
-    max-width: 400px;
-    line-height: 1.5;
-    margin-bottom: 20px;
+    font-size: 15px;
+    max-width: 450px;
+    line-height: 1.6;
+    margin-bottom: 30px;
 }
 
 .welcome-features {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-    margin-top: 40px;
-    max-width: 700px;
+    gap: 30px;
+    margin-top: 50px;
+    max-width: 800px;
 }
 
 .welcome-feature {
-    background: #f8f9fa;
-    padding: 25px;
-    border-radius: 15px;
+    background: white;
+    padding: 30px 20px;
+    border-radius: 20px;
     transition: all 0.3s ease;
+    border: 2px solid #f0f0f0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .welcome-feature:hover {
     background: linear-gradient(135deg, #A2CB8D, #C9F89B);
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(162,203,141,0.3);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(162,203,141,0.3);
+    border-color: transparent;
 }
 
 .welcome-feature:hover i {
-    color: #313C26;
+    color: white;
+    transform: scale(1.1);
 }
 
 .welcome-feature:hover h4,
 .welcome-feature:hover p {
-    color: #313C26;
+    color: white;
 }
 
 .welcome-feature i {
-    font-size: 40px;
+    font-size: 45px;
     color: #A2CB8D;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
+    transition: all 0.3s ease;
+    display: block;
 }
 
 .welcome-feature h4 {
     color: #313C26;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
 }
 
 .welcome-feature p {
     color: #7f8c8d;
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: 14px;
+    line-height: 1.6;
+    transition: all 0.3s ease;
 }
 
 /* Scrollbar personalizado */

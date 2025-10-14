@@ -30,10 +30,21 @@ try {
     
     $users = [];
     while ($row = $stmt->fetch()) {
+        // Verificar si el avatar existe, sino usar imagen por defecto
+        $avatarPath = 'img/usuario.png'; // Imagen por defecto
+        
+        if (!empty($row['avatar'])) {
+            // Verificar si el archivo existe
+            $fullPath = __DIR__ . '/../' . $row['avatar'];
+            if (file_exists($fullPath)) {
+                $avatarPath = $row['avatar'];
+            }
+        }
+        
         $users[] = [
             'id' => $row['id'],
             'username' => $row['username'],
-            'avatar' => $row['avatar'] ? $row['avatar'] : 'img/usuario.png'
+            'avatar' => $avatarPath
         ];
     }
     
