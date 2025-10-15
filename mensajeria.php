@@ -500,12 +500,46 @@ body.body-messaging .header {
 
 /* Respuesta a mensaje */
 .message-reply-preview {
-    background: rgba(162,203,141,0.1);
+    background: rgba(162,203,141,0.15);
     border-left: 3px solid #A2CB8D;
     padding: 6px 10px;
     margin-bottom: 6px;
     border-radius: 6px;
     font-size: 13px;
+}
+
+/* Respuesta en mensajes recibidos (otros usuarios) */
+.message.received .message-reply-preview {
+    background: rgba(162,203,141,0.15);
+    border-left: 3px solid #A2CB8D;
+}
+
+.message.received .message-reply-preview .reply-username {
+    color: #7da869;
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.message.received .message-reply-preview .reply-text {
+    color: #4a5568;
+}
+
+/* Respuesta en mensajes enviados (míos) */
+.message.sent .message-reply-preview {
+    background: rgba(255, 255, 255, 0.3);
+    border-left: 3px solid #ffffff;
+}
+
+.message.sent .message-reply-preview .reply-username {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.message.sent .message-reply-preview .reply-text {
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .message-reply-preview .reply-username {
