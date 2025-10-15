@@ -11,18 +11,21 @@ function isLoggedIn() {
 /**
  * Función para obtener datos del usuario actual
  * Ahora incluye avatar_path para mostrar la foto de perfil personalizada
+ * NOTA: Si api_base.php está cargado, usará esa versión en su lugar
  */
-function getCurrentUser() {
-    if (!isLoggedIn()) {
-        return null;
+if (!function_exists('getCurrentUser')) {
+    function getCurrentUser() {
+        if (!isLoggedIn()) {
+            return null;
+        }
+        
+        require_once __DIR__ . '/../config/database.php';
+        $pdo = getConnection();
+        // Incluimos avatar_path en la consulta para obtener la ruta de la foto de perfil
+        $stmt = $pdo->prepare("SELECT id, fullname, username, email, avatar_path, created_at FROM usuarios WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    
-    require_once __DIR__ . '/../config/database.php';
-    $pdo = getConnection();
-    // Incluimos avatar_path en la consulta para obtener la ruta de la foto de perfil
-    $stmt = $pdo->prepare("SELECT id, fullname, username, email, avatar_path, created_at FROM usuarios WHERE id = ?");
-    $stmt->execute([$_SESSION['user_id']]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 /**
@@ -37,11 +40,14 @@ function logout() {
 
 /**
  * Función para redirigir si no está logueado
+ * NOTA: Si api_base.php está cargado, usará esa versión en su lugar
  */
-function requireLogin() {
-    if (!isLoggedIn()) {
-        header('Location: iniciarsesion.php');
-        exit();
+if (!function_exists('requireLogin')) {
+    function requireLogin() {
+        if (!isLoggedIn()) {
+            header('Location: iniciarsesion.php');
+            exit();
+        }
     }
 }
 

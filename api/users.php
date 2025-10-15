@@ -24,9 +24,66 @@ try {
     $currentUserId = $_SESSION['user_id'] ?? 0;
     error_log("API users.php - Usuario actual ID: " . $currentUserId);
     
-    $query = "SELECT id, username, avatar_path as avatar FROM usuarios WHERE id != :userId";
-    $stmt = $conn->prepare($query);
-    $stmt->execute(['userId' => $currentUserId]);
+    // Verificar si se solicita solo amigos (por defecto: true)
+    $soloAmigos = isset($_GET['solo_amigos']) ? filter_var($_GET['solo_amigos'], FILTER_VALIDATE_BOOLEAN) : true;
+    error_log("API users.php - Solo amigos: " . ($soloAmigos ? 'SI' : 'NO'));
+    
+    if ($soloAmigos) {
+        // Mostrar amigos + usuarios con conversaciones activas
+        $query = "
+            SELECT DISTINCT
+                u.id,
+                u.username,
+                u.avatar_path as avatar,
+                CASE WHEN a.usuario1_id IS NOT NULL THEN 1 ELSE 0 END as es_amigo,
+                COALESCE(a.created_at, m.first_message_date) as sort_date
+            FROM usuarios u
+            LEFT JOIN amistades a ON 
+                (a.usuario1_id = ? AND a.usuario2_id = u.id) OR 
+                (a.usuario2_id = ? AND a.usuario1_id = u.id)
+            LEFT JOIN (
+                SELECT 
+                    CASE 
+                        WHEN sender_id = ? THEN receiver_id
+                        ELSE sender_id
+                    END as other_user_id,
+                    MIN(created_at) as first_message_date
+                FROM mensajes
+                WHERE (sender_id = ? OR receiver_id = ?)
+                    AND is_deleted = FALSE
+                GROUP BY other_user_id
+            ) m ON m.other_user_id = u.id
+            WHERE u.id != ?
+                AND (a.usuario1_id IS NOT NULL OR m.other_user_id IS NOT NULL)
+            ORDER BY sort_date DESC
+        ";
+        $stmt = $conn->prepare($query);
+        $stmt->execute([
+            $currentUserId, $currentUserId,  // Para el JOIN de amistades
+            $currentUserId,                  // Para el CASE en subquery
+            $currentUserId, $currentUserId,  // Para el WHERE en subquery
+            $currentUserId                   // Para el WHERE principal
+        ]);
+    } else {
+        // Mostrar todos los usuarios con indicador de amistad
+        $query = "
+            SELECT 
+                u.id,
+                u.username,
+                u.avatar_path as avatar,
+                CASE WHEN a.usuario1_id IS NOT NULL THEN 1 ELSE 0 END as es_amigo
+            FROM usuarios u
+            LEFT JOIN amistades a ON 
+                (a.usuario1_id = ? AND a.usuario2_id = u.id) OR 
+                (a.usuario2_id = ? AND a.usuario1_id = u.id)
+            WHERE u.id != ?
+            ORDER BY u.username
+        ";
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$currentUserId, $currentUserId, $currentUserId]);
+    }
+    
+    error_log("API users.php - Query ejecutado correctamente");
     
     $users = [];
     while ($row = $stmt->fetch()) {
@@ -88,13 +145,17 @@ try {
             $lastMessageTime = $lastMessage['created_at'];
         }
         
+        // El flag es_amigo ya viene de la query principal
+        $esAmigo = isset($row['es_amigo']) ? (bool)$row['es_amigo'] : false;
+        
         $users[] = [
             'id' => $row['id'],
             'username' => $row['username'],
             'avatar' => $avatarPath,
             'last_message' => $lastMessageText,
             'last_message_sender' => $lastMessageSender,
-            'last_message_time' => $lastMessageTime
+            'last_message_time' => $lastMessageTime,
+            'es_amigo' => $esAmigo
         ];
     }
     

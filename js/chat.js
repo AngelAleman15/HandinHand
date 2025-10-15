@@ -397,19 +397,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
+            // Botón de rechazar solo para no-amigos
+            const botonRechazar = !user.es_amigo ? `
+                <button class="btn-rechazar-contacto" onclick="rechazarContacto(${user.id}, '${user.username}', event)" title="Rechazar y eliminar chat">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            ` : '';
+            
+            // Badge de no-amigo
+            const badgeNoAmigo = !user.es_amigo ? `
+                <span class="badge-no-amigo" title="No es tu amigo">
+                    <i class="fas fa-user-slash"></i>
+                </span>
+            ` : '';
+            
             return `
-                <div class="contact-item" data-user-id="${user.id}" data-username="${user.username}">
+                <div class="contact-item ${!user.es_amigo ? 'no-amigo' : ''}" data-user-id="${user.id}" data-username="${user.username}">
                     <div class="contact-avatar">
                         <img src="${user.avatar}" alt="${user.username}">
                         <div class="status-indicator offline" data-user-id="${user.id}"></div>
                         <span class="unread-badge" data-user-id="${user.id}">0</span>
                     </div>
                     <div class="contact-info">
-                        <div class="contact-name">${user.username}</div>
+                        <div class="contact-name">
+                            ${user.username}
+                            ${badgeNoAmigo}
+                        </div>
                         <div class="contact-preview">${lastMessagePreview}</div>
                     </div>
                     <div class="contact-meta">
                         <div class="contact-time">${lastMessageTime}</div>
+                        ${botonRechazar}
                     </div>
                 </div>
             `;
@@ -417,7 +435,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Agregar eventos a los contactos
         document.querySelectorAll('.contact-item').forEach(item => {
-            item.addEventListener('click', () => {
+            item.addEventListener('click', (e) => {
+                // No abrir el chat si se hace clic en el botón de rechazar
+                if (e.target.closest('.btn-rechazar-contacto')) {
+                    return;
+                }
                 const userId = item.dataset.userId;
                 const username = item.dataset.username;
                 const avatar = item.querySelector('img').src;
@@ -448,6 +470,80 @@ document.addEventListener('DOMContentLoaded', () => {
             timeElement.textContent = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         }
     }
+
+    // Función para rechazar y eliminar contacto no-amigo
+    async function rechazarContacto(userId, username, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        console.log('🚫 Intentando rechazar contacto:', userId, username);
+        
+        // Confirmar con SweetAlert2
+        const result = await Swal.fire({
+            title: '¿Rechazar contacto?',
+            html: `¿Deseas rechazar a <strong>${username}</strong> y eliminar todo el historial de chat?<br><small>Esta acción no se puede deshacer.</small>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, rechazar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        });
+        
+        if (!result.isConfirmed) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/MisTrabajos/HandinHand/api/bloquear-contacto.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'eliminar_chat',
+                    contacto_id: userId
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Contacto rechazado',
+                    text: 'El chat ha sido eliminado correctamente.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+                // Si el chat actual es con este usuario, cerrarlo
+                if (currentChatUserId == userId) {
+                    currentChatUserId = null;
+                    if (chatPanel) chatPanel.classList.remove('active');
+                    if (welcomeScreen) welcomeScreen.classList.remove('hidden');
+                }
+                
+                // Recargar la lista de contactos
+                await loadUsers();
+                
+            } else {
+                throw new Error(data.message || 'Error al rechazar el contacto');
+            }
+        } catch (error) {
+            console.error('Error al rechazar contacto:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'No se pudo rechazar el contacto. Intenta de nuevo.',
+                confirmButtonText: 'OK'
+            });
+        }
+    }
+    
+    // Hacer la función accesible globalmente
+    window.rechazarContacto = rechazarContacto;
 
     // Función para seleccionar un usuario
     async function selectUser(userId, username, avatar) {
@@ -495,6 +591,9 @@ document.addEventListener('DOMContentLoaded', () => {
             sendBtn.disabled = false;
         }
     }
+    
+    // Exponer función globalmente para uso externo
+    window.selectUserById = selectUser;
 
     // Función para actualizar el header del chat
     function updateChatHeader(userId, username, avatar) {
@@ -502,9 +601,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const chatUserAvatar = document.getElementById('chat-user-avatar');
         const chatUserStatus = document.getElementById('chat-user-status');
         const chatUserStatusText = document.getElementById('chat-user-status-text');
+        const chatHeaderAvatarLink = document.getElementById('chat-header-avatar-link');
 
         if (chatUserName) chatUserName.textContent = username;
         if (chatUserAvatar) chatUserAvatar.src = avatar;
+        
+        // Actualizar link del avatar para ir al perfil
+        if (chatHeaderAvatarLink) {
+            chatHeaderAvatarLink.href = `ver-perfil.php?id=${userId}`;
+        }
 
         // Actualizar estado online/offline
         const isOnline = onlineUsers.has(parseInt(userId));
@@ -1344,5 +1449,120 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // ==================== EMOJI PICKER ====================
+    
+    const emojiPicker = document.getElementById('emoji-picker');
+    const emojiBtn = document.getElementById('emoji-btn');
+    const emojiContent = document.getElementById('emoji-content');
+    
+    // Categorías de emojis
+    const emojiCategories = {
+        smileys: ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '🥲', '😋', '😛', '😜', '🤪', '😝', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴'],
+        gestures: ['👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '💪', '🦾', '🦿', '🦵', '🦶'],
+        animals: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈'],
+        food: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🫑', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🌭', '🍔', '🍟', '🍕', '🫓', '🥪', '🥙', '🧆', '🌮', '🌯', '🫔', '🥗', '🥘', '🫕', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊'],
+        activities: ['⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🪃', '🥅', '⛳', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛼', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️', '🤸', '🤺', '🤾', '🏌️', '🏇', '🧘', '🏊', '🤽', '🚣', '🧗', '🚴', '🚵', '🎯', '🎮', '🎰', '🎲', '🧩', '🎪', '🎭', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🪗', '🎸', '🪕', '🎻'],
+        objects: ['⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '🎥', '📽️', '🎞️', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️', '⌛', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🪔', '🧯', '🛢️', '💸', '💵', '💴', '💶', '💷', '💰', '💳', '💎', '⚖️', '🪜', '🧰', '🪛', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🪓', '🪚', '🔩', '⚙️', '🧱', '⛓️', '🧲', '🔫', '💣', '🧨', '🪃', '🔪', '🗡️', '⚔️', '🛡️', '🚬', '⚰️', '🪦', '⚱️', '🏺', '🔮', '📿', '🧿', '💈', '⚗️', '🔭', '🔬', '🕳️', '🩹', '🩺', '💊', '💉', '🩸', '🧬', '🦠', '🧫', '🧪', '🌡️', '🧹', '🪠', '🧺', '🧻', '🚽', '🚰', '🚿', '🛁', '🛀', '🧼', '🪥', '🪒', '🧽', '🪣', '🧴', '🛎️', '🔑', '🗝️', '🚪', '🪑', '🛋️', '🛏️', '🛌', '🧸', '🖼️', '🪆', '🪞', '🪟', '🛍️', '🛒', '🎁', '🎈', '🎏', '🎀', '🪄', '🪅', '🎊', '🎉', '🎎', '🏮', '🎐', '🧧', '✉️', '📩', '📨', '📧', '💌', '📥', '📤', '📦', '🏷️', '🪧', '📪', '📫', '📬', '📭', '📮', '📯', '📜', '📃', '📄', '📑', '🧾', '📊', '📈', '📉', '🗒️', '🗓️', '📆', '📅', '🗑️', '📇', '🗃️', '🗳️', '🗄️', '📋', '📁', '📂', '🗂️', '🗞️', '📰', '📓', '📔', '📒', '📕', '📗', '📘', '📙', '📚', '📖', '🔖', '🧷', '🔗', '📎', '🖇️', '📐', '📏', '🧮', '📌', '📍', '✂️', '🖊️', '🖋️', '✒️', '🖌️', '🖍️', '📝', '✏️', '🔍', '🔎', '🔏', '🔐', '🔒', '🔓'],
+        symbols: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕', '🛑', '⛔', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', '🏧', '🚾', '♿', '🅿️', '🛗', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '⚧️', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '〰️', '➰', '➿', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '🟤', '🔺', '🔻', '🔸', '🔹', '🔶', '🔷', '🔳', '🔲', '▪️', '▫️', '◾', '◽', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜', '🟫', '🔈', '🔇', '🔉', '🔊', '🔔', '🔕', '📣', '📢', '💬', '💭', '🗯️', '♠️', '♣️', '♥️', '♦️', '🃏', '🎴', '🀄', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕞', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
+    };
+    
+    let currentCategory = 'smileys';
+    
+    // Renderizar emojis de una categoría
+    function renderEmojis(category) {
+        emojiContent.innerHTML = '';
+        const emojis = emojiCategories[category] || [];
+        
+        emojis.forEach(emoji => {
+            const button = document.createElement('button');
+            button.className = 'emoji-item';
+            button.textContent = emoji;
+            button.onclick = () => insertEmoji(emoji);
+            emojiContent.appendChild(button);
+        });
+    }
+    
+    // Insertar emoji en el input
+    function insertEmoji(emoji) {
+        const cursorPos = messageInput.selectionStart;
+        const textBefore = messageInput.value.substring(0, cursorPos);
+        const textAfter = messageInput.value.substring(cursorPos);
+        
+        messageInput.value = textBefore + emoji + textAfter;
+        messageInput.focus();
+        
+        // Colocar el cursor después del emoji
+        const newCursorPos = cursorPos + emoji.length;
+        messageInput.setSelectionRange(newCursorPos, newCursorPos);
+        
+        // NO cerrar el picker para permitir seleccionar múltiples emojis
+        // emojiPicker.classList.remove('show');
+    }
+    
+    // Toggle del emoji picker
+    if (emojiBtn) {
+        emojiBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isShowing = emojiPicker.classList.contains('show');
+            emojiPicker.classList.toggle('show');
+            
+            if (!isShowing) {
+                // Posicionar el picker
+                const btnRect = emojiBtn.getBoundingClientRect();
+                const pickerWidth = Math.min(360, window.innerWidth * 0.95); // Max 360px o 95% del viewport
+                const pickerHeight = 380; // Altura aproximada con header
+                
+                let left = btnRect.left;
+                let top = btnRect.top - pickerHeight - 10;
+                
+                // Ajustar si se sale por la izquierda
+                if (left < 10) left = 10;
+                
+                // Ajustar si se sale por la derecha
+                if (left + pickerWidth > window.innerWidth - 10) {
+                    left = window.innerWidth - pickerWidth - 10;
+                }
+                
+                // Si no hay espacio arriba, mostrar abajo
+                if (top < 10) {
+                    top = btnRect.bottom + 10;
+                }
+                
+                emojiPicker.style.left = `${left}px`;
+                emojiPicker.style.top = `${top}px`;
+                emojiPicker.style.width = `${pickerWidth}px`;
+                
+                // Renderizar emojis de la categoría actual
+                renderEmojis(currentCategory);
+            }
+        });
+    }
+    
+    // Botones de categorías
+    document.querySelectorAll('.emoji-category-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const category = btn.dataset.category;
+            currentCategory = category;
+            
+            // Actualizar botón activo
+            document.querySelectorAll('.emoji-category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Renderizar emojis de la nueva categoría
+            renderEmojis(category);
+        });
+    });
+    
+    // Cerrar picker al hacer click fuera
+    document.addEventListener('click', (e) => {
+        if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+            emojiPicker.classList.remove('show');
+        }
+    });
+
     console.log('✅ Sistema de chat inicializado correctamente');
+    
+    // Flag para indicar que el chat está listo
+    window.chatInitialized = true;
 });

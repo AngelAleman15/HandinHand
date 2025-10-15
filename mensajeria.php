@@ -324,6 +324,18 @@ body.body-messaging .header {
 
 .chat-header-avatar {
     position: relative;
+    display: block;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.chat-header-avatar:hover {
+    transform: scale(1.05);
+}
+
+.chat-header-avatar:hover img {
+    border-color: rgba(201,249,155,0.8);
+    box-shadow: 0 0 0 3px rgba(201,249,155,0.2);
 }
 
 .chat-header-avatar img {
@@ -332,6 +344,8 @@ body.body-messaging .header {
     border-radius: 50%;
     border: 2px solid rgba(201,249,155,0.3);
     object-fit: cover;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
 .chat-header-details h3 {
@@ -818,11 +832,150 @@ body.body-messaging .header {
     cursor: pointer;
     color: #95a5a6;
     transition: all 0.3s ease;
+    z-index: 10;
 }
 
 .emoji-btn:hover {
     transform: translateY(-50%) scale(1.2);
     color: #A2CB8D;
+}
+
+/* Emoji Picker */
+.emoji-picker {
+    position: fixed;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+    padding: 0;
+    display: none;
+    z-index: 10001;
+    max-width: 360px;
+    width: 95%;
+    overflow: hidden;
+    animation: emojiPickerSlide 0.25s ease-out;
+}
+
+@keyframes emojiPickerSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.emoji-picker.show {
+    display: block;
+}
+
+.emoji-picker-header {
+    display: flex;
+    gap: 4px;
+    padding: 12px;
+    background: linear-gradient(135deg, #A2CB8D 0%, #C9F89B 100%);
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.5) transparent;
+    border-bottom: 2px solid rgba(255,255,255,0.3);
+}
+
+.emoji-picker-header::-webkit-scrollbar {
+    height: 4px;
+}
+
+.emoji-picker-header::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.emoji-picker-header::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.4);
+    border-radius: 2px;
+}
+
+.emoji-picker-header::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.6);
+}
+
+.emoji-category-btn {
+    background: rgba(255,255,255,0.3);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 10px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    color: #313C26;
+    flex-shrink: 0;
+    backdrop-filter: blur(10px);
+}
+
+.emoji-category-btn:hover {
+    background: rgba(255,255,255,0.5);
+    border-color: rgba(255,255,255,0.6);
+    transform: translateY(-1px);
+}
+
+.emoji-category-btn.active {
+    background: white;
+    color: #313C26;
+    border-color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-weight: 600;
+}
+
+.emoji-picker-content {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #C9F89B #f0f0f0;
+}
+
+.emoji-picker-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.emoji-picker-content::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.emoji-picker-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #A2CB8D, #C9F89B);
+    border-radius: 3px;
+}
+
+.emoji-picker-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #8bb777, #b5e685);
+}
+
+.emoji-item {
+    font-size: 28px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+}
+
+.emoji-item:hover {
+    background: linear-gradient(135deg, rgba(162,203,141,0.2), rgba(201,248,155,0.2));
+    transform: scale(1.25);
+    box-shadow: 0 4px 12px rgba(162,203,141,0.3);
+    border-radius: 10px;
 }
 
 .send-btn {
@@ -1556,6 +1709,73 @@ body.body-messaging .header {
     transform: scale(0.98);
 }
 
+/* === ESTILOS PARA CONTACTOS NO-AMIGOS === */
+
+/* Botón de rechazar contacto */
+.btn-rechazar-contacto {
+    background: transparent;
+    border: none;
+    color: #dc3545;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+    margin-top: 5px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.btn-rechazar-contacto:hover {
+    background: #dc3545;
+    color: white;
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn-rechazar-contacto:active {
+    transform: scale(0.95);
+}
+
+/* Badge de no-amigo */
+.badge-no-amigo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 6px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(243, 156, 18, 0.2);
+}
+
+/* Estilo para contactos no-amigos */
+.contact-item.no-amigo {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
+    border-left: 3px solid #f39c12;
+}
+
+.contact-item.no-amigo:hover {
+    background: linear-gradient(135deg, #fff3cd 0%, #fff9e6 100%);
+}
+
+/* Ajustar el meta cuando hay botón de rechazar */
+.contact-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+}
+
 </style>
 
 <div class="messaging-container">
@@ -1613,9 +1833,9 @@ body.body-messaging .header {
         <div class="chat-panel" id="chat-panel">
             <div class="chat-header">
                 <div class="chat-header-info">
-                    <div class="chat-header-avatar">
+                    <a href="#" class="chat-header-avatar" id="chat-header-avatar-link" title="Ver perfil">
                         <img src="img/usuario.png" alt="Avatar" id="chat-user-avatar">
-                    </div>
+                    </a>
                     <div class="chat-header-details">
                         <h3 id="chat-user-name">Usuario</h3>
                         <div class="chat-header-status">
@@ -1668,7 +1888,7 @@ body.body-messaging .header {
                         id="message-input"
                         disabled
                     >
-                    <button class="emoji-btn" title="Emojis">
+                    <button class="emoji-btn" id="emoji-btn" title="Emojis">
                         😊
                     </button>
                 </div>
@@ -1678,6 +1898,20 @@ body.body-messaging .header {
             </div>
         </div>
     </div>
+</div>
+
+<!-- Emoji Picker -->
+<div class="emoji-picker" id="emoji-picker">
+    <div class="emoji-picker-header" id="emoji-categories">
+        <button class="emoji-category-btn active" data-category="smileys">😊 Caritas</button>
+        <button class="emoji-category-btn" data-category="gestures">👋 Gestos</button>
+        <button class="emoji-category-btn" data-category="animals">🐶 Animales</button>
+        <button class="emoji-category-btn" data-category="food">🍕 Comida</button>
+        <button class="emoji-category-btn" data-category="activities">⚽ Actividades</button>
+        <button class="emoji-category-btn" data-category="objects">💡 Objetos</button>
+        <button class="emoji-category-btn" data-category="symbols">❤️ Símbolos</button>
+    </div>
+    <div class="emoji-picker-content" id="emoji-content"></div>
 </div>
 
 <!-- Modal de confirmación para eliminar historial -->
@@ -1795,6 +2029,77 @@ body.body-messaging .header {
     setTimeout(adjustMessagingContainerHeight, 100);
 </script>
 <script src="js/chat.js?v=<?php echo time(); ?>"></script>
+<script>
+// Auto-abrir chat si viene un parámetro 'user' en la URL
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('user');
+    
+    if (userId) {
+        console.log('🔗 Parámetro user detectado en URL:', userId);
+        
+        // Esperar a que el sistema de chat esté inicializado
+        const waitForChat = setInterval(() => {
+            // Verificar si la función loadUsers está disponible y los contactos están cargados
+            if (typeof window.chatInitialized !== 'undefined' && window.chatInitialized) {
+                clearInterval(waitForChat);
+                
+                console.log('✅ Sistema de chat listo, buscando usuario...');
+                
+                // Esperar un poco más para que los contactos se carguen
+                setTimeout(() => {
+                    // Buscar el contacto en la lista
+                    const contactItem = document.querySelector(`.contact-item[data-user-id="${userId}"]`);
+                    
+                    if (contactItem) {
+                        console.log('👤 Usuario encontrado en contactos, abriendo chat...');
+                        contactItem.click();
+                        
+                        // Limpiar la URL sin recargar la página
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    } else {
+                        console.log('⚠️ Usuario no encontrado en contactos, cargando datos...');
+                        
+                        // Si no está en los contactos, obtener sus datos de la API
+                        fetch(`/MisTrabajos/HandinHand/api/users.php?solo_amigos=false`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    const user = data.users.find(u => u.id == userId);
+                                    
+                                    if (user) {
+                                        console.log('✅ Datos del usuario obtenidos, abriendo chat...');
+                                        
+                                        // Verificar si existe la función selectUser
+                                        if (typeof window.selectUserById === 'function') {
+                                            window.selectUserById(user.id, user.username, user.avatar);
+                                        } else {
+                                            console.error('❌ Función selectUserById no disponible');
+                                        }
+                                        
+                                        // Limpiar la URL
+                                        window.history.replaceState({}, document.title, window.location.pathname);
+                                    } else {
+                                        console.error('❌ Usuario no encontrado en la API');
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('❌ Error al obtener datos del usuario:', error);
+                            });
+                    }
+                }, 1000); // Esperar 1 segundo para que se carguen los contactos
+            }
+        }, 100); // Verificar cada 100ms
+        
+        // Timeout de seguridad (10 segundos)
+        setTimeout(() => {
+            clearInterval(waitForChat);
+            console.warn('⏱️ Timeout: No se pudo abrir el chat automáticamente');
+        }, 10000);
+    }
+});
+</script>
 <script src="js/dropdownmenu.js?v=<?php echo time(); ?>"></script>
 
 </body>
