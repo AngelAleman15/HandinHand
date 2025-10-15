@@ -4,6 +4,38 @@ let socket = null;
 let onlineUsers = new Set();
 let replyingToMessage = null; // Para almacenar el mensaje al que se está respondiendo
 
+// Función para mostrar notificaciones
+function showNotification(message, type = 'success') {
+    // Crear o usar elemento de notificación existente
+    let notification = document.querySelector('.chat-notification');
+    
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.className = 'chat-notification';
+        document.body.appendChild(notification);
+    }
+    
+    // Limpiar clases anteriores
+    notification.classList.remove('show', 'success', 'error');
+    
+    // Configurar la notificación
+    notification.className = `chat-notification ${type}`;
+    
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    notification.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span>${message}</span>
+    `;
+    
+    // Mostrar la notificación
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
 // Funciones globales (necesarias para ser llamadas desde HTML inline)
 function replyToMessage(messageId, messageText, senderName) {
     replyingToMessage = {
@@ -267,6 +299,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateOnlineStatus(users);
             });
 
+            socket.on('message_edited', (data) => {
+                console.log('📝 Mensaje editado recibido via Socket.IO:', data);
+                console.log('   Buscando mensaje con ID:', data.message_id);
+                
+                const messageBubble = document.querySelector(`.message-bubble[data-message-id="${data.message_id}"]`);
+                console.log('   Mensaje encontrado:', !!messageBubble);
+                
+                if (messageBubble) {
+                    const messageText = messageBubble.querySelector('.message-text');
+                    console.log('   messageText encontrado:', !!messageText);
+                    
+                    if (messageText) {
+                        console.log('   Texto anterior:', messageText.textContent);
+                        messageText.textContent = data.new_message;
+                        console.log('   Texto actualizado:', data.new_message);
+                        
+                        // Agregar indicador de editado si no existe
+                        let editedLabel = messageBubble.querySelector('.message-edited');
+                        if (!editedLabel) {
+                            editedLabel = document.createElement('span');
+                            editedLabel.className = 'message-edited';
+                            editedLabel.textContent = ' (editado)';
+                            messageBubble.appendChild(editedLabel);
+                            console.log('   ✅ Etiqueta (editado) agregada');
+                        }
+                    }
+                } else {
+                    console.warn('   ⚠️ No se encontró el mensaje con data-message-id=' + data.message_id);
+                }
+            });
+
+            socket.on('message_deleted', (data) => {
+                console.log('🗑️ Mensaje eliminado recibido:', data);
+                
+                const messageDiv = document.querySelector(`[data-message-id="${data.message_id}"]`)?.closest('.message');
+                if (messageDiv) {
+                    messageDiv.remove();
+                }
+            });
+
             socket.on('error', (error) => {
                 console.error('Error de Socket.io:', error);
             });
@@ -295,22 +367,53 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderContacts(users) {
         if (!contactsList) return;
 
-        contactsList.innerHTML = users.map(user => `
-            <div class="contact-item" data-user-id="${user.id}" data-username="${user.username}">
-                <div class="contact-avatar">
-                    <img src="${user.avatar}" alt="${user.username}">
-                    <div class="status-indicator offline" data-user-id="${user.id}"></div>
-                    <span class="unread-badge" data-user-id="${user.id}">0</span>
+        contactsList.innerHTML = users.map(user => {
+            // Formatear el último mensaje
+            let lastMessagePreview = 'Haz clic para chatear';
+            if (user.last_message) {
+                const sender = user.last_message_sender || '';
+                lastMessagePreview = `${sender}: ${user.last_message}`;
+            }
+            
+            // Formatear la hora del último mensaje
+            let lastMessageTime = '';
+            if (user.last_message_time) {
+                const date = new Date(user.last_message_time);
+                const now = new Date();
+                const diffInHours = (now - date) / (1000 * 60 * 60);
+                
+                if (diffInHours < 24) {
+                    // Si es de hoy, mostrar solo la hora
+                    lastMessageTime = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                } else if (diffInHours < 48) {
+                    // Si es de ayer
+                    lastMessageTime = 'Ayer';
+                } else if (diffInHours < 168) {
+                    // Si es de esta semana
+                    lastMessageTime = date.toLocaleDateString('es-ES', { weekday: 'short' });
+                } else {
+                    // Si es más antiguo
+                    lastMessageTime = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+                }
+            }
+            
+            return `
+                <div class="contact-item" data-user-id="${user.id}" data-username="${user.username}">
+                    <div class="contact-avatar">
+                        <img src="${user.avatar}" alt="${user.username}">
+                        <div class="status-indicator offline" data-user-id="${user.id}"></div>
+                        <span class="unread-badge" data-user-id="${user.id}">0</span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-name">${user.username}</div>
+                        <div class="contact-preview">${lastMessagePreview}</div>
+                    </div>
+                    <div class="contact-meta">
+                        <div class="contact-time">${lastMessageTime}</div>
+                    </div>
                 </div>
-                <div class="contact-info">
-                    <div class="contact-name">${user.username}</div>
-                    <div class="contact-preview">Haz clic para chatear</div>
-                </div>
-                <div class="contact-meta">
-                    <div class="contact-time"></div>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         // Agregar eventos a los contactos
         document.querySelectorAll('.contact-item').forEach(item => {
@@ -321,6 +424,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectUser(userId, username, avatar);
             });
         });
+    }
+
+    // Función para actualizar la vista previa del último mensaje de un contacto
+    function updateContactPreview(userId, messageText, senderName) {
+        const contactItem = document.querySelector(`.contact-item[data-user-id="${userId}"]`);
+        if (!contactItem) return;
+        
+        const preview = contactItem.querySelector('.contact-preview');
+        const timeElement = contactItem.querySelector('.contact-time');
+        
+        if (preview) {
+            // Truncar mensaje si es muy largo
+            let displayText = messageText;
+            if (displayText.length > 40) {
+                displayText = displayText.substring(0, 40) + '...';
+            }
+            preview.textContent = `${senderName}: ${displayText}`;
+        }
+        
+        if (timeElement) {
+            const now = new Date();
+            timeElement.textContent = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
     }
 
     // Función para seleccionar un usuario
@@ -451,26 +577,61 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
+        // Indicador de mensaje editado
+        const editedLabel = messageData.edited_at ? '<span class="message-edited">(editado)</span>' : '';
+
+        // Opciones del menú según si es mensaje propio o no
+        let menuOptions = `
+            <div class="message-option-item" onclick="replyToMessage(${messageData.id || 0}, '${escapeHtml(messageData.message || messageData.mensaje).replace(/'/g, "\\'")}', '${senderName}')">
+                <i class="fas fa-reply"></i>
+                <span>Responder</span>
+            </div>
+        `;
+
+        if (isOwnMessage) {
+            // Si es mensaje propio: editar, eliminar para todos y eliminar para mí
+            menuOptions += `
+                <div class="message-option-item" onclick="editMessage(${messageData.id || 0}, '${escapeHtml(messageData.message || messageData.mensaje).replace(/'/g, "\\'")}')">
+                    <i class="fas fa-edit"></i>
+                    <span>Editar</span>
+                </div>
+                <div class="message-option-item danger" onclick="deleteMessage(${messageData.id || 0}, true, 'all')">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Eliminar para todos</span>
+                </div>
+                <div class="message-option-item danger" onclick="deleteMessage(${messageData.id || 0}, true, 'me')">
+                    <i class="fas fa-trash"></i>
+                    <span>Eliminar para mí</span>
+                </div>
+            `;
+        } else {
+            // Si es mensaje recibido: solo eliminar para mí
+            menuOptions += `
+                <div class="message-option-item danger" onclick="deleteMessage(${messageData.id || 0}, false, 'me')">
+                    <i class="fas fa-trash"></i>
+                    <span>Eliminar para mí</span>
+                </div>
+            `;
+        }
+
         messageDiv.innerHTML = `
             <div class="message-avatar">
                 <img src="${avatarSrc}" alt="Avatar">
             </div>
             <div class="message-content">
-                <div class="message-bubble">
+                <div class="message-bubble" data-message-id="${messageData.id || 0}">
                     ${replyHTML}
-                    ${escapeHtml(messageData.message || messageData.mensaje)}
+                    <span class="message-text">${escapeHtml(messageData.message || messageData.mensaje)}</span>
+                    ${editedLabel}
                 </div>
                 <div class="message-time">${time}</div>
             </div>
             <div class="message-options">
-                <button class="message-options-btn" onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle('show')">
+                <button class="message-options-btn" onclick="event.stopPropagation(); toggleMessageMenu(this)">
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="message-options-menu">
-                    <div class="message-option-item" onclick="replyToMessage(${messageData.id || 0}, '${escapeHtml(messageData.message || messageData.mensaje).replace(/'/g, "\\'")}', '${senderName}')">
-                        <i class="fas fa-reply"></i>
-                        <span>Responder</span>
-                    </div>
+                    ${menuOptions}
                 </div>
             </div>
         `;
@@ -563,6 +724,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Limpiar input
                 messageInput.value = '';
                 messageInput.focus();
+                
+                // Actualizar vista previa del contacto
+                updateContactPreview(currentChatUserId, message, 'Tú');
             } else {
                 console.error('Error al guardar mensaje:', result);
                 alert('Error al enviar el mensaje. Por favor, intenta de nuevo.');
@@ -592,14 +756,24 @@ document.addEventListener('DOMContentLoaded', () => {
             appendMessage(data);
             scrollToBottom();
 
-            // Si no es mi mensaje, marcarlo como leído
+            // Si no es mi mensaje, marcarlo como leído y actualizar vista previa
             if (data.sender_id.toString() !== CURRENT_USER_ID.toString()) {
                 markMessagesAsRead(data.sender_id);
+                
+                // Obtener el nombre del remitente del contacto
+                const contactItem = document.querySelector(`.contact-item[data-user-id="${data.sender_id}"]`);
+                const senderName = contactItem?.dataset.username || 'Usuario';
+                updateContactPreview(data.sender_id, data.message, senderName);
             }
         } else if (data.receiver_id.toString() === CURRENT_USER_ID.toString()) {
             // Mensaje para mí pero en otro chat
             console.log('   📬 Mensaje para otro chat, incrementando badge');
             incrementUnreadBadge(data.sender_id);
+            
+            // Actualizar vista previa del contacto
+            const contactItem = document.querySelector(`.contact-item[data-user-id="${data.sender_id}"]`);
+            const senderName = contactItem?.dataset.username || 'Usuario';
+            updateContactPreview(data.sender_id, data.message, senderName);
         }
     }
 
@@ -750,12 +924,425 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Función para escapar HTML
+    // Función auxiliar para escapar HTML
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
+
+    // Toggle del menú de opciones del mensaje
+    window.toggleMessageMenu = function(button) {
+        const menu = button.nextElementSibling;
+        
+        // Cerrar todos los menús abiertos
+        document.querySelectorAll('.message-options-menu.show').forEach(m => {
+            if (m !== menu) {
+                m.classList.remove('show');
+                m.classList.remove('show-above');
+            }
+        });
+        
+        // Toggle del menú
+        const isShowing = menu.classList.contains('show');
+        menu.classList.toggle('show');
+        
+        if (!isShowing) {
+            // El menú se está abriendo, posicionarlo
+            setTimeout(() => {
+                const buttonRect = button.getBoundingClientRect();
+                const menuRect = menu.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                const viewportWidth = window.innerWidth;
+                
+                // Calcular espacio disponible
+                const spaceBelow = viewportHeight - buttonRect.bottom;
+                const spaceAbove = buttonRect.top;
+                const menuHeight = menuRect.height;
+                
+                let top, left;
+                
+                // Decidir si mostrar arriba o abajo
+                if (spaceBelow < menuHeight + 10 && spaceAbove > menuHeight + 10) {
+                    // Mostrar arriba
+                    top = buttonRect.top - menuHeight - 4;
+                    menu.classList.add('show-above');
+                } else {
+                    // Mostrar abajo
+                    top = buttonRect.bottom + 4;
+                    menu.classList.remove('show-above');
+                }
+                
+                // Posicionar a la derecha del botón, pero ajustar si se sale del viewport
+                left = buttonRect.right - menu.offsetWidth;
+                
+                // Asegurar que no se salga por la izquierda
+                if (left < 10) {
+                    left = 10;
+                }
+                
+                // Asegurar que no se salga por la derecha
+                if (left + menu.offsetWidth > viewportWidth - 10) {
+                    left = viewportWidth - menu.offsetWidth - 10;
+                }
+                
+                // Aplicar posición
+                menu.style.top = `${top}px`;
+                menu.style.left = `${left}px`;
+            }, 0);
+        } else {
+            // El menú se está cerrando
+            menu.classList.remove('show-above');
+        }
+    };
+
+    // Cerrar menús al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.message-options')) {
+            document.querySelectorAll('.message-options-menu.show').forEach(m => {
+                m.classList.remove('show');
+            });
+        }
+    });
+
+    // Cerrar chat al presionar ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // Si hay un modal abierto, cerrarlo primero
+            const editModal = document.getElementById('editMessageModal');
+            const deleteModal = document.getElementById('deleteMessageModal');
+            
+            if (editModal?.classList.contains('show')) {
+                closeEditModal();
+                return;
+            }
+            
+            if (deleteModal?.classList.contains('show')) {
+                closeDeleteMessageModal();
+                return;
+            }
+            
+            // Si no hay modales abiertos y hay un chat activo, cerrarlo
+            const chatPanel = document.getElementById('chat-panel');
+            if (chatPanel?.classList.contains('active')) {
+                closeChatPanel();
+            }
+        }
+    });
+
+    // Función para cerrar el panel de chat
+    function closeChatPanel() {
+        const chatPanel = document.getElementById('chat-panel');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        
+        if (chatPanel) {
+            chatPanel.classList.remove('active');
+        }
+        
+        if (welcomeScreen) {
+            welcomeScreen.classList.remove('hidden');
+        }
+        
+        // Desmarcar contacto activo
+        document.querySelectorAll('.contact-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Limpiar el chat actual
+        currentChatUserId = null;
+        
+        // Limpiar mensajes
+        const messagesContainer = document.getElementById('messages-container');
+        if (messagesContainer) {
+            messagesContainer.innerHTML = '';
+        }
+        
+        console.log('✅ Chat cerrado');
+    }
+
+    // Variables para edición
+    let currentEditMessageId = null;
+    let currentEditOriginalText = '';
+
+    // Función para abrir modal de edición
+    window.editMessage = function(messageId, currentText) {
+        console.log('✏️ Abriendo modal de edición:', messageId);
+        
+        // Cerrar menú
+        document.querySelectorAll('.message-options-menu.show').forEach(m => m.classList.remove('show'));
+        
+        // Guardar datos
+        currentEditMessageId = messageId;
+        currentEditOriginalText = currentText;
+        
+        // Llenar el textarea
+        const textarea = document.getElementById('edit-message-textarea');
+        if (textarea) {
+            textarea.value = currentText;
+            updateCharCount();
+            
+            // Mostrar modal
+            const modal = document.getElementById('editMessageModal');
+            if (modal) {
+                modal.classList.add('show');
+                
+                // Enfocar el textarea después de que se muestre el modal
+                setTimeout(() => {
+                    textarea.focus();
+                    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+                }, 100);
+            }
+        }
+    };
+
+    // Función para cerrar modal de edición
+    window.closeEditModal = function() {
+        const modal = document.getElementById('editMessageModal');
+        if (modal) {
+            modal.classList.remove('show');
+        }
+        currentEditMessageId = null;
+        currentEditOriginalText = '';
+    };
+
+    // Función para actualizar contador de caracteres
+    function updateCharCount() {
+        const textarea = document.getElementById('edit-message-textarea');
+        const counter = document.getElementById('edit-char-count');
+        const counterContainer = textarea?.parentElement.querySelector('.edit-message-counter');
+        
+        if (textarea && counter) {
+            const length = textarea.value.length;
+            counter.textContent = length;
+            
+            if (counterContainer) {
+                counterContainer.classList.remove('warning', 'error');
+                if (length > 1800) {
+                    counterContainer.classList.add('error');
+                } else if (length > 1500) {
+                    counterContainer.classList.add('warning');
+                }
+            }
+        }
+    }
+
+    // Listener para el textarea
+    const editTextarea = document.getElementById('edit-message-textarea');
+    if (editTextarea) {
+        editTextarea.addEventListener('input', updateCharCount);
+        
+        // Permitir guardar con Ctrl+Enter
+        editTextarea.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                saveEditedMessage();
+            }
+            // Cerrar con Escape
+            if (e.key === 'Escape') {
+                closeEditModal();
+            }
+        });
+    }
+
+    // Función para guardar mensaje editado
+    window.saveEditedMessage = async function() {
+        const textarea = document.getElementById('edit-message-textarea');
+        if (!textarea || !currentEditMessageId) return;
+        
+        const newMessage = textarea.value.trim();
+        
+        if (!newMessage) {
+            showNotification('El mensaje no puede estar vacío', 'error');
+            return;
+        }
+        
+        if (newMessage === currentEditOriginalText.trim()) {
+            console.log('⚠️ El mensaje no cambió');
+            closeEditModal();
+            return;
+        }
+        
+        if (newMessage.length > 2000) {
+            showNotification('El mensaje es demasiado largo (máximo 2000 caracteres)', 'error');
+            return;
+        }
+        
+        try {
+            const response = await fetch('api/edit-message.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message_id: currentEditMessageId,
+                    new_message: newMessage
+                })
+            });
+            
+            const data = await response.json();
+            
+            console.log('📥 Respuesta del servidor:', data);
+            
+            if (data.success === true) {
+                console.log('✅ Mensaje editado correctamente');
+                
+                // Actualizar el mensaje en el DOM
+                const messageBubble = document.querySelector(`.message-bubble[data-message-id="${currentEditMessageId}"]`);
+                if (messageBubble) {
+                    const messageText = messageBubble.querySelector('.message-text');
+                    if (messageText) {
+                        messageText.textContent = newMessage;
+                        
+                        // Agregar indicador de editado si no existe
+                        let editedLabel = messageBubble.querySelector('.message-edited');
+                        if (!editedLabel) {
+                            editedLabel = document.createElement('span');
+                            editedLabel.className = 'message-edited';
+                            editedLabel.textContent = ' (editado)';
+                            messageBubble.appendChild(editedLabel);
+                        }
+                    }
+                }
+                
+                // Notificar al otro usuario via Socket.IO
+                if (socket && currentChatUserId) {
+                    console.log('📡 Emitiendo evento message_edited:', {
+                        message_id: currentEditMessageId,
+                        new_message: newMessage,
+                        receiver_id: currentChatUserId,
+                        edited_at: data.data?.edited_at || new Date().toISOString()
+                    });
+                    
+                    socket.emit('message_edited', {
+                        message_id: currentEditMessageId,
+                        new_message: newMessage,
+                        receiver_id: currentChatUserId,
+                        edited_at: data.data?.edited_at || new Date().toISOString()
+                    });
+                } else {
+                    console.warn('⚠️ No se pudo emitir message_edited. socket:', !!socket, 'currentChatUserId:', currentChatUserId);
+                }
+                
+                showNotification('Mensaje editado correctamente', 'success');
+                closeEditModal();
+            } else {
+                console.error('❌ Error del servidor:', data);
+                showNotification(data.message || 'Error al editar el mensaje', 'error');
+            }
+        } catch (error) {
+            console.error('❌ Error en saveEditedMessage:', error);
+            showNotification('Error al editar el mensaje', 'error');
+        }
+    };
+
+    // Variables para eliminación
+    let currentDeleteMessageId = null;
+    let currentDeleteIsOwn = false;
+    let currentDeleteType = 'me'; // 'all' o 'me'
+
+    // Función para mostrar modal de eliminación
+    window.deleteMessage = function(messageId, isOwnMessage, deleteType = 'me') {
+        console.log('🗑️ Abriendo modal de eliminación:', messageId, 'isOwn:', isOwnMessage, 'type:', deleteType);
+        
+        // Cerrar menú
+        document.querySelectorAll('.message-options-menu.show').forEach(m => m.classList.remove('show'));
+        
+        // Guardar datos
+        currentDeleteMessageId = messageId;
+        currentDeleteIsOwn = isOwnMessage;
+        currentDeleteType = deleteType;
+        
+        // Obtener el texto del mensaje
+        const messageBubble = document.querySelector(`.message-bubble[data-message-id="${messageId}"]`);
+        const messageText = messageBubble?.querySelector('.message-text')?.textContent || '';
+        
+        // Configurar el modal
+        const modal = document.getElementById('deleteMessageModal');
+        const title = document.getElementById('delete-message-title');
+        const description = document.getElementById('delete-message-description');
+        const preview = document.getElementById('delete-message-text');
+        const buttonText = document.getElementById('delete-button-text');
+        
+        if (modal && title && description && preview && buttonText) {
+            if (deleteType === 'all') {
+                title.textContent = '¿Eliminar para todos?';
+                description.textContent = 'Este mensaje se eliminará para ti y para el otro usuario. Esta acción no se puede deshacer.';
+                buttonText.textContent = 'Eliminar para todos';
+            } else {
+                title.textContent = '¿Eliminar para ti?';
+                description.textContent = 'Este mensaje se eliminará solo para ti. El otro usuario aún podrá verlo.';
+                buttonText.textContent = 'Eliminar para mí';
+            }
+            
+            preview.textContent = messageText;
+            modal.classList.add('show');
+        }
+    };
+
+    // Función para cerrar modal de eliminación
+    window.closeDeleteMessageModal = function() {
+        const modal = document.getElementById('deleteMessageModal');
+        if (modal) {
+            modal.classList.remove('show');
+        }
+        currentDeleteMessageId = null;
+        currentDeleteIsOwn = false;
+        currentDeleteType = 'me';
+    };
+
+    // Función para confirmar eliminación
+    window.confirmDeleteMessage = async function() {
+        if (!currentDeleteMessageId) return;
+        
+        const messageId = currentDeleteMessageId;
+        const deleteType = currentDeleteType;
+        
+        console.log('🗑️ Confirmando eliminación:', messageId, 'tipo:', deleteType);
+        
+        // Cerrar modal
+        closeDeleteMessageModal();
+        
+        try {
+            const response = await fetch('api/delete-message.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message_id: messageId,
+                    delete_for_all: deleteType === 'all'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success === true) {
+                console.log('✅ Mensaje eliminado correctamente');
+                
+                // Eliminar el mensaje del DOM
+                const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`)?.closest('.message');
+                if (messageDiv) {
+                    messageDiv.remove();
+                }
+                
+                // Notificar al otro usuario via Socket.IO si es eliminación completa
+                if (socket && currentChatUserId && data.data.delete_type === 'complete') {
+                    socket.emit('message_deleted', {
+                        message_id: messageId,
+                        receiver_id: currentChatUserId
+                    });
+                }
+                
+                const deleteTypeText = deleteType === 'all' ? 'para todos' : 'para ti';
+                showNotification(`Mensaje eliminado ${deleteTypeText}`, 'success');
+            } else {
+                console.error('❌ Error al eliminar:', data.message);
+                showNotification(data.message || 'Error al eliminar el mensaje', 'error');
+            }
+        } catch (error) {
+            console.error('❌ Error en confirmDeleteMessage:', error);
+            showNotification('Error al eliminar el mensaje', 'error');
+        }
+    };
 
     console.log('✅ Sistema de chat inicializado correctamente');
 });

@@ -459,6 +459,18 @@ body.body-messaging .header {
     display: inline-block;
     max-width: 100%;
     transition: all 0.2s ease;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+}
+
+.message-text {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    cursor: text;
 }
 
 .message:hover {
@@ -510,36 +522,39 @@ body.body-messaging .header {
 
 /* Respuesta en mensajes recibidos (otros usuarios) */
 .message.received .message-reply-preview {
-    background: rgba(162,203,141,0.15);
+    background: rgba(162,203,141,0.2);
     border-left: 3px solid #A2CB8D;
 }
 
 .message.received .message-reply-preview .reply-username {
-    color: #7da869;
-    font-weight: 600;
-    font-size: 12px;
-    margin-bottom: 2px;
-}
-
-.message.received .message-reply-preview .reply-text {
-    color: #4a5568;
-}
-
-/* Respuesta en mensajes enviados (míos) */
-.message.sent .message-reply-preview {
-    background: rgba(255, 255, 255, 0.3);
-    border-left: 3px solid #ffffff;
-}
-
-.message.sent .message-reply-preview .reply-username {
-    color: #ffffff;
+    color: #5d8a4a;
     font-weight: 700;
     font-size: 12px;
     margin-bottom: 2px;
 }
 
-.message.sent .message-reply-preview .reply-text {
-    color: rgba(255, 255, 255, 0.9);
+.message.received .message-reply-preview .reply-text {
+    color: #2d3748;
+    font-weight: 500;
+}
+
+/* Respuesta en mensajes enviados (míos) */
+.message.own .message-reply-preview {
+    background: rgba(0, 0, 0, 0.25) !important;
+    border-left: 4px solid rgba(0, 0, 0, 0.5) !important;
+    padding: 8px 12px !important;
+}
+
+.message.own .message-reply-preview .reply-username {
+    color: #2E3925 !important;
+    font-weight: 800 !important;
+    font-size: 12px !important;
+    margin-bottom: 3px !important;
+}
+
+.message.own .message-reply-preview .reply-text {
+    color: #2d3748 !important;
+    font-weight: 600 !important;
 }
 
 .message-reply-preview .reply-username {
@@ -645,19 +660,22 @@ body.body-messaging .header {
 
 .message-options-menu {
     display: none;
-    position: absolute;
+    position: fixed;
     background: white;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     padding: 4px 0;
     min-width: 150px;
-    z-index: 1000;
-    top: 100%;
-    right: 0;
+    z-index: 10000;
 }
 
 .message-options-menu.show {
     display: block;
+}
+
+.message-options-menu.show-above {
+    transform: translateY(-100%);
+    margin-top: -4px;
 }
 
 .message-option-item {
@@ -675,9 +693,33 @@ body.body-messaging .header {
     background: #f8f9fa;
 }
 
+.message-option-item.danger {
+    color: #dc3545;
+}
+
+.message-option-item.danger:hover {
+    background: #fff5f5;
+}
+
 .message-option-item i {
     width: 18px;
     color: #666;
+}
+
+.message-option-item.danger i {
+    color: #dc3545;
+}
+
+/* Indicador de mensaje editado */
+.message-edited {
+    font-size: 11px;
+    color: #999;
+    font-style: italic;
+    margin-left: 6px;
+}
+
+.message.own .message-edited {
+    color: rgba(49, 60, 38, 0.6);
 }
 
 /* Menú de opciones del chat (header) */
@@ -1192,6 +1234,328 @@ body.body-messaging .header {
 .chat-notification span {
     color: #2c3e50;
 }
+
+/* === MODAL DE EDICIÓN DE MENSAJE === */
+.edit-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999999;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.edit-modal.show {
+    display: flex;
+}
+
+.edit-modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 550px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+    overflow: hidden;
+}
+
+.edit-modal-header {
+    background: linear-gradient(135deg, #A2CB8D, #C9F89B);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.edit-modal-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-modal-icon i {
+    font-size: 20px;
+    color: #313C26;
+}
+
+.edit-modal-header h3 {
+    margin: 0;
+    color: #313C26;
+    font-size: 20px;
+    font-weight: 700;
+    flex: 1;
+}
+
+.edit-modal-close {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #313C26;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.edit-modal-close:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: rotate(90deg);
+}
+
+.edit-modal-body {
+    padding: 24px;
+}
+
+.edit-message-input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    resize: vertical;
+    min-height: 100px;
+    max-height: 300px;
+    transition: all 0.3s ease;
+}
+
+.edit-message-input:focus {
+    outline: none;
+    border-color: #A2CB8D;
+    box-shadow: 0 0 0 3px rgba(162, 203, 141, 0.1);
+}
+
+.edit-message-counter {
+    text-align: right;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #999;
+}
+
+.edit-message-counter.warning {
+    color: #ff9800;
+    font-weight: 600;
+}
+
+.edit-message-counter.error {
+    color: #f44336;
+    font-weight: 700;
+}
+
+.edit-modal-footer {
+    padding: 16px 24px;
+    background: #f8f9fa;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.edit-modal-cancel,
+.edit-modal-save {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.edit-modal-cancel {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.edit-modal-cancel:hover {
+    background: #dee2e6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.edit-modal-save {
+    background: linear-gradient(135deg, #A2CB8D, #C9F89B);
+    color: #313C26;
+}
+
+.edit-modal-save:hover {
+    background: linear-gradient(135deg, #8DB87A, #B8E788);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(162, 203, 141, 0.4);
+}
+
+.edit-modal-save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.edit-modal-save:active,
+.edit-modal-cancel:active {
+    transform: translateY(0);
+}
+
+/* === MODAL DE ELIMINACIÓN DE MENSAJE === */
+.delete-message-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 999999;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.delete-message-modal.show {
+    display: flex;
+}
+
+.delete-message-modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 420px;
+    width: 90%;
+    padding: 32px 28px 28px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    text-align: center;
+    position: relative;
+}
+
+.delete-message-modal-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    background: #fff5f5;
+    border: 3px solid #fee;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-message-modal-icon i {
+    font-size: 28px;
+    color: #e74c3c;
+}
+
+.delete-message-modal-content h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.delete-message-modal-content p {
+    margin: 0 0 24px 0;
+    color: #6c757d;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.delete-message-preview {
+    background: #f8f9fa;
+    border-left: 3px solid #e74c3c;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    text-align: left;
+}
+
+.delete-message-preview i {
+    color: #95a5a6;
+    font-size: 16px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.delete-message-preview span {
+    color: #495057;
+    font-size: 13px;
+    line-height: 1.5;
+    word-break: break-word;
+    max-height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.delete-message-modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.delete-message-modal-cancel,
+.delete-message-modal-confirm {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    flex: 1;
+    justify-content: center;
+    max-width: 160px;
+}
+
+.delete-message-modal-cancel {
+    background: #f1f3f5;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+.delete-message-modal-cancel:hover {
+    background: #e9ecef;
+    border-color: #ced4da;
+}
+
+.delete-message-modal-confirm {
+    background: #e74c3c;
+    color: white;
+}
+
+.delete-message-modal-confirm:hover {
+    background: #c0392b;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.delete-message-modal-cancel:active,
+.delete-message-modal-confirm:active {
+    transform: scale(0.98);
+}
+
 </style>
 
 <div class="messaging-container">
@@ -1330,6 +1694,63 @@ body.body-messaging .header {
             </button>
             <button class="delete-modal-confirm" onclick="confirmDeleteHistory()">
                 <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar mensaje -->
+<div id="editMessageModal" class="edit-modal">
+    <div class="edit-modal-content">
+        <div class="edit-modal-header">
+            <div class="edit-modal-icon">
+                <i class="fas fa-edit"></i>
+            </div>
+            <h3>Editar mensaje</h3>
+            <button class="edit-modal-close" onclick="closeEditModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="edit-modal-body">
+            <textarea 
+                id="edit-message-textarea" 
+                class="edit-message-input" 
+                placeholder="Escribe tu mensaje..."
+                rows="4"
+            ></textarea>
+            <div class="edit-message-counter">
+                <span id="edit-char-count">0</span>/2000 caracteres
+            </div>
+        </div>
+        <div class="edit-modal-footer">
+            <button class="edit-modal-cancel" onclick="closeEditModal()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="edit-modal-save" onclick="saveEditedMessage()">
+                <i class="fas fa-check"></i> Guardar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar mensaje -->
+<div id="deleteMessageModal" class="delete-message-modal">
+    <div class="delete-message-modal-content">
+        <div class="delete-message-modal-icon">
+            <i class="fas fa-trash-alt"></i>
+        </div>
+        <h3 id="delete-message-title">¿Eliminar mensaje?</h3>
+        <p id="delete-message-description">Esta acción no se puede deshacer.</p>
+        <div class="delete-message-preview" id="delete-message-preview">
+            <i class="fas fa-comment"></i>
+            <span id="delete-message-text"></span>
+        </div>
+        <div class="delete-message-modal-buttons">
+            <button class="delete-message-modal-cancel" onclick="closeDeleteMessageModal()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="delete-message-modal-confirm" onclick="confirmDeleteMessage()">
+                <i class="fas fa-trash"></i> <span id="delete-button-text">Eliminar</span>
             </button>
         </div>
     </div>

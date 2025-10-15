@@ -41,10 +41,60 @@ try {
             }
         }
         
+        // Obtener el último mensaje de la conversación con este usuario
+        $lastMessageQuery = "
+            SELECT m.mensaje, m.sender_id, m.created_at, u.username as sender_name
+            FROM mensajes m
+            LEFT JOIN usuarios u ON m.sender_id = u.id
+            WHERE 
+                ((m.sender_id = ? AND m.receiver_id = ?)
+                OR (m.sender_id = ? AND m.receiver_id = ?))
+                AND m.is_deleted = FALSE
+                AND (m.deleted_for IS NULL OR m.deleted_for NOT LIKE ?)
+            ORDER BY m.created_at DESC
+            LIMIT 1
+        ";
+        
+        $lastMsgStmt = $conn->prepare($lastMessageQuery);
+        $lastMsgStmt->execute([
+            $currentUserId,      // sender_id = ?
+            $row['id'],          // receiver_id = ?
+            $row['id'],          // sender_id = ?
+            $currentUserId,      // receiver_id = ?
+            '%"' . $currentUserId . '"%'  // deleted_for NOT LIKE ?
+        ]);
+        
+        $lastMessage = $lastMsgStmt->fetch();
+        
+        $lastMessageText = '';
+        $lastMessageSender = '';
+        $lastMessageTime = '';
+        
+        if ($lastMessage) {
+            // Truncar mensaje si es muy largo
+            $messageText = $lastMessage['mensaje'];
+            if (strlen($messageText) > 40) {
+                $messageText = substr($messageText, 0, 40) . '...';
+            }
+            
+            // Determinar quién envió el mensaje
+            if ($lastMessage['sender_id'] == $currentUserId) {
+                $lastMessageSender = 'Tú';
+            } else {
+                $lastMessageSender = $lastMessage['sender_name'];
+            }
+            
+            $lastMessageText = $messageText;
+            $lastMessageTime = $lastMessage['created_at'];
+        }
+        
         $users[] = [
             'id' => $row['id'],
             'username' => $row['username'],
-            'avatar' => $avatarPath
+            'avatar' => $avatarPath,
+            'last_message' => $lastMessageText,
+            'last_message_sender' => $lastMessageSender,
+            'last_message_time' => $lastMessageTime
         ];
     }
     

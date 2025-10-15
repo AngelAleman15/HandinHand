@@ -79,6 +79,34 @@ io.on('connection', (socket) => {
         }
     });
 
+    // Cuando un usuario edita un mensaje
+    socket.on('message_edited', async (data) => {
+        console.log('✏️ Mensaje editado:', data);
+        
+        const receiverSocket = connectedUsers.get(data.receiver_id.toString());
+        
+        if (receiverSocket) {
+            console.log('   ✅ Notificando edición al receptor en socket:', receiverSocket);
+            io.to(receiverSocket).emit('message_edited', data);
+        } else {
+            console.log('   ❌ Receptor NO encontrado para notificar edición');
+        }
+    });
+
+    // Cuando un usuario elimina un mensaje
+    socket.on('message_deleted', async (data) => {
+        console.log('🗑️ Mensaje eliminado:', data);
+        
+        const receiverSocket = connectedUsers.get(data.receiver_id.toString());
+        
+        if (receiverSocket) {
+            console.log('   ✅ Notificando eliminación al receptor en socket:', receiverSocket);
+            io.to(receiverSocket).emit('message_deleted', data);
+        } else {
+            console.log('   ❌ Receptor NO encontrado para notificar eliminación');
+        }
+    });
+
     // Cuando un usuario se desconecta
     socket.on('disconnect', () => {
         console.log('Usuario desconectado:', socket.id);

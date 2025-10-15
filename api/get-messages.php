@@ -41,6 +41,8 @@ try {
                 OR (m.sender_id = :otherUser2 AND m.receiver_id = :currentUser3))
               AND me.id IS NULL
               AND ce.id IS NULL
+              AND m.is_deleted = FALSE
+              AND (m.deleted_for IS NULL OR NOT JSON_CONTAINS(m.deleted_for, :currentUserJson, '$'))
               ORDER BY m.created_at ASC";
 
     $stmt = $conn->prepare($query);
@@ -50,6 +52,7 @@ try {
         ':currentUser3' => $currentUserId,
         ':currentUser4' => $currentUserId,
         ':currentUser5' => $currentUserId,
+        ':currentUserJson' => json_encode($currentUserId),
         ':otherUser1' => $otherUserId,
         ':otherUser2' => $otherUserId,
         ':otherUser3' => $otherUserId
@@ -68,7 +71,8 @@ try {
             'is_perseo_auto' => isset($row['is_perseo_auto']) ? (bool)$row['is_perseo_auto'] : false,
             'reply_to_message_id' => $row['reply_to_message_id'],
             'reply_to_message' => $row['reply_to_message'],
-            'reply_to_username' => $row['reply_to_username']
+            'reply_to_username' => $row['reply_to_username'],
+            'edited_at' => $row['edited_at'] ?? null
         ];
     }
     
