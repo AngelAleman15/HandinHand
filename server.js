@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
         console.log('   Emisor:', data.sender_id, 'Receptor:', data.receiver_id);
         console.log('   📊 Map actual de usuarios:', Array.from(connectedUsers.entries()));
         
-        // Obtener el socket del destinatario
+        // Obtener el socket del destinatario y del emisor
         const receiverSocket = connectedUsers.get(data.receiver_id.toString());
         const senderSocket = connectedUsers.get(data.sender_id.toString());
         

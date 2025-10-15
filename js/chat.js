@@ -72,7 +72,7 @@ async function confirmDeleteHistory() {
     if (!currentChatUserId) return;
 
     try {
-        const response = await fetch('/2025PracticasAAleman/HandinHand/api/delete-chat-history.php', {
+        const response = await fetch('/MisTrabajos/HandinHand/api/delete-chat-history.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar usuarios
     async function loadUsers() {
         try {
-            const response = await fetch('/2025PracticasAAleman/HandinHand/api/users.php');
+            const response = await fetch('/MisTrabajos/HandinHand/api/users.php');
             const data = await response.json();
 
             if (data.status === 'success' && data.users) {
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar mensajes
     async function loadMessages(userId) {
         try {
-            const response = await fetch(`/2025PracticasAAleman/HandinHand/api/get-messages.php?user_id=${userId}`);
+            const response = await fetch(`/MisTrabajos/HandinHand/api/get-messages.php?user_id=${userId}`);
             const data = await response.json();
 
             if (data.status === 'success' && data.messages) {
@@ -411,7 +411,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para agregar un mensaje al chat
     function appendMessage(messageData) {
-        if (!chatMessages) return;
+        const chatMessagesElement = document.getElementById('chat-messages');
+        console.log('📝 appendMessage llamado');
+        console.log('   chatMessages element:', chatMessagesElement);
+        console.log('   messageData:', messageData);
+        
+        if (!chatMessagesElement) {
+            console.error('❌ ERROR: No se encontró el elemento chat-messages');
+            return;
+        }
+
+        // Evitar duplicados: si el mensaje ya existe, no agregarlo
+        if (messageData.id) {
+            const existingMessage = chatMessagesElement.querySelector(`[data-message-id="${messageData.id}"]`);
+            if (existingMessage) {
+                console.log('   ⚠️ Mensaje duplicado ignorado, ID:', messageData.id);
+                return;
+            }
+        }
 
         const isOwnMessage = messageData.sender_id.toString() === CURRENT_USER_ID.toString();
         const time = formatTime(messageData.timestamp);
@@ -458,16 +475,29 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        chatMessages.appendChild(messageDiv);
+        console.log('   ✅ Agregando mensaje al DOM');
+        chatMessagesElement.appendChild(messageDiv);
         scrollToBottom();
     }
 
     // Función para enviar mensaje
     async function sendMessage() {
-        if (!messageInput || !currentChatUserId) return;
+        console.log('📤 sendMessage() llamado');
+        console.log('   messageInput:', messageInput);
+        console.log('   currentChatUserId:', currentChatUserId);
+        
+        if (!messageInput || !currentChatUserId) {
+            console.error('❌ No hay messageInput o currentChatUserId');
+            return;
+        }
 
         const message = messageInput.value.trim();
-        if (!message) return;
+        console.log('   Mensaje a enviar:', message);
+        
+        if (!message) {
+            console.log('   ⚠️ Mensaje vacío, abortando');
+            return;
+        }
 
         const messageData = {
             message: message,
@@ -477,9 +507,11 @@ document.addEventListener('DOMContentLoaded', () => {
             reply_to_message_id: replyingToMessage ? replyingToMessage.id : null
         };
 
+        console.log('💾 Guardando mensaje en BD...');
+        
         try {
             // Guardar en base de datos
-            const response = await fetch('/2025PracticasAAleman/HandinHand/api/save-message.php', {
+            const response = await fetch('/MisTrabajos/HandinHand/api/save-message.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -492,6 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const result = await response.json();
+            console.log('📥 Respuesta de save-message.php:', result);
 
             if (result.status === 'success') {
                 // Si había una respuesta, añadirla a los datos del mensaje
@@ -503,6 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Añadir el ID del mensaje
                 messageData.id = result.message_id;
+                console.log('🆔 ID del mensaje:', messageData.id);
 
                 // Verificar estado de Socket.IO
                 console.log('🔌 Socket conectado:', socket?.connected);
@@ -510,17 +544,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Emitir a través de Socket.io
                 if (socket && socket.connected) {
+                    console.log('📡 Emitiendo mensaje a Socket.IO...');
                     socket.emit('chat_message', messageData);
-                    console.log('✅ Mensaje emitido exitosamente');
-                    // El mensaje se mostrará cuando el servidor lo devuelva via Socket.IO
+                    console.log('✅ Mensaje emitido - Esperando respuesta del servidor');
+                    // El mensaje se mostrará cuando el servidor lo devuelva
                 } else {
-                    console.error('❌ Socket.IO NO está conectado!');
-                    console.log('🔄 Intentando reconectar...');
-                    if (socket) {
-                        socket.connect();
-                    }
-                    // Si no hay conexión Socket.IO, mostrar mensaje localmente
+                    console.warn('⚠️ Socket.IO NO está conectado');
+                    // Si no hay conexión, mostrar localmente
                     appendMessage(messageData);
+                    scrollToBottom();
                 }
 
                 // Cancelar respuesta si había una
@@ -543,22 +575,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para manejar mensajes entrantes
     function handleIncomingMessage(data) {
+        console.log('📬 Procesando mensaje entrante:', data);
+        console.log('   Chat actual abierto con:', currentChatUserId);
+        console.log('   Mi ID:', CURRENT_USER_ID);
+        console.log('   Sender ID:', data.sender_id);
+        console.log('   Receiver ID:', data.receiver_id);
+        
+        // Determinar si el mensaje es para el chat actual
         const isForCurrentChat = currentChatUserId &&
-            (data.sender_id.toString() === currentChatUserId.toString() ||
-             data.sender_id.toString() === CURRENT_USER_ID.toString());
+            ((data.sender_id.toString() === currentChatUserId.toString() && data.receiver_id.toString() === CURRENT_USER_ID.toString()) ||
+             (data.sender_id.toString() === CURRENT_USER_ID.toString() && data.receiver_id.toString() === currentChatUserId.toString()));
 
         if (isForCurrentChat) {
-            // Mensaje para el chat actual
+            // Mensaje para el chat actual (mío o del otro usuario)
+            console.log('   ✅ Mostrando mensaje en chat actual');
             appendMessage(data);
+            scrollToBottom();
 
-            // Si no es nuestro mensaje, marcarlo como leído
-            if (senderId !== myId) {
+            // Si no es mi mensaje, marcarlo como leído
+            if (data.sender_id.toString() !== CURRENT_USER_ID.toString()) {
                 markMessagesAsRead(data.sender_id);
             }
-        } else if (receiverId === myId) {
-            console.log('📬 Mensaje para otro chat, incrementando badge');
         } else if (data.receiver_id.toString() === CURRENT_USER_ID.toString()) {
-            // Mensaje para otro chat, incrementar badge
+            // Mensaje para mí pero en otro chat
+            console.log('   📬 Mensaje para otro chat, incrementando badge');
             incrementUnreadBadge(data.sender_id);
         }
     }
@@ -566,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar conteo de no leídos
     async function loadUnreadCounts() {
         try {
-            const response = await fetch('/2025PracticasAAleman/HandinHand/api/get-unread-count.php');
+            const response = await fetch('/MisTrabajos/HandinHand/api/get-unread-count.php');
             const data = await response.json();
 
             if (data.status === 'success') {
@@ -623,7 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para marcar mensajes como leídos
     async function markMessagesAsRead(senderId) {
         try {
-            await fetch('/2025PracticasAAleman/HandinHand/api/mark-as-read.php', {
+            await fetch('/MisTrabajos/HandinHand/api/mark-as-read.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
