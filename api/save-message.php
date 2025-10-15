@@ -23,16 +23,18 @@ try {
     $senderId = $_SESSION['user_id'];
     $receiverId = intval($data['receiver_id']);
     $message = trim($data['message']);
+    $replyToMessageId = isset($data['reply_to_message_id']) ? intval($data['reply_to_message_id']) : null;
 
     // Insertar el mensaje
-    $query = "INSERT INTO mensajes (sender_id, receiver_id, message, is_read, created_at) 
-              VALUES (:sender_id, :receiver_id, :message, 0, NOW())";
+    $query = "INSERT INTO mensajes (sender_id, receiver_id, mensaje, reply_to_message_id, is_read, created_at) 
+              VALUES (:sender_id, :receiver_id, :message, :reply_to, 0, NOW())";
               
     $stmt = $conn->prepare($query);
     $stmt->execute([
         ':sender_id' => $senderId,
         ':receiver_id' => $receiverId,
-        ':message' => $message
+        ':message' => $message,
+        ':reply_to' => $replyToMessageId
     ]);
     
     $messageId = $conn->lastInsertId();

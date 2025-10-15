@@ -498,6 +498,234 @@ body.body-messaging .header {
     text-align: left;
 }
 
+/* Respuesta a mensaje */
+.message-reply-preview {
+    background: rgba(162,203,141,0.15);
+    border-left: 3px solid #A2CB8D;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+/* Respuesta en mensajes recibidos (otros usuarios) */
+.message.received .message-reply-preview {
+    background: rgba(162,203,141,0.15);
+    border-left: 3px solid #A2CB8D;
+}
+
+.message.received .message-reply-preview .reply-username {
+    color: #7da869;
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.message.received .message-reply-preview .reply-text {
+    color: #4a5568;
+}
+
+/* Respuesta en mensajes enviados (míos) */
+.message.sent .message-reply-preview {
+    background: rgba(255, 255, 255, 0.3);
+    border-left: 3px solid #ffffff;
+}
+
+.message.sent .message-reply-preview .reply-username {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.message.sent .message-reply-preview .reply-text {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.message-reply-preview .reply-username {
+    color: #A2CB8D;
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.message-reply-preview .reply-text {
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
+
+/* Vista previa de respuesta en input */
+.reply-preview-container {
+    display: none;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-left: 3px solid #A2CB8D;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: -10px;
+}
+
+.reply-preview-container.show {
+    display: flex;
+}
+
+.reply-preview-info {
+    flex: 1;
+}
+
+.reply-preview-username {
+    color: #A2CB8D;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+
+.reply-preview-text {
+    color: #666;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 400px;
+}
+
+.reply-preview-close {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.reply-preview-close:hover {
+    background: rgba(0,0,0,0.05);
+    color: #333;
+}
+
+/* Menú de opciones del mensaje */
+.message-options {
+    position: relative;
+}
+
+.message-options-btn {
+    opacity: 0;
+    background: rgba(0,0,0,0.05);
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 16px;
+    transition: all 0.2s;
+    margin-left: 8px;
+}
+
+.message:hover .message-options-btn {
+    opacity: 1;
+}
+
+.message-options-btn:hover {
+    background: rgba(0,0,0,0.1);
+}
+
+.message-options-menu {
+    display: none;
+    position: absolute;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 4px 0;
+    min-width: 150px;
+    z-index: 1000;
+    top: 100%;
+    right: 0;
+}
+
+.message-options-menu.show {
+    display: block;
+}
+
+.message-option-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #333;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.message-option-item:hover {
+    background: #f8f9fa;
+}
+
+.message-option-item i {
+    width: 18px;
+    color: #666;
+}
+
+/* Menú de opciones del chat (header) */
+.chat-options-menu {
+    display: none;
+    position: absolute;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 4px 0;
+    min-width: 180px;
+    z-index: 1000;
+    top: 50px;
+    right: 10px;
+}
+
+.chat-options-menu.show {
+    display: block;
+}
+
+.chat-option-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #333;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.chat-option-item:hover {
+    background: #f8f9fa;
+}
+
+.chat-option-item.danger {
+    color: #dc3545;
+}
+
+.chat-option-item.danger:hover {
+    background: #fff5f5;
+}
+
+.chat-option-item i {
+    width: 20px;
+    color: inherit;
+}
+
 /* Input de chat */
 .chat-input-container {
     padding: 20px 25px;
@@ -775,6 +1003,195 @@ body.body-messaging .header {
     margin-top: auto;
     flex-shrink: 0;
 }
+
+/* === MODAL DE CONFIRMACIÓN DE ELIMINACIÓN === */
+.delete-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999999;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.delete-modal.show {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.delete-modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+    text-align: center;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.delete-modal-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+}
+
+.delete-modal-icon i {
+    font-size: 36px;
+    color: white;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.delete-modal-content h3 {
+    margin: 0 0 12px 0;
+    color: #2c3e50;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.delete-modal-content p {
+    margin: 0 0 28px 0;
+    color: #6c757d;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.delete-modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.delete-modal-cancel,
+.delete-modal-confirm {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    flex: 1;
+    justify-content: center;
+}
+
+.delete-modal-cancel {
+    background: #f1f3f5;
+    color: #495057;
+}
+
+.delete-modal-cancel:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.delete-modal-confirm {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+    color: white;
+}
+
+.delete-modal-confirm:hover {
+    background: linear-gradient(135deg, #ff5252 0%, #ff3838 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.delete-modal-cancel:active,
+.delete-modal-confirm:active {
+    transform: translateY(0);
+}
+
+/* === NOTIFICACIONES DEL CHAT === */
+.chat-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 999999;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    font-size: 15px;
+    font-weight: 500;
+    max-width: 350px;
+}
+
+.chat-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.chat-notification.success {
+    border-left: 4px solid #51cf66;
+}
+
+.chat-notification.success i {
+    color: #51cf66;
+    font-size: 20px;
+}
+
+.chat-notification.error {
+    border-left: 4px solid #ff6b6b;
+}
+
+.chat-notification.error i {
+    color: #ff6b6b;
+    font-size: 20px;
+}
+
+.chat-notification span {
+    color: #2c3e50;
+}
 </style>
 
 <div class="messaging-container">
@@ -850,14 +1267,32 @@ body.body-messaging .header {
                     <button class="chat-header-btn" title="Información del usuario">
                         <i class="fas fa-info-circle"></i>
                     </button>
-                    <button class="chat-header-btn" title="Más opciones">
+                    <button class="chat-header-btn" id="chat-options-btn" title="Más opciones">
                         <i class="fas fa-ellipsis-v"></i>
                     </button>
+                    <!-- Menú de opciones del chat -->
+                    <div class="chat-options-menu" id="chat-options-menu">
+                        <div class="chat-option-item danger" id="delete-chat-history">
+                            <i class="fas fa-trash"></i>
+                            <span>Eliminar historial</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="chat-messages" id="chat-messages">
                 <!-- Los mensajes se cargarán dinámicamente aquí -->
+            </div>
+
+            <!-- Vista previa de respuesta -->
+            <div class="reply-preview-container" id="reply-preview">
+                <div class="reply-preview-info">
+                    <div class="reply-preview-username" id="reply-preview-username"></div>
+                    <div class="reply-preview-text" id="reply-preview-text"></div>
+                </div>
+                <button class="reply-preview-close" id="cancel-reply">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
             <div class="chat-input-container">
@@ -877,6 +1312,25 @@ body.body-messaging .header {
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar historial -->
+<div id="deleteConfirmModal" class="delete-modal">
+    <div class="delete-modal-content">
+        <div class="delete-modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>¿Eliminar historial de chat?</h3>
+        <p>Esta acción eliminará todos los mensajes de esta conversación solo para ti. El otro usuario aún podrá ver los mensajes.</p>
+        <div class="delete-modal-buttons">
+            <button class="delete-modal-cancel" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="delete-modal-confirm" onclick="confirmDeleteHistory()">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
         </div>
     </div>
 </div>
