@@ -25,9 +25,5 @@ searchInput.addEventListener("keypress", (e) => {
 
 });
 async function enviarMensaje() {
-    const mensajeUsuario = searchInput.value.trim();
 
-    if (!mensajeUsuario) {
-        mostrarError("Por favor escribe un mensaje");
-        return;
-    }};
+    const mensajeUsuario = searchInput.value.trim();
