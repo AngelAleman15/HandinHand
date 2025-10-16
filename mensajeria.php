@@ -2061,7 +2061,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log('⚠️ Usuario no encontrado en contactos, cargando datos...');
                         
                         // Si no está en los contactos, obtener sus datos de la API
-                        fetch(`/MisTrabajos/HandinHand/api/users.php?solo_amigos=false`)
+                        fetch(`/api/users.php?solo_amigos=false`)
                             .then(response => response.json())
                             .then(data => {
                                 if (data.status === 'success') {

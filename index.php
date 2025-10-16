@@ -42,12 +42,21 @@ include 'includes/header.php';
                     <div class="cardfooter">
                         <div class="sellerinfo">
                             <div class="profile">
-                                <?php if (!empty($producto['avatar_path'])): ?>
-                                    <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
-                                         alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
-                                         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"
-                                         onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
-                                <?php endif; ?>
+                                <div class="contact-avatar">
+                                    <?php if (!empty($producto['avatar_path'])): ?>
+                                        <?php if (isLoggedIn() && $_SESSION['user_id'] != $producto['user_id']): ?>
+                                            <a href="ver-perfil.php?id=<?php echo $producto['user_id']; ?>" title="Ver perfil de <?php echo htmlspecialchars($producto['vendedor_name']); ?>">
+                                                <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
+                                                     alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
+                                                     onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
+                                            </a>
+                                        <?php else: ?>
+                                            <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
+                                                 alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
+                                                 onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                             <div class="usercontainer">
                                 <div class="name"><?php echo htmlspecialchars($producto['vendedor_name']); ?></div>

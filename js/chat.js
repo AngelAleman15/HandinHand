@@ -104,7 +104,7 @@ async function confirmDeleteHistory() {
     if (!currentChatUserId) return;
 
     try {
-        const response = await fetch('/MisTrabajos/HandinHand/api/delete-chat-history.php', {
+    const response = await fetch('/api/delete-chat-history.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar usuarios
     async function loadUsers() {
         try {
-            const response = await fetch('/MisTrabajos/HandinHand/api/users.php');
+            const response = await fetch('/api/users.php');
             const data = await response.json();
 
             if (data.status === 'success' && data.users) {
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
-            const response = await fetch('/MisTrabajos/HandinHand/api/bloquear-contacto.php', {
+            const response = await fetch('/api/bloquear-contacto.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -624,7 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar mensajes
     async function loadMessages(userId) {
         try {
-            const response = await fetch(`/MisTrabajos/HandinHand/api/get-messages.php?user_id=${userId}`);
+            const response = await fetch(`/api/get-messages.php?user_id=${userId}`);
             const data = await response.json();
 
             if (data.status === 'success' && data.messages) {
@@ -719,12 +719,14 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
+        const isPerseoAuto = messageData.is_perseo_auto == 1 || messageData.is_perseo_auto === true;
         messageDiv.innerHTML = `
             <div class="message-avatar">
                 <img src="${avatarSrc}" alt="Avatar">
             </div>
             <div class="message-content">
-                <div class="message-bubble" data-message-id="${messageData.id || 0}">
+                <div class="message-bubble perseo-bubble" data-message-id="${messageData.id || 0}">
+                    ${isPerseoAuto ? '<span class="perseo-badge">🤖</span>' : ''}
                     ${replyHTML}
                     <span class="message-text">${escapeHtml(messageData.message || messageData.mensaje)}</span>
                     ${editedLabel}
@@ -777,7 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             // Guardar en base de datos
-            const response = await fetch('/MisTrabajos/HandinHand/api/save-message.php', {
+            const response = await fetch('/api/save-message.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -885,7 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar conteo de no leídos
     async function loadUnreadCounts() {
         try {
-            const response = await fetch('/MisTrabajos/HandinHand/api/get-unread-count.php');
+            const response = await fetch('/api/get-unread-count.php');
             const data = await response.json();
 
             if (data.status === 'success') {
@@ -942,7 +944,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para marcar mensajes como leídos
     async function markMessagesAsRead(senderId) {
         try {
-            await fetch('/MisTrabajos/HandinHand/api/mark-as-read.php', {
+            await fetch('/api/mark-as-read.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1280,7 +1282,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     message_id: currentEditMessageId,
                     new_message: newMessage
-                })
+                }),
+                credentials: 'include'
             });
             
             const data = await response.json();
@@ -1415,7 +1418,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     message_id: messageId,
                     delete_for_all: deleteType === 'all'
-                })
+                }),
+                credentials: 'include'
             });
             
             const data = await response.json();

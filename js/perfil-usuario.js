@@ -247,18 +247,47 @@ async function enviarSolicitudAmistad(userId) {
                 receptor_id: userId
             })
         });
-        
         const data = await response.json();
-        
         if (data.success) {
-            alert('Solicitud de amistad enviada');
-            location.reload();
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Solicitud enviada',
+                    text: 'La solicitud de amistad fue enviada correctamente.',
+                    confirmButtonColor: '#A2CB8D',
+                    timer: 2000,
+                    timerProgressBar: true
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                alert('Solicitud de amistad enviada');
+                location.reload();
+            }
         } else {
-            alert('Error: ' + data.message);
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message,
+                    confirmButtonColor: '#A2CB8D'
+                });
+            } else {
+                alert('Error: ' + data.message);
+            }
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al enviar solicitud');
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al enviar solicitud',
+                confirmButtonColor: '#A2CB8D'
+            });
+        } else {
+            alert('Error al enviar solicitud');
+        }
     }
 }
 

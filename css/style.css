@@ -1,3 +1,23 @@
+/* Badge Perseo en burbuja de mensaje */
+.perseo-bubble {
+  position: relative;
+}
+.perseo-badge {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  background: #fff;
+  border: 2px solid #A2CB8D;
+  border-radius: 50%;
+  font-size: 22px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(162,203,141,0.15);
+  z-index: 2;
+}
 *{
     font-family: Arial, sans-serif;
     padding: 0;
@@ -1153,6 +1173,21 @@ body.no-header-padding {
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
 }
+
+/* Reborde verde claro igual que en mensajería para los avatares en index */
+.contact-avatar img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #313C26; /* borde base más oscuro para mejor contraste */
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+
+
+/* Efecto hover para avatar cuando el <a> está en hover (index) */
+
 
 /* ===== MEDIA QUERIES RESPONSIVAS ===== */
 

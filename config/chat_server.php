@@ -7,8 +7,8 @@ define('CHAT_SERVER_IP_LOCAL', '192.168.1.5');
 
 // IP PÚBLICA - Tu IP de Internet (para acceso desde fuera de tu red)
 // NOTA: Esta IP puede cambiar si tu ISP usa IP dinámica
-// Última actualización: 2025-10-15
-define('CHAT_SERVER_IP_PUBLIC', '186.54.83.245');
+// Última actualización: 2025-10-16-6:05 p.m.
+define('CHAT_SERVER_IP_PUBLIC', '186.55.23.21');
 
 // Detectar si la conexión viene de red local o externa
 function isLocalNetwork() {
