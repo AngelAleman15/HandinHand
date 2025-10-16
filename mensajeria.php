@@ -2034,68 +2034,41 @@ body.body-messaging .header {
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('user');
-    
     if (userId) {
-        console.log('🔗 Parámetro user detectado en URL:', userId);
-        
         // Esperar a que el sistema de chat esté inicializado
         const waitForChat = setInterval(() => {
-            // Verificar si la función loadUsers está disponible y los contactos están cargados
-            if (typeof window.chatInitialized !== 'undefined' && window.chatInitialized) {
+            if (typeof window.selectUserById === 'function') {
                 clearInterval(waitForChat);
-                
-                console.log('✅ Sistema de chat listo, buscando usuario...');
-                
-                // Esperar un poco más para que los contactos se carguen
-                setTimeout(() => {
-                    // Buscar el contacto en la lista
-                    const contactItem = document.querySelector(`.contact-item[data-user-id="${userId}"]`);
-                    
-                    if (contactItem) {
-                        console.log('👤 Usuario encontrado en contactos, abriendo chat...');
-                        contactItem.click();
-                        
-                        // Limpiar la URL sin recargar la página
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                    } else {
-                        console.log('⚠️ Usuario no encontrado en contactos, cargando datos...');
-                        
-                        // Si no está en los contactos, obtener sus datos de la API
-                        fetch(`/MisTrabajos/HandinHand/api/users.php?solo_amigos=false`)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.status === 'success') {
-                                    const user = data.users.find(u => u.id == userId);
-                                    
-                                    if (user) {
-                                        console.log('✅ Datos del usuario obtenidos, abriendo chat...');
-                                        
-                                        // Verificar si existe la función selectUser
-                                        if (typeof window.selectUserById === 'function') {
-                                            window.selectUserById(user.id, user.username, user.avatar);
-                                        } else {
-                                            console.error('❌ Función selectUserById no disponible');
-                                        }
-                                        
-                                        // Limpiar la URL
-                                        window.history.replaceState({}, document.title, window.location.pathname);
-                                    } else {
-                                        console.error('❌ Usuario no encontrado en la API');
-                                    }
+                // Buscar el contacto en la lista
+                const contactItem = document.querySelector(`.contact-item[data-user-id="${userId}"]`);
+                if (contactItem) {
+                    contactItem.click();
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    // Si no está en los contactos, obtener sus datos de la API
+                    fetch('api/users.php?solo_amigos=false')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                const user = data.users.find(u => u.id == userId);
+                                if (user) {
+                                    window.selectUserById(user.id, user.username, user.avatar);
+                                    window.history.replaceState({}, document.title, window.location.pathname);
+                                } else {
+                                    // Si no existe, mostrar mensaje de error
+                                    alert('No se pudo encontrar el usuario para iniciar el chat.');
                                 }
-                            })
-                            .catch(error => {
-                                console.error('❌ Error al obtener datos del usuario:', error);
-                            });
-                    }
-                }, 1000); // Esperar 1 segundo para que se carguen los contactos
+                            }
+                        })
+                        .catch(error => {
+                            alert('Error al obtener datos del usuario para el chat.');
+                        });
+                }
             }
-        }, 100); // Verificar cada 100ms
-        
+        }, 100);
         // Timeout de seguridad (10 segundos)
         setTimeout(() => {
             clearInterval(waitForChat);
-            console.warn('⏱️ Timeout: No se pudo abrir el chat automáticamente');
         }, 10000);
     }
 });
