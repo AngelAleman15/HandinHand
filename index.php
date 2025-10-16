@@ -74,7 +74,7 @@ include 'includes/header.php';
                             </div>
                         <?php else: ?>
                             <!-- Botón contactar para productos de otros usuarios -->
-                            <button class="btncontact" onclick="contactarVendedor(<?php echo $producto['id']; ?>)">Contactar</button>
+                            <button class="btncontact" onclick="contactarVendedor(<?php echo $producto['user_id']; ?>)">Contactar</button>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -118,8 +118,8 @@ include 'includes/header.php';
 
     function contactarVendedor(productoId) {
         <?php if (isLoggedIn()): ?>
-            // Si está logueado, redirigir a página de mensajes
-            window.location.href = 'mensajeria.php?producto=' + productoId;
+            // Si está logueado, redirigir al chat del vendedor
+            window.location.href = 'mensajeria.php?user=' + productoId;
         <?php else: ?>
             // Si no está logueado, redirigir a login
             alert('Debes iniciar sesión para contactar al vendedor');

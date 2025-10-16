@@ -1,4 +1,7 @@
 <?php
+    $busqueda = isset($_GET['busqueda']) ? trim($_GET['busqueda']) : '';
+    $mensajes = getMensajes(20, $busqueda); // Limitar a 20 productos
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +14,7 @@
         body {
             background: whitesmoke;
         }
-        .search-chat-background {
+        .search-chat-container {
             position: absolute;
             left: 60%;
             top: 5%;
@@ -37,13 +40,9 @@
             outline: none;
         }
     </style>
-    <?php
-        $busqueda = isset($_GET['busqueda']) ? trim($_GET['busqueda']) : '';
-        $productos = getProductos(20, $busqueda); // Limitar a 20 productos
-    ?>
-    <form method="GET" action="index.php" style="display: flex; align-items: center;">
-        <input type="text" name="busqueda" placeholder="¿Qué te interesa?" class="inputnav" value="<?php echo htmlspecialchars($busqueda); ?>">
-        <button class="btnnav" type="submit">Buscar</button>
+    <form class="search-chat-container" method="GET" action="busquesita-chat.php" style="display: flex; align-items: center;">
+        <input type="text" name="busqueda" placeholder="¿A quien buscas?" class="inputnav">
     </form>
 </body>
+<script src="js/busquesita.js">
 </html>

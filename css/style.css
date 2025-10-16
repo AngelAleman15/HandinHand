@@ -901,7 +901,7 @@ body.no-header-padding {
 }
 
 #chatbot-header::before {
-  content: "🤖";
+  content: "";
   margin-right: 8px;
 }
 

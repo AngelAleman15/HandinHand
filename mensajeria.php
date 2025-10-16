@@ -2034,14 +2034,10 @@ body.body-messaging .header {
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('user');
-    
     if (userId) {
-        console.log('🔗 Parámetro user detectado en URL:', userId);
-        
         // Esperar a que el sistema de chat esté inicializado
         const waitForChat = setInterval(() => {
-            // Verificar si la función loadUsers está disponible y los contactos están cargados
-            if (typeof window.chatInitialized !== 'undefined' && window.chatInitialized) {
+            if (typeof window.selectUserById === 'function') {
                 clearInterval(waitForChat);
                 
                 console.log('✅ Sistema de chat listo, buscando usuario...');
@@ -2061,7 +2057,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log('⚠️ Usuario no encontrado en contactos, cargando datos...');
                         
                         // Si no está en los contactos, obtener sus datos de la API
-                        fetch(`/api/users.php?solo_amigos=false`)
+                        fetch(`/MisTrabajos/HandinHand/api/users.php?solo_amigos=false`)
                             .then(response => response.json())
                             .then(data => {
                                 if (data.status === 'success') {
@@ -2090,12 +2086,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }, 1000); // Esperar 1 segundo para que se carguen los contactos
             }
-        }, 100); // Verificar cada 100ms
-        
+        }, 100);
         // Timeout de seguridad (10 segundos)
         setTimeout(() => {
             clearInterval(waitForChat);
-            console.warn('⏱️ Timeout: No se pudo abrir el chat automáticamente');
         }, 10000);
     }
 });
