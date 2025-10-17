@@ -1845,8 +1845,8 @@ body.body-messaging .header {
                     </div>
                 </div>
                 <div class="chat-header-actions">
-                    <button class="chat-header-btn" title="Buscar en conversación">
-                        <i class="fas fa-search"></i>
+                    <button class="chat-header-btn" title="Buscar en conversación" id="search-icon">
+                        <i class="fas fa-search" id="search-icon></i>
                     </button>
                     <button class="chat-header-btn" title="Información del usuario">
                         <i class="fas fa-info-circle"></i>
