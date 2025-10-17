@@ -22,10 +22,10 @@
 
     <div class="footer"<?php echo isset($footer_style) ? ' style="' . $footer_style . '"' : ''; ?>>
         <div class="socialcontainer">
-            <div class="social"><img src="img/instaicon.png" alt=""></div><p class="socialinfo">H_Hand</p>
-            <div class="social"><img src="img/xicon.png" alt=""></div><p class="socialinfo">H_Hand</p>
-            <div class="social"><img src="img/wasaicon.png" alt=""></div><p class="socialinfo">H_Hand</p>
-            <div class="social"><img src="img/phoneicon.png" alt=""></div><p class="socialinfo">H_Hand</p>
+            <div class="social"><img src="img/instaicon.png" alt="Icono de Instagram"></div><p class="socialinfo">H_Hand</p>
+            <div class="social"><img src="img/xicon.png" alt="Icono de X (Twitter)"></div><p class="socialinfo">H_Hand</p>
+            <div class="social"><img src="img/wasaicon.png" alt="Icono de Whatsapp"></div><p class="socialinfo">H_Hand</p>
+            <div class="social"><img src="img/phoneicon.png" alt="Icono de telefono"></div><p class="socialinfo">H_Hand</p>
         </div>
         <div class="footerinfo">© 2025 CodeIgnite. Todos los derechos reservados.</div>
     </div>
