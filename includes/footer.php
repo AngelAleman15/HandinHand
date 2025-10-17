@@ -1,6 +1,6 @@
     <!-- Chatbot -->
     <div id="chatbot-icon">
-        <img src="img/Hand(sinfondo).png" style="width: 2.5rem;">
+        <img src="img/Hand(sinfondo).png" style="width: 2.5rem;" alt="chatbot-icon">
     </div>
     <div id="chatbot-container" class="hidden">
         <div id="chatbot-header">
