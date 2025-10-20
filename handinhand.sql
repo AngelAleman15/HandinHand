@@ -79,9 +79,6 @@ CREATE TABLE IF NOT EXISTS `mensajes` (
 
 -- --------------------------------------------------------
 
---
--- Estructura de tabla para la tabla `productos`
---
 
 DROP TABLE IF EXISTS `productos`;
 CREATE TABLE IF NOT EXISTS `productos` (
@@ -97,6 +94,28 @@ CREATE TABLE IF NOT EXISTS `productos` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Mejoras: GPS, estado flexible, múltiples categorías, imágenes
+ALTER TABLE `productos`
+  ADD COLUMN `latitud` DECIMAL(10,8) DEFAULT NULL,
+  ADD COLUMN `longitud` DECIMAL(11,8) DEFAULT NULL,
+  MODIFY COLUMN `estado` VARCHAR(50) DEFAULT 'disponible';
+
+CREATE TABLE IF NOT EXISTS `producto_categorias` (
+  `producto_id` INT NOT NULL,
+  `categoria_id` INT NOT NULL,
+  PRIMARY KEY (`producto_id`, `categoria_id`),
+  FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`),
+  FOREIGN KEY (`categoria_id`) REFERENCES `categorias`(`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `producto_imagenes` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `producto_id` INT NOT NULL,
+  `imagen` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`)
+);
 
 --
 -- Volcado de datos para la tabla `productos`

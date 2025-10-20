@@ -1,3 +1,57 @@
+/* Notificación visual para index y chat */
+.chat-notification {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background: #fff;
+  color: #313C26;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(162,203,141,0.15);
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 999999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  transform: translateY(-20px);
+}
+.chat-notification.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.chat-notification.success {
+  border: 2px solid #A2CB8D;
+}
+.chat-notification.error {
+  border: 2px solid #e74c3c;
+  color: #e74c3c;
+}
+/* Scrollbar personalizado igual que mensajeria */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: #A2CB8D;
+  border-radius: 10px;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: #313C26;
+}
 /* Badge Perseo en burbuja de mensaje */
 .perseo-bubble {
   position: relative;
@@ -423,12 +477,14 @@ a{
 }
 
 .btncontact{
-    color: white;
-    background-color: rgba(0, 0, 0, 0.755);
-    padding: 8px 8px;
-    border-radius: 5px;
-    border: none;
-    margin: 25px 10px 0px 5px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.755);
+  padding: 8px 8px;
+  border-radius: 5px;
+  border: none;
+  margin: 25px 10px 0px 5px;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .btncontact:hover{

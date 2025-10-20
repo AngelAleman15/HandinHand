@@ -1,4 +1,15 @@
 // Variables globales
+// Función global para abrir el chat temporal amarillo al contactar desde index.php
+window.contactarVendedor = function(userId) {
+    // Verificar si el usuario está logueado
+    if (window.IS_LOGGED_IN) {
+        window.location.href = '/mensajeria.php?user=' + userId;
+    } else {
+        showNotification('Debes iniciar sesión para usar la mensajería.', 'error');
+    }
+};
+// Detectar si el usuario está logueado (variable generada en index.php)
+window.IS_LOGGED_IN = window.IS_LOGGED_IN || false;
 let currentChatUserId = null;
 let socket = null;
 let onlineUsers = new Set();
