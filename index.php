@@ -130,9 +130,16 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
             // Si está logueado, redirigir al chat del vendedor
             window.location.href = 'mensajeria.php?user=' + productoId;
         <?php else: ?>
-            // Si no está logueado, redirigir a login
-            alert('Debes iniciar sesión para contactar al vendedor');
-            window.location.href = 'iniciarsesion.php';
+            // Si no está logueado, mostrar notificación personalizada
+            Swal.fire({
+                icon: 'info',
+                title: 'Inicia sesión para contactar',
+                text: 'Debes iniciar sesión para contactar al vendedor.',
+                confirmButtonColor: '#6a994e',
+                confirmButtonText: 'Iniciar sesión'
+            }).then(() => {
+                window.location.href = 'iniciarsesion.php';
+            });
         <?php endif; ?>
     }
 

@@ -9,12 +9,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
 const resultsContainer = document.getElementById("results-container");
 
-let SearchOpen = false;
+let busquedaContainer= false;
 
 busquedaIcon.addEventListener("click", () => {
     busquedaContainer.classList.remove("hidden");
     busquedaIcon.style.display = "none";
-    searchOpen = true;
+    busquedaContainer = true;
 });
 
 searchInput.addEventListener("keypress", (e) => {
