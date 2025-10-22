@@ -3,6 +3,11 @@ let currentChatUserId = null;
 let socket = null;
 let onlineUsers = new Set();
 let replyingToMessage = null; // Para almacenar el mensaje al que se está respondiendo
+let welcomeScreen = null;
+let chatPanel = null;
+let chatMessages = null;
+let messageInput = null;
+let sendBtn = null;
 
 // Función para mostrar notificaciones
 function showNotification(message, type = 'success') {
@@ -104,7 +109,7 @@ async function confirmDeleteHistory() {
     if (!currentChatUserId) return;
 
     try {
-        const response = await fetch('/MisTrabajos/HandinHand/api/delete-chat-history.php', {
+    const response = await fetch('/api/delete-chat-history.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -192,166 +197,272 @@ function showErrorNotification(message) {
 
 // Esperar a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Inicializando sistema de chat...');
+    // Estado global para indicador de escribiendo
+    let typingFromUserId = null;
+    // Usar el socket global para mantener online en toda la web
+    if (window.globalSocket) {
+        socket = window.globalSocket;
+    }
+    // Si no existe, inicializar solo en mensajería
+    if (!socket && window.io && window.CHAT_SERVER_URL) {
+        socket = io(window.CHAT_SERVER_URL, { transports: ['websocket', 'polling'] });
+        socket.emit('user_connected', window.CURRENT_USER_ID);
+    }
 
-    // Elementos del DOM
-    const contactsList = document.getElementById('contacts-list');
-    const chatMessages = document.getElementById('chat-messages');
-    const messageInput = document.getElementById('message-input');
-    const sendBtn = document.getElementById('send-btn');
-    const searchInput = document.getElementById('search-contacts');
-    const welcomeScreen = document.getElementById('welcome-screen');
-    const chatPanel = document.getElementById('chat-panel');
-    const chatOptionsBtn = document.getElementById('chat-options-btn');
-    const chatOptionsMenu = document.getElementById('chat-options-menu');
-    const deleteChatHistoryBtn = document.getElementById('delete-chat-history');
-    const replyPreview = document.getElementById('reply-preview');
-    const cancelReplyBtn = document.getElementById('cancel-reply');
+    // --- INDICADOR DE ESCRIBIENDO ---
+    let typingTimeout = null;
+    let isTyping = false;
+    if (messageInput) {
+        messageInput.addEventListener('input', () => {
+            if (!currentChatUserId || !socket) return;
+            if (!isTyping) {
+                socket.emit('typing', { to: currentChatUserId, from: CURRENT_USER_ID });
+                isTyping = true;
+            }
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                socket.emit('stop_typing', { to: currentChatUserId, from: CURRENT_USER_ID });
+                isTyping = false;
+            }, 1200);
+        });
+    }
 
-    // Inicializar Socket.IO
-    initializeSocket();
+    // Mostrar animación de escribiendo y recibir mensajes en tiempo real
+    if (socket) {
+        socket.on('typing', ({ from }) => {
+            // Comparar como string para evitar errores de tipo
+            if (currentChatUserId && String(from) === String(currentChatUserId)) {
+                typingFromUserId = from;
+                showTypingIndicator();
+            }
+        });
+        socket.on('stop_typing', ({ from }) => {
+            if (currentChatUserId && String(from) === String(currentChatUserId)) {
+                typingFromUserId = null;
+                hideTypingIndicator();
+            }
+        });
+        // Restaurar recepción de mensajes en tiempo real
+        socket.on('chat_message', (data) => {
+            handleIncomingMessage(data);
+            // Refrescar lista de usuarios para reordenar chats
+            loadUsers();
+            // Si el usuario estaba escribiendo, volver a mostrar el indicador
+            if (typingFromUserId && currentChatUserId && typingFromUserId == currentChatUserId) {
+                showTypingIndicator();
+            }
+        });
+        // Actualizar estado online en tiempo real
+        socket.on('users_online', updateOnlineStatus);
+    }
 
-    // Cargar usuarios
+    // Funciones para mostrar/ocultar el indicador de escribiendo
+    function showTypingIndicator() {
+        // Si se cambia de chat, limpiar el indicador
+        const typingDivOld = document.getElementById('typing-indicator');
+        if (typingDivOld && typingFromUserId && String(typingFromUserId) !== String(currentChatUserId)) {
+            typingDivOld.style.display = 'none';
+            typingFromUserId = null;
+        }
+        let typingDiv = document.getElementById('typing-indicator');
+        if (!typingDiv) {
+            typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `<div class="typing-bubble"><span></span><span></span><span></span></div>`;
+            typingDiv.style.display = 'flex';
+            typingDiv.style.alignItems = 'center';
+            typingDiv.style.margin = '8px 0 8px 8px';
+            if (chatMessages) chatMessages.appendChild(typingDiv);
+        } else {
+            typingDiv.style.display = 'flex';
+        }
+        scrollToBottom();
+    }
+    function hideTypingIndicator() {
+        const typingDiv = document.getElementById('typing-indicator');
+        if (typingDiv) typingDiv.style.display = 'none';
+    }
+    // Inicializar sendBtn global
+    sendBtn = document.getElementById('send-btn');
+    // Inicializar messageInput global
+    messageInput = document.getElementById('message-input');
+    // Inicializar chatMessages global
+    chatMessages = document.getElementById('chat-messages');
+
+    // Habilitar envío de mensajes con click y Enter
+    if (sendBtn) {
+        sendBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await sendMessage();
+        });
+    }
+    if (messageInput) {
+        messageInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !sendBtn.disabled) {
+                e.preventDefault();
+                await sendMessage();
+            }
+        });
+    }
+
+    // Inicializar welcomeScreen y chatPanel globales
+    welcomeScreen = document.getElementById('welcome-screen');
+    chatPanel = document.getElementById('chat-panel');
+
+    // --- LÓGICA DE PESTAÑAS CONTACTOS/SOLICITUDES ---
+
+    // Declarar variables de pestañas primero
+
+    const tabContactos = document.getElementById('tab-contactos');
+    const tabSolicitudes = document.getElementById('tab-solicitudes');
+    window.contactsList = document.getElementById('contacts-list');
+    const solicitudesList = document.getElementById('solicitudes-list');
+    const contactsSearchWrapper = document.getElementById('contacts-search-wrapper');
+
+    // Badge azul para solicitudes pendientes (después de declarar tabSolicitudes)
+    const solicitudesBadge = document.createElement('span');
+    solicitudesBadge.id = 'solicitudes-badge';
+    solicitudesBadge.style.display = 'none';
+    solicitudesBadge.style.background = '#3498db';
+    solicitudesBadge.style.color = 'white';
+    solicitudesBadge.style.fontSize = '12px';
+    solicitudesBadge.style.fontWeight = 'bold';
+    solicitudesBadge.style.borderRadius = '10px';
+    solicitudesBadge.style.padding = '2px 8px';
+    solicitudesBadge.style.marginLeft = '6px';
+    solicitudesBadge.style.verticalAlign = 'middle';
+    if (tabSolicitudes) tabSolicitudes.appendChild(solicitudesBadge);
+
+    // Cargar contactos al iniciar la mensajería
     loadUsers();
 
-    // Eventos de búsqueda
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            filterContacts(e.target.value);
+    if (tabContactos && tabSolicitudes && window.contactsList && solicitudesList) {
+        tabContactos.addEventListener('click', () => {
+            tabContactos.classList.add('active');
+            tabSolicitudes.classList.remove('active');
+            window.contactsList.style.display = '';
+            solicitudesList.style.display = 'none';
+            contactsSearchWrapper.style.display = '';
+        });
+        tabSolicitudes.addEventListener('click', () => {
+            tabSolicitudes.classList.add('active');
+            tabContactos.classList.remove('active');
+            window.contactsList.style.display = 'none';
+            solicitudesList.style.display = '';
+            contactsSearchWrapper.style.display = 'none';
+            loadSolicitudesPendientes();
         });
     }
 
-    // Eventos para menú de opciones del chat
-    if (chatOptionsBtn) {
-        chatOptionsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            chatOptionsMenu.classList.toggle('show');
-        });
-    }
-
-    // Cerrar menú al hacer clic fuera
-    document.addEventListener('click', () => {
-        if (chatOptionsMenu) {
-            chatOptionsMenu.classList.remove('show');
-        }
-        // Cerrar todos los menús de opciones de mensajes
-        document.querySelectorAll('.message-options-menu').forEach(menu => {
-            menu.classList.remove('show');
-        });
-    });
-
-    // Event listener para cerrar modal al hacer clic fuera
-    const deleteModal = document.getElementById('deleteConfirmModal');
-    if (deleteModal) {
-        deleteModal.addEventListener('click', (e) => {
-            if (e.target === deleteModal) {
-                closeDeleteModal();
-            }
-        });
-    }
-
-    // Eliminar historial de chat
-    if (deleteChatHistoryBtn) {
-        deleteChatHistoryBtn.addEventListener('click', deleteChatHistory);
-    }
-
-    // Cancelar respuesta
-    if (cancelReplyBtn) {
-        cancelReplyBtn.addEventListener('click', cancelReply);
-    }
-
-    // Eventos de envío de mensajes
-    if (messageInput) {
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-    }
-
-    if (sendBtn) {
-        sendBtn.addEventListener('click', sendMessage);
-    }
-
-    // Función para inicializar Socket.IO
-    function initializeSocket() {
-        try {
-            console.log('📡 Conectando a Socket.IO en:', CHAT_SERVER_URL);
-            socket = io(CHAT_SERVER_URL);
-
-            socket.on('connect', () => {
-                console.log('✅ Conectado al servidor de chat');
-                socket.emit('user_connected', CURRENT_USER_ID);
-            });
-
-            socket.on('disconnect', () => {
-                console.log('❌ Desconectado del servidor de chat');
-            });
-
-            socket.on('chat_message', (data) => {
-                console.log('🔔 Evento chat_message recibido del servidor!', data);
-                handleIncomingMessage(data);
-            });
-
-            socket.on('users_online', (users) => {
-                console.log('👥 Evento users_online recibido:', users);
-                updateOnlineStatus(users);
-            });
-
-            socket.on('message_edited', (data) => {
-                console.log('📝 Mensaje editado recibido via Socket.IO:', data);
-                console.log('   Buscando mensaje con ID:', data.message_id);
-                
-                const messageBubble = document.querySelector(`.message-bubble[data-message-id="${data.message_id}"]`);
-                console.log('   Mensaje encontrado:', !!messageBubble);
-                
-                if (messageBubble) {
-                    const messageText = messageBubble.querySelector('.message-text');
-                    console.log('   messageText encontrado:', !!messageText);
-                    
-                    if (messageText) {
-                        console.log('   Texto anterior:', messageText.textContent);
-                        messageText.textContent = data.new_message;
-                        console.log('   Texto actualizado:', data.new_message);
-                        
-                        // Agregar indicador de editado si no existe
-                        let editedLabel = messageBubble.querySelector('.message-edited');
-                        if (!editedLabel) {
-                            editedLabel = document.createElement('span');
-                            editedLabel.className = 'message-edited';
-                            editedLabel.textContent = ' (editado)';
-                            messageBubble.appendChild(editedLabel);
-                            console.log('   ✅ Etiqueta (editado) agregada');
+    // --- FUNCIÓN PARA CARGAR SOLICITUDES DE AMISTAD ---
+    async function loadSolicitudesPendientes() {
+        // Delegar eventos para aceptar/rechazar después de renderizar
+    setTimeout(() => {
+            solicitudesList.querySelectorAll('.btn-aceptar-solicitud').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const solicitanteId = btn.getAttribute('data-id');
+                    btn.disabled = true;
+                    btn.textContent = 'Aceptando...';
+                    try {
+                        const resp = await fetch('/api/amistades.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'aceptar_solicitud', solicitante_id: solicitanteId })
+                        });
+                        const res = await resp.json();
+                        if (res.status === 'success' || res.success === true) {
+                            btn.textContent = 'Aceptada';
+                            btn.style.background = '#51cf66';
+                            setTimeout(loadSolicitudesPendientes, 800);
+                        } else {
+                            btn.textContent = res.message || 'Error';
+                            btn.style.background = '#ff6b6b';
                         }
+                    } catch (err) {
+                        btn.textContent = 'Error de red';
+                        btn.style.background = '#ff6b6b';
                     }
+                });
+            });
+            solicitudesList.querySelectorAll('.btn-rechazar-solicitud').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const solicitanteId = btn.getAttribute('data-id');
+                    btn.disabled = true;
+                    btn.textContent = 'Rechazando...';
+                    try {
+                        const resp = await fetch('/api/amistades.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'rechazar_solicitud', solicitante_id: solicitanteId })
+                        });
+                        const res = await resp.json();
+                        if (res.status === 'success' || res.success === true) {
+                            btn.textContent = 'Rechazada';
+                            btn.style.background = '#888';
+                            setTimeout(loadSolicitudesPendientes, 800);
+                        } else {
+                            btn.textContent = res.message || 'Error';
+                            btn.style.background = '#ff6b6b';
+                        }
+                    } catch (err) {
+                        btn.textContent = 'Error de red';
+                        btn.style.background = '#ff6b6b';
+                    }
+                });
+            });
+        }, 300);
+        solicitudesList.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">Cargando solicitudes...</div>';
+        try {
+            const response = await fetch('/api/amistades.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'listar_solicitudes_pendientes' })
+            });
+            const result = await response.json();
+            console.log('[Solicitudes] Respuesta del backend:', result);
+            const isSuccess = (result.status === 'success' || result.success === true);
+            // Mostrar badge azul si hay solicitudes
+            if (window.solicitudesBadge) {
+                if (isSuccess && Array.isArray(result.data) && result.data.length > 0) {
+                    window.solicitudesBadge.textContent = result.data.length;
+                    window.solicitudesBadge.style.display = 'inline-block';
                 } else {
-                    console.warn('   ⚠️ No se encontró el mensaje con data-message-id=' + data.message_id);
+                    window.solicitudesBadge.textContent = '';
+                    window.solicitudesBadge.style.display = 'none';
                 }
-            });
-
-            socket.on('message_deleted', (data) => {
-                console.log('🗑️ Mensaje eliminado recibido:', data);
-                
-                const messageDiv = document.querySelector(`[data-message-id="${data.message_id}"]`)?.closest('.message');
-                if (messageDiv) {
-                    messageDiv.remove();
-                }
-            });
-
-            socket.on('error', (error) => {
-                console.error('Error de Socket.io:', error);
-            });
-
+            }
+            if (isSuccess && Array.isArray(result.data) && result.data.length > 0) {
+                solicitudesList.innerHTML = result.data.map(s => `
+                    <div class="solicitud-item" style="display:flex;align-items:center;gap:12px;padding:14px 0 14px 0;border-bottom:1px solid #f0f0f0;background:rgba(162,203,141,0.06);border-radius:10px;flex-wrap:wrap;">
+                        <div style="flex-shrink:0;">
+                            <a href="ver-perfil.php?id=${s.solicitante_id}" target="_blank" tabindex="-1">
+                                <img src="${s.solicitante_avatar || 'img/usuario.png'}" alt="${s.solicitante_username}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px rgba(162,203,141,0.10);border:2px solid #e9ecef;cursor:pointer;">
+                            </a>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+                            <span style="font-weight:700;font-size:17px;display:inline-block;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#222;max-width:170px;">${s.solicitante_nombre || s.solicitante_username}</span>
+                            <span style="font-size:14px;color:#3498db;display:inline-block;vertical-align:middle;margin-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;">@${s.solicitante_username}</span>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;min-width:90px;max-width:110px;width:100%;align-items:stretch;">
+                            <button class="btn-aceptar-solicitud" data-id="${s.solicitante_id}" style="background:linear-gradient(135deg,#A2CB8D,#7ba05a);color:white;border:none;padding:7px 0;border-radius:7px;cursor:pointer;font-weight:600;box-shadow:0 2px 8px rgba(162,203,141,0.10);transition:background 0.2s;min-width:70px;max-width:100px;white-space:nowrap;">Aceptar</button>
+                            <button class="btn-rechazar-solicitud" data-id="${s.solicitante_id}" style="background:linear-gradient(135deg,#ff6b6b,#ff8787);color:white;border:none;padding:7px 0;border-radius:7px;cursor:pointer;font-weight:600;box-shadow:0 2px 8px rgba(255,107,107,0.10);transition:background 0.2s;min-width:70px;max-width:100px;white-space:nowrap;">Rechazar</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                solicitudesList.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">No tienes solicitudes pendientes.</div>';
+            }
         } catch (error) {
-            console.error('Error al inicializar Socket.io:', error);
+            solicitudesList.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">Error al cargar solicitudes.</div>';
+            console.error('Error al cargar solicitudes pendientes:', error);
         }
     }
 
     // Función para cargar usuarios
     async function loadUsers() {
         try {
-            const response = await fetch('/MisTrabajos/HandinHand/api/users.php');
+            // Usar ruta relativa a la raíz para producción
+            const response = await fetch('/api/users.php');
             const data = await response.json();
 
             if (data.status === 'success' && data.users) {
@@ -365,9 +476,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para renderizar contactos
     function renderContacts(users) {
-        if (!contactsList) return;
+        if (!window.contactsList) return;
 
-        contactsList.innerHTML = users.map(user => {
+        // Ordenar usuarios por fecha del último mensaje (descendente), los que no tienen mensaje van al final
+        users.sort((a, b) => {
+            if (a.last_message_time && b.last_message_time) {
+                return new Date(b.last_message_time) - new Date(a.last_message_time);
+            } else if (a.last_message_time) {
+                return -1;
+            } else if (b.last_message_time) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        window.contactsList.innerHTML = users.map(user => {
             // Formatear el último mensaje
             let lastMessagePreview = 'Haz clic para chatear';
             if (user.last_message) {
@@ -411,10 +535,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </span>
             ` : '';
             
+            const avatarSrc = user.avatar && user.avatar !== '' ? user.avatar : 'img/usuario.png';
             return `
                 <div class="contact-item ${!user.es_amigo ? 'no-amigo' : ''}" data-user-id="${user.id}" data-username="${user.username}">
                     <div class="contact-avatar">
-                        <img src="${user.avatar}" alt="${user.username}">
+                        <img src="${avatarSrc}" alt="${user.username}" onerror="this.onerror=null;this.src='img/usuario.png';">
                         <div class="status-indicator offline" data-user-id="${user.id}"></div>
                         <span class="unread-badge" data-user-id="${user.id}">0</span>
                     </div>
@@ -496,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
-            const response = await fetch('/MisTrabajos/HandinHand/api/bloquear-contacto.php', {
+            const response = await fetch('/api/bloquear-contacto.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -624,7 +749,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar mensajes
     async function loadMessages(userId) {
         try {
-            const response = await fetch(`/MisTrabajos/HandinHand/api/get-messages.php?user_id=${userId}`);
+            const response = await fetch(`/api/get-messages.php?user_id=${userId}`);
             const data = await response.json();
 
             if (data.status === 'success' && data.messages) {
@@ -643,9 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para agregar un mensaje al chat
     function appendMessage(messageData) {
         const chatMessagesElement = document.getElementById('chat-messages');
-        console.log('📝 appendMessage llamado');
-        console.log('   chatMessages element:', chatMessagesElement);
-        console.log('   messageData:', messageData);
+    // ...debug removido...
         
         if (!chatMessagesElement) {
             console.error('❌ ERROR: No se encontró el elemento chat-messages');
@@ -741,7 +864,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        console.log('   ✅ Agregando mensaje al DOM');
+    // ...debug removido...
         chatMessagesElement.appendChild(messageDiv);
         scrollToBottom();
     }
@@ -773,11 +896,21 @@ document.addEventListener('DOMContentLoaded', () => {
             reply_to_message_id: replyingToMessage ? replyingToMessage.id : null
         };
 
+        // Emitir a través de Socket.io inmediatamente
+        if (socket && socket.connected) {
+            console.log('� Emitiendo mensaje a Socket.IO...');
+            socket.emit('chat_message', messageData);
+            console.log('✅ Mensaje emitido - Esperando respuesta del servidor');
+        } else {
+            // ...debug removido...
+            appendMessage(messageData);
+            scrollToBottom();
+        }
+
+        // Guardar en base de datos en segundo plano
         console.log('💾 Guardando mensaje en BD...');
-        
         try {
-            // Guardar en base de datos
-            const response = await fetch('/MisTrabajos/HandinHand/api/save-message.php', {
+            const response = await fetch('/api/save-message.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -788,10 +921,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     reply_to_message_id: replyingToMessage ? replyingToMessage.id : null
                 })
             });
-
             const result = await response.json();
             console.log('📥 Respuesta de save-message.php:', result);
-
             if (result.status === 'success') {
                 // Si había una respuesta, añadirla a los datos del mensaje
                 if (replyingToMessage) {
@@ -799,37 +930,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     messageData.reply_to_username = replyingToMessage.sender;
                     messageData.reply_to_message_id = replyingToMessage.id;
                 }
-
                 // Añadir el ID del mensaje
                 messageData.id = result.message_id;
                 console.log('🆔 ID del mensaje:', messageData.id);
-
-                // Verificar estado de Socket.IO
-                console.log('🔌 Socket conectado:', socket?.connected);
-                console.log('🔌 Socket ID:', socket?.id);
-                
-                // Emitir a través de Socket.io
-                if (socket && socket.connected) {
-                    console.log('📡 Emitiendo mensaje a Socket.IO...');
-                    socket.emit('chat_message', messageData);
-                    console.log('✅ Mensaje emitido - Esperando respuesta del servidor');
-                    // El mensaje se mostrará cuando el servidor lo devuelva
-                } else {
-                    console.warn('⚠️ Socket.IO NO está conectado');
-                    // Si no hay conexión, mostrar localmente
-                    appendMessage(messageData);
-                    scrollToBottom();
-                }
-
                 // Cancelar respuesta si había una
                 if (replyingToMessage) {
                     cancelReply();
                 }
-
                 // Limpiar input
                 messageInput.value = '';
                 messageInput.focus();
-                
                 // Actualizar vista previa del contacto
                 updateContactPreview(currentChatUserId, message, 'Tú');
             } else {
@@ -885,7 +995,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar conteo de no leídos
     async function loadUnreadCounts() {
         try {
-            const response = await fetch('/MisTrabajos/HandinHand/api/get-unread-count.php');
+            const response = await fetch('/api/get-unread-count.php');
             const data = await response.json();
 
             if (data.status === 'success') {
@@ -942,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para marcar mensajes como leídos
     async function markMessagesAsRead(senderId) {
         try {
-            await fetch('/MisTrabajos/HandinHand/api/mark-as-read.php', {
+            await fetch('/api/mark-as-read.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1565,4 +1675,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Flag para indicar que el chat está listo
     window.chatInitialized = true;
+
 });
+

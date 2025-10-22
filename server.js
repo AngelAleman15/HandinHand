@@ -28,44 +28,64 @@ const connectedUsers = new Map();
 
 // Socket.io
 io.on('connection', (socket) => {
+
+    // Evento typing
+    socket.on('typing', ({ to, from }) => {
+        const receiverSocket = connectedUsers.get(String(to));
+        if (receiverSocket) {
+            io.to(receiverSocket).emit('typing', { from });
+        }
+    });
+    socket.on('stop_typing', ({ to, from }) => {
+        const receiverSocket = connectedUsers.get(String(to));
+        if (receiverSocket) {
+            io.to(receiverSocket).emit('stop_typing', { from });
+        }
+    });
     console.log('Usuario conectado:', socket.id);
 
     // Cuando un usuario se identifica
     socket.on('user_connected', async (userId) => {
-        console.log('👤 Usuario identificado:', userId, 'Socket:', socket.id);
-        
-        // Si el usuario ya estaba conectado, eliminar el socket antiguo
-        const oldSocketId = connectedUsers.get(userId);
-        if (oldSocketId && oldSocketId !== socket.id) {
-            console.log('   ⚠️ Usuario ya tenía un socket, actualizando:', oldSocketId, '->', socket.id);
+        console.log('👤 Evento user_connected recibido:', userId, 'Socket:', socket.id);
+        try {
+            if (!userId) {
+                console.warn('   ⚠️ user_connected recibido sin userId válido');
+                return;
+            }
+            const userKey = String(userId);
+            const oldSocketId = connectedUsers.get(userKey);
+            if (oldSocketId && oldSocketId !== socket.id) {
+                console.log('   ⚠️ Usuario ya tenía un socket, eliminando socket anterior:', oldSocketId, '->', socket.id);
+                // Opcional: desconectar el socket anterior si sigue activo
+                // io.sockets.sockets.get(oldSocketId)?.disconnect(true);
+            }
+            connectedUsers.set(userKey, socket.id);
+            console.log('   ✅ Usuario registrado en connectedUsers:', userKey, '->', socket.id);
+            console.log('   📊 Usuarios conectados:', Array.from(connectedUsers.entries()));
+            io.emit('users_online', Array.from(connectedUsers.keys()));
+        } catch (err) {
+            console.error('   ❌ Error en user_connected:', err);
         }
-        
-        // Guardar el nuevo socket
-        connectedUsers.set(userId, socket.id);
-        
-        console.log('   📊 Usuarios conectados:', Array.from(connectedUsers.entries()));
-        
-        // Notificar a todos los usuarios conectados
-        io.emit('users_online', Array.from(connectedUsers.keys()));
     });
 
     // Cuando un usuario envía un mensaje
     socket.on('chat_message', async (data) => {
-        console.log('📨 Mensaje recibido:', data);
+    const serverEmitTime = Date.now();
+    console.log('📨 Mensaje recibido:', data, '| EmitTime:', serverEmitTime);
         console.log('   Emisor:', data.sender_id, 'Receptor:', data.receiver_id);
         console.log('   📊 Map actual de usuarios:', Array.from(connectedUsers.entries()));
         
         // Obtener el socket del destinatario y del emisor
-        const receiverSocket = connectedUsers.get(data.receiver_id.toString());
-        const senderSocket = connectedUsers.get(data.sender_id.toString());
+            const receiverSocket = connectedUsers.get(String(data.receiver_id));
+            const senderSocket = connectedUsers.get(String(data.sender_id));
         
         console.log('   Socket receptor (' + data.receiver_id + '):', receiverSocket || 'No encontrado');
         console.log('   Socket emisor (' + data.sender_id + '):', senderSocket || 'No encontrado');
         
         // Enviar el mensaje al destinatario
         if (receiverSocket) {
-            console.log('   ✅ Enviando mensaje al receptor en socket:', receiverSocket);
-            io.to(receiverSocket).emit('chat_message', data);
+            console.log('   ✅ Enviando mensaje al receptor en socket:', receiverSocket, '| EmitTime:', serverEmitTime);
+            io.to(receiverSocket).emit('chat_message', { ...data, serverEmitTime });
         } else {
             console.log('   ❌ Receptor NO encontrado en connectedUsers');
         }
@@ -110,14 +130,20 @@ io.on('connection', (socket) => {
     // Cuando un usuario se desconecta
     socket.on('disconnect', () => {
         console.log('Usuario desconectado:', socket.id);
-        // Encontrar y eliminar el usuario desconectado
+        let removedUser = null;
         for (const [userId, socketId] of connectedUsers.entries()) {
             if (socketId === socket.id) {
                 connectedUsers.delete(userId);
+                removedUser = userId;
                 break;
             }
         }
-        // Notificar a todos los usuarios conectados
+        if (removedUser) {
+            console.log('   🗑️ Usuario eliminado de connectedUsers:', removedUser);
+        } else {
+            console.log('   ⚠️ Desconexión de socket no asociado a ningún usuario registrado');
+        }
+        console.log('   📊 Usuarios conectados tras desconexión:', Array.from(connectedUsers.entries()));
         io.emit('users_online', Array.from(connectedUsers.keys()));
     });
 });

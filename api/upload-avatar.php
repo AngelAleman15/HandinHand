@@ -1,4 +1,8 @@
 <?php
+// Mostrar errores para depuración
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 // ENDPOINT PARA SUBIR Y ACTUALIZAR AVATAR DEL USUARIO
 // Esta API maneja la subida de imágenes de perfil con validaciones de seguridad
 // Permite recorte de imagen y actualiza la base de datos
@@ -88,10 +92,14 @@ try {
     }
     
     // GENERAR NOMBRE ÚNICO PARA EL ARCHIVO
-    // uniqid(): Genera un ID único basado en el timestamp
-    // $user['id']: ID del usuario para que cada uno tenga su espacio
-    // Siempre usamos .jpg porque el recorte se guarda como JPEG
-    $fileName = 'avatar_' . $user['id'] . '_' . uniqid() . '.jpg';
+    // Generar nombre personalizado: avatar_nombre_apellido_YYYYMMDD_HHMMSS_id_uniqid.jpg
+    $nombre = isset($user['fullname']) ? preg_replace('/[^A-Za-z0-9]/', '', explode(' ', $user['fullname'])[0]) : 'nombre';
+    $apellido = isset($user['username']) ? preg_replace('/[^A-Za-z0-9]/', '', $user['username']) : 'apellido';
+    $fecha = date('Ymd');
+    $hora = date('His');
+    $id = $user['id'];
+    $uniq = uniqid();
+    $fileName = "avatar_{$nombre}_{$apellido}_{$fecha}_{$hora}_{$id}_{$uniq}.jpg";
     $filePath = $uploadDir . $fileName;
     
     // PROCESAR IMAGEN RECORTADA SI VIENE EN LA SOLICITUD

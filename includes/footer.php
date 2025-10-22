@@ -2,7 +2,7 @@
     <div id="chatbot-icon">
         <img src="img/Hand(sinfondo).png" style="width: 2.5rem;" alt="chatbot-icon">
     </div>
-    <div id="chatbot-container" class="hidden">
+    <div id="chatbot-container" class="hidden" inert>
         <div id="chatbot-header">
             <span>Perseo</span>
             <button id="close-btn">&times;</button>
@@ -31,8 +31,8 @@
     </div>
 
     <!-- Scripts básicos -->
-    <script src="js/perseo-actions.js?v=<?php echo time(); ?>"></script>
-    <script src="js/dropdownmenu.js?v=<?php echo time(); ?>"></script>
-    <script src="js/chatbot.js?v=<?php echo time(); ?>"></script>
+    <script src="/js/perseo-actions.js?v=<?php echo time(); ?>"></script>
+    <script src="/js/dropdownmenu.js?v=<?php echo time(); ?>"></script>
+    <script src="/js/chatbot.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

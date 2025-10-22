@@ -23,6 +23,7 @@ try {
     // Obtener la lista de usuarios excluyendo el usuario actual
     $currentUserId = $_SESSION['user_id'] ?? 0;
     error_log("API users.php - Usuario actual ID: " . $currentUserId);
+    error_log("API users.php - SESSION: " . print_r($_SESSION, true));
     
     // Verificar si se solicita solo amigos (por defecto: true)
     $soloAmigos = isset($_GET['solo_amigos']) ? filter_var($_GET['solo_amigos'], FILTER_VALIDATE_BOOLEAN) : true;
@@ -58,12 +59,14 @@ try {
             ORDER BY sort_date DESC
         ";
         $stmt = $conn->prepare($query);
-        $stmt->execute([
+        $params = [
             $currentUserId, $currentUserId,  // Para el JOIN de amistades
             $currentUserId,                  // Para el CASE en subquery
             $currentUserId, $currentUserId,  // Para el WHERE en subquery
             $currentUserId                   // Para el WHERE principal
-        ]);
+        ];
+        error_log("API users.php - Ejecutando query SOLO AMIGOS con params: " . print_r($params, true));
+        $stmt->execute($params);
     } else {
         // Mostrar todos los usuarios con indicador de amistad
         $query = "
@@ -87,6 +90,7 @@ try {
     
     $users = [];
     while ($row = $stmt->fetch()) {
+    error_log("API users.php - Fila usuario: " . print_r($row, true));
         // Verificar si el avatar existe, sino usar imagen por defecto
         $avatarPath = 'img/usuario.png'; // Imagen por defecto
         
@@ -160,6 +164,7 @@ try {
     }
     
     error_log("API users.php - Usuarios encontrados: " . count($users));
+    error_log("API users.php - USERS ARRAY: " . print_r($users, true));
     
     ob_clean(); // Limpiar cualquier output previo
     echo json_encode(['status' => 'success', 'users' => $users]);

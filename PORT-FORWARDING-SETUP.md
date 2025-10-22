@@ -54,15 +54,13 @@ Estado: Habilitado/Activo
    - En tu PC, asegúrate de que el servidor Socket.IO esté activo
    - Deberías ver en la terminal: `Servidor Socket.IO corriendo en http://192.168.1.5:3001`
 
+
 2. **Prueba desde tu móvil con datos celulares** (NO WiFi):
    
-   Abre el navegador y ve a:
-   ```
-   http://179.25.80.137:3001/socket.io/socket.io.js
-   ```
+   Abre el navegador y entra a tu aplicación de chat usando tu IP pública. Si puedes enviar y recibir mensajes en tiempo real, el puerto está correctamente abierto y el reenvío funciona.
    
-   ✅ **Si funciona**: Verás código JavaScript
-   ❌ **Si no funciona**: Verás un error de conexión
+   ✅ **Si funciona**: El chat funciona en tiempo real
+   ❌ **Si no funciona**: Verifica el reenvío de puertos y el firewall
 
 3. **Herramienta online** (opcional):
    
@@ -202,11 +200,9 @@ Antes de probar desde el móvil, verifica:
 
 ### Desde tu PC (red local):
 - Chat: `http://192.168.1.5/MisTrabajos/HandinHand/mensajeria.php`
-- Socket.IO: `http://192.168.1.5:3001/socket.io/socket.io.js`
 
 ### Desde móvil con datos celulares:
 - Chat: `http://179.25.80.137/MisTrabajos/HandinHand/mensajeria.php`
-- Socket.IO: `http://179.25.80.137:3001/socket.io/socket.io.js`
 
 ---
 

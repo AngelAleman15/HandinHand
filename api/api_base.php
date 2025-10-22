@@ -284,17 +284,18 @@ function getCurrentUser() {
         // Consultar datos del usuario
         $stmt = $pdo->prepare("
             SELECT 
-                id_usuario,
-                nombre,
-                apellido,
+                id,
+                fullname,
+                username,
                 email,
-                telefono,
-                direccion,
-                avatar_path,
-                fecha_registro,
-                tipo_usuario
+                phone,
+                password,
+                birthdate,
+                created_at,
+                updated_at,
+                avatar_path
             FROM usuarios 
-            WHERE id_usuario = ?
+            WHERE id = ?
         ");
         
         $stmt->execute([$user_id]);

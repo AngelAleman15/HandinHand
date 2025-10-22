@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", function () {
     chatbotContainer.classList.remove("hidden");
     chatbotIcon.style.display = "none";
     chatAbierto = true;
+    // Quitar atributo inert para permitir interacción
+    chatbotContainer.removeAttribute("inert");
 
     // Mostrar mensaje de bienvenida solo la primera vez y si Perseo no abrió el chat
     if (chatbotMessages.children.length === 0 && !window.perseoOpenedChat) {
@@ -35,6 +37,8 @@ document.addEventListener("DOMContentLoaded", function () {
     chatbotContainer.classList.add("hidden");
     chatbotIcon.style.display = "flex";
     chatAbierto = false;
+    // Volver a poner atributo inert para deshabilitar interacción
+    chatbotContainer.setAttribute("inert", "");
   });
 
   // Enviar mensaje con Enter
@@ -287,8 +291,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Exponer función para sistema de acciones
-  window.agregarMensajePerseo = function(mensaje, actionData = null) {
-    agregarMensaje("bot", mensaje, true, actionData);
+  window.agregarMensajePerseo = function(mensaje, remitente = "bot", actionData = null) {
+    agregarMensaje(remitente, mensaje, true, actionData);
   };
 
   // Formatear mensaje para mostrar saltos de línea e imágenes

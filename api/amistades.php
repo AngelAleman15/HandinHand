@@ -9,10 +9,12 @@ $user_id = requireAuth();
 $data = getJsonInput();
 
 try {
+    // Logging para depuración
+    error_log('Datos recibidos en amistades.php: ' . json_encode($data));
+    error_log('Usuario actual en sesión: ' . json_encode($user_id));
+
     $pdo = getConnection();
-    
     $action = $data['action'] ?? '';
-    
     switch ($action) {
         case 'enviar_solicitud':
             validateRequired($data, ['receptor_id']);
@@ -131,6 +133,14 @@ try {
                    OR (usuario1_id = ? AND usuario2_id = ?)
             ");
             $stmt->execute([$user_id, $amigo_id, $amigo_id, $user_id]);
+
+            // Eliminar todas las solicitudes de amistad entre ambos usuarios (de cualquier estado)
+            $stmt = $pdo->prepare("
+                DELETE FROM solicitudes_amistad
+                WHERE (solicitante_id = ? AND receptor_id = ?)
+                   OR (solicitante_id = ? AND receptor_id = ?)
+            ");
+            $stmt->execute([$user_id, $amigo_id, $amigo_id, $user_id]);
             
             // Actualizar estadísticas
             $stmt = $pdo->prepare("
@@ -175,6 +185,7 @@ try {
             break;
             
         case 'listar_solicitudes_pendientes':
+            error_log('DEBUG listar_solicitudes_pendientes: user_id (receptor) = ' . $user_id);
             $stmt = $pdo->prepare("
                 SELECT 
                     s.*,
@@ -188,7 +199,7 @@ try {
             ");
             $stmt->execute([$user_id]);
             $solicitudes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+            error_log('DEBUG listar_solicitudes_pendientes: resultado = ' . json_encode($solicitudes));
             sendSuccess($solicitudes);
             break;
             

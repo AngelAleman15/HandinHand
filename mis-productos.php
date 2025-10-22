@@ -1,3 +1,36 @@
+<style>
+</style>
+<script>
+// Cambio de estado por click en el badge
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.estado-badge').forEach(function(badge) {
+        badge.onclick = function(e) {
+            e.preventDefault();
+            var productoId = this.getAttribute('data-producto-id');
+            var estados = ['disponible', 'intercambiado', 'reservado'];
+            var actual = this.getAttribute('data-estado');
+            var idx = estados.indexOf(actual);
+            var nuevoEstado = estados[(idx + 1) % estados.length];
+            var self = this;
+            fetch('api/update-producto-estado.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'id=' + encodeURIComponent(productoId) + '&estado=' + encodeURIComponent(nuevoEstado)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    self.setAttribute('data-estado', nuevoEstado);
+                    self.className = 'status-badge estado-badge status-' + nuevoEstado;
+                    self.textContent = nuevoEstado.toUpperCase();
+                } else {
+                    alert('Error al actualizar estado: ' + (data.message || ''));
+                }
+            })
+            .catch(() => alert('Error de red al actualizar estado.'));
+        });
+    });
+});
 <?php
 session_start();
 require_once 'includes/functions.php';
@@ -20,39 +53,65 @@ $misProductos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Incluir header
 include 'includes/header.php';
+// Obtener categorías
+$categorias = [];
+$catStmt = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM productos p WHERE p.categoria = c.nombre AND p.user_id = " . (int)$user['id'] . ") as total_propios FROM categorias c ORDER BY c.nombre");
+if ($catStmt) {
+    $categorias = $catStmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 
 <div class="container">
-    <!-- Banner WIP -->
-    <div style="background: linear-gradient(135deg, #ffc107, #fd7e14); color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 15px rgba(255,193,7,0.3);">
-        <h3 style="margin: 0; font-size: 1.2em;">🚧 Página en Desarrollo</h3>
-        <p style="margin: 5px 0 0; opacity: 0.9;">Esta sección está siendo desarrollada. Funcionalidad completa próximamente.</p>
-    </div>
     
     <div class="page-header">
         <h1>Mis Productos</h1>
         <button class="btn btn-primary" onclick="showWipMessage('Agregar Producto')">+ Agregar Producto <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></button>
     </div>
     
-    <div class="products-grid">
+    <div class="products-list">
         <?php if (!empty($misProductos)): ?>
+            <div class="products-header-row">
+                <div class="product-col product-col-img">Imagen</div>
+                 <div class="product-col product-col-nombre">Nombre</div>
+                 <div class="product-col product-col-desc">Descripción</div>
+                 <div class="product-col product-col-categoria">Categoría</div>
+                 <div class="product-col product-col-estado">Estado</div>
+                 <div class="product-col product-col-condicion">Condición</div>
+                 <div class="product-col product-col-acciones">Acciones</div>
+            </div>
             <?php foreach ($misProductos as $producto): ?>
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>">
+                <div class="product-row">
+                    <div class="product-col product-col-img">
+                        <img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                     </div>
-                    <div class="product-info">
-                        <h3><?php echo htmlspecialchars($producto['nombre']); ?></h3>
-                        <p><?php echo htmlspecialchars($producto['descripcion']); ?></p>
-                        <div class="product-status">
-                            <span class="status-badge status-<?php echo $producto['estado']; ?>">
-                                <?php echo ucfirst($producto['estado']); ?>
-                            </span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn btn-sm btn-secondary" onclick="editProduct(<?php echo $producto['id']; ?>)">Editar</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteProduct(<?php echo $producto['id']; ?>)">Eliminar</button>
-                        </div>
+                    <div class="product-col product-col-nombre">
+                        <span class="truncate-hover" data-fulltext="<?php echo htmlspecialchars($producto['nombre']); ?>" title="<?php echo htmlspecialchars($producto['nombre']); ?>">
+                            <?php echo htmlspecialchars($producto['nombre']); ?>
+                        </span>
+                    </div>
+                    <div class="product-col product-col-desc">
+                        <span class="truncate-hover" data-fulltext="<?php echo htmlspecialchars($producto['descripcion']); ?>" title="<?php echo htmlspecialchars($producto['descripcion']); ?>">
+                            <?php echo htmlspecialchars($producto['descripcion']); ?>
+                        </span>
+                    </div>
+                    <div class="product-col product-col-categoria">
+                        <span class="categoria-badge-listado" title="<?php echo htmlspecialchars($producto['categoria'] ?? 'Sin categoría'); ?>">
+                            <?php echo htmlspecialchars($producto['categoria'] ?? 'Sin categoría'); ?>
+                        </span>
+                    </div>
+                    <div class="product-col product-col-estado">
+                        <span class="status-badge estado-badge status-<?php echo $producto['estado']; ?>" data-producto-id="<?php echo $producto['id']; ?>" data-estado="<?php echo $producto['estado']; ?>" tabindex="0" title="Haz clic para cambiar el estado">
+                            <?php echo strtoupper($producto['estado']); ?>
+                        </span>
+                    </div>
+                    <div class="product-col product-col-condicion">
+                        <span class="truncate-hover" data-fulltext="<?php echo htmlspecialchars($producto['condicion'] ?? 'N/D'); ?>" title="<?php echo htmlspecialchars($producto['condicion'] ?? 'N/D'); ?>">
+                            <?php echo isset($producto['condicion']) ? ucfirst($producto['condicion']) : 'N/D'; ?>
+                        </span>
+                    </div>
+                    <div class="product-col product-col-acciones">
+                        <button class="btn btn-sm btn-secondary" onclick="editProduct(<?php echo $producto['id']; ?>)">Editar</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProduct(<?php echo $producto['id']; ?>)">Eliminar</button>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -67,6 +126,66 @@ include 'includes/header.php';
 </div>
 
 <style>
+</script>
+// Cambio de estado por click en el badge
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.estado-badge').forEach(function(badge) {
+        badge.addEventListener('click', function() {
+            var productoId = this.getAttribute('data-producto-id');
+            var estados = ['disponible', 'intercambiado', 'reservado'];
+            var actual = this.getAttribute('data-estado');
+            var idx = estados.indexOf(actual);
+            var nuevoEstado = estados[(idx + 1) % estados.length];
+            var self = this;
+            fetch('api/update-producto-estado.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'id=' + encodeURIComponent(productoId) + '&estado=' + encodeURIComponent(nuevoEstado)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    self.setAttribute('data-estado', nuevoEstado);
+                    self.className = 'status-badge estado-badge status-' + nuevoEstado;
+                    self.textContent = nuevoEstado.toUpperCase();
+                } else {
+                    alert('Error al actualizar estado: ' + (data.message || ''));
+                }
+            })
+            .catch(() => alert('Error de red al actualizar estado.'));
+        });
+    });
+});
+    font-size: 1em;
+    padding: 4px 12px;
+    text-transform: uppercase;
+    box-shadow: none;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    min-width: 120px;
+    transition: border 0.2s, background 0.2s;
+}
+.estado-select:focus {
+    border: 2px solid #388e3c;
+    background: #e9f5e1;
+}
+.categoria-badge-listado {
+    display: inline-block;
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #90caf9;
+    border-radius: 8px;
+    padding: 2px 10px;
+    font-size: 0.98em;
+    font-weight: 500;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .container {
     max-width: 1200px;
     margin: 40px auto;
@@ -88,7 +207,8 @@ include 'includes/header.php';
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 32px 28px;
+    margin-bottom: 40px;
 }
 
 .product-card {
@@ -99,42 +219,122 @@ include 'includes/header.php';
     transition: transform 0.2s;
 }
 
-.product-card:hover {
-    transform: translateY(-2px);
-}
-
-.product-image img {
+.products-list {
     width: 100%;
-    height: 200px;
-    object-fit: cover;
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
-
-.product-info {
-    padding: 20px;
+.products-header-row, .product-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 0;
 }
-
-.product-info h3 {
-    color: #333;
-    margin-bottom: 10px;
-    font-size: 1.3em;
+.products-header-row {
+    font-weight: bold;
+    background: #f5f5f5;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 2px solid #b2dfdb;
+    color: #388e3c;
+    font-size: 1.1em;
 }
-
-.product-info p {
-    color: #666;
-    margin-bottom: 15px;
-    line-height: 1.4;
+.product-col {
+    padding: 0 12px;
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-
-.product-status {
-    margin-bottom: 15px;
+.product-col-img {
+    flex: 0 0 70px;
+    justify-content: center;
+}
+.product-col-nombre, .product-col-desc {
+    flex: 2 1 0;
+}
+.product-col-estado {
+    flex: 1 1 0;
+    justify-content: center;
+}
+.product-col-acciones {
+    flex: 1 1 0;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.truncate-hover {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    position: relative;
+    padding: 2px 6px;
+    border-radius: 5px;
+    transition: background 0.2s, color 0.2s;
+}
+.truncate-hover:hover {
+    background: #e9f5e1;
+    color: #1b5e20;
+    z-index: 2;
+}
+.truncate-hover::after {
+    content: attr(data-fulltext);
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 110%;
+    background: #fff;
+    color: #222;
+    border: 1px solid #b2dfdb;
+    border-radius: 6px;
+    padding: 6px 12px;
+    white-space: normal;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    min-width: 180px;
+    max-width: 350px;
+    font-size: 1em;
+    pointer-events: none;
+}
+.truncate-hover:hover::after {
+    display: block;
 }
 
 .status-badge {
     padding: 4px 12px;
-    border-radius: 20px;
+    border-radius: 0;
     font-size: 0.9em;
     font-weight: bold;
     text-transform: uppercase;
+    border: 1.5px solid #155724;
+    background: #d4edda;
+    color: #155724;
+    box-shadow: none;
+}
+.estado-select {
+    border-radius: 0 !important;
+    border: 1.5px solid #155724;
+    background: #d4edda;
+    color: #155724;
+    font-weight: bold;
+    font-size: 0.98em;
+    padding: 4px 12px;
+    text-transform: uppercase;
+    box-shadow: none;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    min-width: 120px;
+    transition: border 0.2s, background 0.2s;
+}
+.estado-select:focus {
+    border: 2px solid #388e3c;
+    background: #e9f5e1;
 }
 
 .status-disponible {
@@ -177,31 +377,32 @@ include 'includes/header.php';
     color: white;
 }
 
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-sm {
-    padding: 6px 12px;
-    font-size: 0.8em;
-}
-
-.no-products {
-    grid-column: 1 / -1;
+.estado-badge {
+    display: inline-block;
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #90caf9;
+    border-radius: 8px;
+    padding: 2px 10px;
+    font-size: 0.98em;
+    font-weight: 500;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    transition: background 0.2s, border 0.2s, color 0.2s;
     text-align: center;
-    padding: 60px 20px;
-    color: #666;
+    box-shadow: 0 2px 8px rgba(25,118,210,0.07);
+    letter-spacing: 0.5px;
 }
-
-.no-products h3 {
-    color: #333;
-    margin-bottom: 10px;
+.estado-badge:focus, .estado-badge:hover {
+    border: 2px solid #1976d2;
+    background: #bbdefb;
+    color: #0d47a1;
 }
-
-@media (max-width: 768px) {
-    .page-header {
-        flex-direction: column;
         gap: 20px;
         text-align: center;
     }
