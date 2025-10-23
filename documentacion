@@ -22,15 +22,18 @@ Documentación de optimización de rendimiento y tiempos de carga
 
   2.2 ***CropperJS***
     El equipo de desarrollo implementó esta liberaria con el fin de utilizar un sistema de foto de perfil para que los usuarios tengan una forma de identificarse y personalizar su perfil como usuarios registrados.
-    Esta libería permite redimensionar imágenes con un mínimo de 100px x 100px y un máximo de 250px x 250px.
+    Esta libería permite redimensionar imágenes con un mínimo de 100px x 100px y un máximo de 250px x 250px. Esta librería tambien se utilizó para las imágenes de los produtos que los usuarios públican en el sitio.
 
   2.3 ***Socket.IO JS***
   Socket.IO se implementó en HandinHand con el fin de dar a los usuarios la posibilidad de conversar entre ellos para poder realizar trueques en tiempo real.
+
+  Estas librerías se utilizaron con el fin de que el usuario tenga un a navegación y experiencia agradables durante su transcurso por el sitio de HandInhand, buscando una navegabilidad que cualquier persona encuentre fácil de utilizar, diseños que sean amigables a la vista junto a sistemas que faciliten la comunicacion entre ellos, ya sea para charlar o para intercambiar productos.
 3. Comparación
 
 ***Producto anterior***
 [Imagen anterior]
-
+  HandInHand, en su pre-finalización tuvo resultados mediocres y medianamente aceptables.
+  El sitio presentaba problemas de carga inicial en su SI, teniendo una velocidad de 3.2 segundos de demora para cargar el sitio. Un aceptable FCP de 0.8 segundos para verificar la carga del contenido del sitio web. Un LCP de 1.5 segundos para cargar el contenido más grande de la página, pero, logra un TBT de 0.0 segundos. No entorpeciendo la navegación de los usuarios a través de la página.
 ***producto nuevo***
 [Imagen nueva]
 
