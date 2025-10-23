@@ -28,7 +28,7 @@ services:
       - db_data:/var/lib/mysql
       - ./sql/handinhand.sql:/docker-entrypoint-initdb.d/handinhand.sql
     ports:
-      - "3306:3306"
+      - "3307:3307"
     networks:
       - appnet
 
