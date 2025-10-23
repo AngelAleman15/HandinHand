@@ -9,18 +9,26 @@ Documentación de optimización de rendimiento y tiempos de carga
       El LCP (Largest Contentful Paint) es la métrica utilizada en el desarrollo web para verificar la velocidad a la que el archivo más grande del sitio web tarda en aparecer.
     - TBT -
       El TBT (Total Blocking Time) es la métrica utilizada en el desarrollo web para medir cuanto tarda el navegador en volverse un sitio interactivo para el usuario y dejando de ser simplemente contenido visible.
-      
+    
   1.2 ***Herramientas de medición utilizadas***
     
     Para realizar la medición FCP, LCP y TBT de HandInHand, el equipo de desarrollo ha optado por usar la herramienta de medición proporcionada por Chrome para desarrolladores web llamada "Lighthouse" con el fin de verificar los problemas de forma sencilla debido a su interfaz amigable y la especificación de los problemas del sitio. Especificando cual es el problema exacto, dando una advertencia, una posible mejora o una posible falta en el código.
 
-2. Frontend
-  2.1 ***Minimización y compresión de recursos (HTML, CSS y JS)***
-    En el apartado Frontend. Los desarrolladores 
+2. Librerías
+  2.1 ***CSS (SweetAlert2)***
+    En el apartado Frontend. Los desarrolladores se enfocaron en dar al sitio web de HandInHand una vista agradable y fácil de navegar.
+    Esto se logró gracias a la librería SweetAlert2 en el apartado de CSS para la vista del sitio utilizando alertas para el guardado de procesos como la creación de un producto, edición de datos del perfil de usuario y secciones no disponible del sitio.
 
-  2.2 ***Reducción de solicitudes HTTP***
-    El equipo de desarrollo 
+  2.2 ***CropperJS***
+    El equipo de desarrollo implementó esta liberaria con el fin de utilizar un sistema de foto de perfil para que los usuarios tengan una forma de identificarse y personalizar su perfil como usuarios registrados.
+    Esta libería permite redimensionar imágenes con un mínimo de 100px x 100px y un máximo de 250px x 250px.
 
-  2.3 ***Formato de imágenes y optimización de tamaños***
-    HandInHand permite utilizar un sistema de foto de perfil para que los usuarios tengan una forma de identificarse y personalizar su perfil como usuarios registrados.
-    Este sistema permite imágenes en formato .jpg, .png y .webp junto a un sistema de redimensión de imágenes con un mínimo de 100px x 100px y un máximo de 250px x 250px
+3. Comparación
+
+***Producto anterior***
+[Imagen anterior]
+
+***producto nuevo***
+[Imagen nueva]
+
+  En sus versiónes pre-finalización y su versión de lanzamiento muestra una notoria mejora en sus métricas de FCP, LCP y TBT, logrando un una web mucho más rápida gracias a su mejora en los apartados de su última versión como SI (Speed Index) (Con una mejora de 2.7 segundos con respecto a su versión anterior con 3.2 segundos), FCP (Con una mejora de 0.3 segundos con respecto a su versión anterior que era de 0.8 segundos), LCP (Con una mejora de 0.1 segundo con respecto a su versión anterior con 1.5 segundos) con respecto a su versión anterior, mientras que su TBT se mantiene en 0.0 segundos
