@@ -1,0 +1,78 @@
+Documentación de optimización de rendimiento y tiempos de carga
+
+1. Análisis de rendimiento
+  
+  1.1 ***Métricas clave (FCP, LCP, TBT)***
+    - FCP -
+      El FCP (First contentful Paint) es una métrica utilizada en el desarrollo web que mide el tiempo más rápido en el que se tarda en cargar un elemento del sitio web.
+    - LCP -
+      El LCP (Largest Contentful Paint) es la métrica utilizada en el desarrollo web para verificar la velocidad a la que el archivo más grande del sitio web tarda en aparecer.
+    - TBT -
+      El TBT (Total Blocking Time) es la métrica utilizada en el desarrollo web para medir cuanto tarda el navegador en volverse un sitio interactivo para el usuario y dejando de ser simplemente contenido visible.
+    
+  1.2 ***Herramientas de medición utilizadas***
+    
+    Para realizar la medición FCP, LCP y TBT de HandInHand, el equipo de desarrollo ha optado por usar la herramienta de medición proporcionada por Chrome para desarrolladores web llamada "Lighthouse" con el fin de verificar los problemas de forma sencilla debido a su interfaz amigable y la especificación de los problemas del sitio. Especificando cual es el problema exacto, dando una advertencia, una posible mejora o una posible falta en el código.
+
+2. Librerías
+
+  2.1 ***CSS (SweetAlert2)***
+    En el apartado Frontend. Los desarrolladores se enfocaron en dar al sitio web de HandInHand una vista agradable y fácil de navegar.
+    Esto se logró gracias a la librería SweetAlert2 en el apartado de CSS para la vista del sitio utilizando alertas para el guardado de procesos como la creación de un producto, edición de datos del perfil de usuario y secciones no disponible del sitio.
+
+  EJEMPLO:
+    SweetAlert2 :Mostrar notificación toast al resaltar el botón de cambiar contraseña (perfil.php): 
+Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon: 'info',
+    title: 'Aquí puedes cambiar tu contraseña',
+    showConfirmButton: false,
+    timer: 4000,
+    timerProgressBar: true,
+    background: '#C9F89B',
+    color: '#313C26'
+});
+  
+  EJEMPLO 2:
+  Modal para editar información personal 
+Swal.fire({
+    title: '✏️ Editar Información Personal',
+    html: <div> ...campos de edición... </div>,
+    showCancelButton: true,
+    confirmButtonText: 'Guardar',
+    preConfirm: () => { /* validaciones */ }
+});
+
+
+  2.2 ***CropperJS***
+    El equipo de desarrollo implementó esta liberaria con el fin de utilizar un sistema de foto de perfil para que los usuarios tengan una forma de identificarse y personalizar su perfil como usuarios registrados.
+    Esta libería permite redimensionar imágenes con un mínimo de 100px x 100px y un máximo de 250px x 250px. Esta librería tambien se utilizó para las imágenes de los produtos que los usuarios públican en el sitio.
+
+
+  2.3 ***Socket.IO JS***
+  Socket.IO se implementó en HandinHand con el fin de dar a los usuarios la posibilidad de conversar entre ellos para poder realizar trueques en tiempo real.
+
+  Estas librerías se utilizaron con el fin de que el usuario tenga un a navegación y experiencia agradables durante su transcurso por el sitio de HandInhand, buscando una navegabilidad que cualquier persona encuentre fácil de utilizar, diseños que sean amigables a la vista junto a sistemas que faciliten la comunicacion entre ellos, ya sea para charlar o para intercambiar productos.
+
+  EJEMPLO:
+  Conexión y registro de usuario en el chat (chat.js):
+socket = io(window.CHAT_SERVER_URL, { transports: ['websocket', 'polling'] });
+socket.emit('user_connected', window.CURRENT_USER_ID);
+Eventos en tiempo real para escribir y recibir mensajes (chat.js):
+socket.emit('typing', { to: currentChatUserId, from: CURRENT_USER_ID });
+socket.on('chat_message', (data) => {
+    handleIncomingMessage(data);
+});
+
+3. Comparación
+
+***Producto anterior***
+[Imagen anterior]
+  HandInHand, en su pre-finalización tuvo resultados mediocres y medianamente aceptables.
+  El sitio presentaba problemas de carga inicial en su SI, teniendo una velocidad de 3.2 segundos de demora para cargar el sitio. Un aceptable FCP de 0.8 segundos para verificar la carga del contenido del sitio web. Un LCP de 1.5 segundos para cargar el contenido más grande de la página, pero, logra un TBT de 0.0 segundos. No entorpeciendo la navegación de los usuarios a través de la página.
+
+***producto nuevo***
+[Imagen nueva]
+
+  En sus versiónes pre-finalización y su versión de lanzamiento muestra una notoria mejora en sus métricas de FCP, LCP y TBT, logrando un una web mucho más rápida gracias a su mejora en los apartados de su última versión como SI (Speed Index) (Con una mejora de 2.7 segundos con respecto a su versión anterior con 3.2 segundos), FCP (Con una mejora de 0.3 segundos con respecto a su versión anterior que era de 0.8 segundos), LCP (Con una mejora de 0.1 segundo con respecto a su versión anterior con 1.5 segundos) con respecto a su versión anterior, mientras que su TBT se mantiene en 0.0 segundos
