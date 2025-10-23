@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  # Servicio web con PHP + Apache
+  web:
+    build: .
+    container_name: php-apache
+    ports:
+      - "80:80"              # Exponer el sitio web
+    volumes:
+      - .:/var/www/html      # Montar el código local
+    depends_on:
+      - db
+    networks:
+      - appnet
+
+  # Servicio de base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: handinhand
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpass
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql/handinhand.sql:/docker-entrypoint-initdb.d/handinhand.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - appnet
+
+  # Servicio Node.js para el chat
+  node:
+    image: node:20
+    container_name: chat-server
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    command: node server.js
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+    networks:
+      - appnet
+
+volumes:
+  db_data:
+
+networks:
+  appnet:
