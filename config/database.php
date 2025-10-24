@@ -1,9 +1,9 @@
 <?php
 // Configuración de la base de datos
-define('DB_HOST', 'localhost');
+define('DB_HOST', 'db');
 define('DB_NAME', 'handinhand');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_USER', 'user');
+define('DB_PASS', 'userpass');
 
 // Función para conectar a la base de datos
 function getConnection() {
