@@ -1,9 +1,14 @@
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
+// Configuración de Socket.IO
+// Permitir conexiones desde No-IP (handinhand.sytes.net) y localhost:3000
 const io = require('socket.io')(http, {
     cors: {
-        origin: "*",
+        origin: [
+            "http://handinhand.sytes.net",
+            "http://localhost:3000"
+        ],
         methods: ["GET", "POST"],
         credentials: true
     }
@@ -20,7 +25,15 @@ const dbConfig = {
 };
 
 // Middleware
-app.use(cors());
+// Configuración de CORS para Express
+// Permitir solicitudes desde No-IP y localhost:3000
+app.use(cors({
+    origin: [
+        "http://handinhand.sytes.net",
+        "http://localhost:3000"
+    ],
+    credentials: true
+}));
 app.use(express.json());
 
 // Almacenar usuarios conectados
@@ -148,21 +161,69 @@ io.on('connection', (socket) => {
     });
 });
 
+// Endpoint para emitir mensajes automáticos desde PHP
+app.post('/api/emit-message', (req, res) => {
+    const data = req.body;
+    if (!data || !data.receiver_id) {
+        return res.status(400).json({ success: false, message: 'Datos incompletos' });
+    }
+
+    const receiverSocket = connectedUsers.get(data.receiver_id.toString());
+    if (receiverSocket) {
+        io.to(receiverSocket).emit('chat_message', data);
+        res.json({ success: true, message: 'Mensaje emitido por Socket.IO' });
+    } else {
+        res.status(404).json({ success: false, message: 'Usuario no conectado' });
+    }
+});
+
 // Iniciar servidor
-const PORT = 3001;
-const HOST = '0.0.0.0'; // Esto hace que escuche en todas las interfaces de red
+// Puerto configurable por variable de entorno (No-IP o local)
+const PORT = process.env.PORT || 3001;
+const HOST = '0.0.0.0'; // Escucha en todas las interfaces de red (requisito No-IP)
+
+// Ruta raíz para verificación desde navegador
+// Permite comprobar que el servidor está activo desde cualquier dominio permitido
+app.get('/', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>HandinHand - Servidor Node.js</title>
+            <style>
+                body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+                .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #ccc; padding: 32px; }
+                h1 { color: #e91e63; }
+                p { color: #333; }
+                .badge { font-size: 2rem; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>HandinHand 🚀</h1>
+                <p>¡Bienvenido! El servidor Node.js está activo y listo para recibir conexiones de chat en tiempo real.</p>
+                <p class="badge">🤖 Mensajería, Perseo y más...</p>
+                <hr>
+                <p>Accede a las funciones de chat desde la app web.<br>
+                <small>Si ves esta página, el backend Node.js está funcionando correctamente.</small></p>
+            </div>
+        </body>
+        </html>
+    `);
+});
+
 http.listen(PORT, HOST, () => {
     // Obtener la IP local del servidor
     const { networkInterfaces } = require('os');
     const nets = networkInterfaces();
-    const results = {};
-
     for (const name of Object.keys(nets)) {
         for (const net of nets[name]) {
-            // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
             if (net.family === 'IPv4' && !net.internal) {
                 console.log(`Servidor accesible en: http://${net.address}:${PORT}`);
             }
         }
     }
+    // Comentario: El servidor ahora acepta conexiones desde cualquier IP y puerto dinámico, ideal para No-IP.
 });

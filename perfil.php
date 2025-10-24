@@ -121,12 +121,47 @@ body {
                     </div>
                     <p class="member-since">Miembro desde hace <?php echo $diasMiembro; ?> días</p>
                     <div class="profile-actions">
+<<<<<<< HEAD
                         <button class="btn btn-primary" onclick="editPersonalInfo()">
                             <i class="fas fa-edit"></i> Editar Perfil
                         </button>
                         <a href="mis-productos.php" class="btn btn-primary">
                             <i class="fas fa-box"></i> Mis Productos
                         </a>
+=======
+                        <?php
+                        // Si el perfil es de otro usuario
+                        $mi_id = $_SESSION['user_id'];
+                        $perfil_id = $user['id'];
+                        if ($mi_id !== $perfil_id) {
+                            // Verificar amistad
+                            $stmt = $pdo->prepare("SELECT id FROM amistades WHERE (usuario1_id = ? AND usuario2_id = ?) OR (usuario1_id = ? AND usuario2_id = ?)");
+                            $stmt->execute([$mi_id, $perfil_id, $perfil_id, $mi_id]);
+                            $es_amigo = $stmt->fetch();
+                            // Verificar solicitud
+                            $stmt = $pdo->prepare("SELECT id, estado FROM solicitudes_amistad WHERE (solicitante_id = ? AND receptor_id = ?) OR (solicitante_id = ? AND receptor_id = ?)");
+                            $stmt->execute([$mi_id, $perfil_id, $perfil_id, $mi_id]);
+                            $solicitud = $stmt->fetch();
+                            if ($es_amigo) {
+                                echo '<button class="btn btn-success" disabled><i class="fas fa-user-check"></i> Ya son amigos</button>';
+                            } elseif ($solicitud && $solicitud['estado'] === 'pendiente') {
+                                if ($solicitud['solicitante_id'] == $mi_id) {
+                                    echo '<button class="btn btn-warning" onclick="cancelarSolicitud(' . $perfil_id . ')"><i class="fas fa-times"></i> Cancelar solicitud</button>';
+                                } else {
+                                    echo '<button class="btn btn-info" disabled><i class="fas fa-hourglass-half"></i> Solicitud pendiente</button>';
+                                }
+                            } elseif ($solicitud && $solicitud['estado'] === 'rechazada') {
+                                echo '<button class="btn btn-secondary" disabled><i class="fas fa-ban"></i> Solicitud rechazada</button>';
+                            } else {
+                                echo '<button class="btn btn-primary" onclick="enviarSolicitud(' . $perfil_id . ')"><i class="fas fa-user-plus"></i> Enviar solicitud de amistad</button>';
+                            }
+                        } else {
+                            // Perfil propio: mostrar botones de edición
+                            echo '<button class="btn btn-primary" onclick="editPersonalInfo()"><i class="fas fa-edit"></i> Editar Perfil</button>';
+                            echo '<button class="btn btn-primary" onclick="showWipMessage(\'Mis Productos\')"><i class="fas fa-box"></i> Mis Productos <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></button>';
+                        }
+                        ?>
+>>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
                     </div>
                 </div>
             </div>

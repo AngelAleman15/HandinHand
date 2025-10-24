@@ -266,20 +266,15 @@ function getCurrentUser() {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
-    
     // Verificar que haya sesión activa
     if (!isset($_SESSION['user_id'])) {
         sendError('Se requiere autenticación', 401);
     }
-    
     $user_id = $_SESSION['user_id'];
-    
-    // Conectar a la base de datos
     require_once __DIR__ . '/../config/database.php';
-    
     try {
-        // Obtener conexión PDO
         $pdo = getConnection();
+<<<<<<< HEAD
         
         // Consultar datos del usuario
         $stmt = $pdo->prepare("
@@ -298,16 +293,16 @@ function getCurrentUser() {
             WHERE id = ?
         ");
         
+=======
+        // Consulta adaptada a tu estructura real
+        $stmt = $pdo->prepare("SELECT id, fullname, username, email, avatar_path, created_at FROM usuarios WHERE id = ?");
+>>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
         $stmt->execute([$user_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Verificar que el usuario exista
         if (!$user) {
             sendError('Usuario no encontrado', 404);
         }
-        
         return $user;
-        
     } catch (PDOException $e) {
         error_log("Error al obtener usuario actual: " . $e->getMessage());
         sendError('Error al obtener datos del usuario', 500);

@@ -47,15 +47,37 @@ try {
     
     // Insertar respuesta automática para cada remitente
     foreach ($sender_ids as $sender_id) {
-        // Seleccionar un mensaje aleatorio
-        $mensaje_auto = str_replace('{username}', $current_user['username'], $mensajes_auto[array_rand($mensajes_auto)]);
-        
-        // Insertar mensaje automático de Perseo
+        // Seleccionar un mensaje aleatorio y agregar identificador 🤖
+        $mensaje_auto = '🤖 ' . str_replace('{username}', $current_user['username'], $mensajes_auto[array_rand($mensajes_auto)]);
+
+        // Emitir el mensaje por Socket.IO en tiempo real
+        $socketData = [
+            'sender_id' => $current_user_id,
+            'receiver_id' => $sender_id,
+            'mensaje' => $mensaje_auto,
+            'is_perseo_auto' => 1,
+            'timestamp' => date('Y-m-d H:i:s')
+        ];
+        $socketUrl = 'http://localhost:3001/api/emit-message'; // Ajusta la URL si tu servidor Socket.IO está en otro puerto/dominio
+        $ch = curl_init($socketUrl);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($socketData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+        $socketResponse = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        // Si la respuesta no es 200, loguear el error
+        if ($httpCode !== 200) {
+            error_log('Error al emitir mensaje Perseo por Socket.IO. HTTP code: ' . $httpCode . ' Response: ' . $socketResponse);
+        }
+
+        // Insertar mensaje automático de Perseo (usar campo 'mensaje')
         $stmt = $pdo->prepare("
-            INSERT INTO mensajes (sender_id, receiver_id, message, is_perseo_auto, created_at)
+            INSERT INTO mensajes (sender_id, receiver_id, mensaje, is_perseo_auto, created_at)
             VALUES (?, ?, ?, 1, NOW())
         ");
-        
         $stmt->execute([$current_user_id, $sender_id, $mensaje_auto]);
         $respuestas_enviadas++;
     }

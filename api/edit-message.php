@@ -22,10 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 validateMethod(['POST']);
 requireLogin();
 
+
 $user = getCurrentUser();
+if (!$user || !isset($user['id'])) {
+    sendError('No estás logueado o la sesión expiró', 401);
+}
 $data = getJsonInput();
 
 try {
+    // Asegurar que la sesión esté iniciada
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     $pdo = getConnection();
     
     // Validar datos requeridos

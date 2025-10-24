@@ -1,4 +1,15 @@
 // Variables globales
+// Función global para abrir el chat temporal amarillo al contactar desde index.php
+window.contactarVendedor = function(userId) {
+    // Verificar si el usuario está logueado
+    if (window.IS_LOGGED_IN) {
+        window.location.href = '/mensajeria.php?user=' + userId;
+    } else {
+        showNotification('Debes iniciar sesión para usar la mensajería.', 'error');
+    }
+};
+// Detectar si el usuario está logueado (variable generada en index.php)
+window.IS_LOGGED_IN = window.IS_LOGGED_IN || false;
 let currentChatUserId = null;
 let socket = null;
 let onlineUsers = new Set();
@@ -461,7 +472,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar usuarios
     async function loadUsers() {
         try {
+<<<<<<< HEAD
             // Usar ruta relativa a la raíz para producción
+=======
+>>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
             const response = await fetch('/api/users.php');
             const data = await response.json();
 
@@ -842,12 +856,14 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
+        const isPerseoAuto = messageData.is_perseo_auto == 1 || messageData.is_perseo_auto === true;
         messageDiv.innerHTML = `
             <div class="message-avatar">
                 <img src="${avatarSrc}" alt="Avatar">
             </div>
             <div class="message-content">
-                <div class="message-bubble" data-message-id="${messageData.id || 0}">
+                <div class="message-bubble perseo-bubble" data-message-id="${messageData.id || 0}">
+                    ${isPerseoAuto ? '<span class="perseo-badge">🤖</span>' : ''}
                     ${replyHTML}
                     <span class="message-text">${escapeHtml(messageData.message || messageData.mensaje)}</span>
                     ${editedLabel}
@@ -910,6 +926,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Guardar en base de datos en segundo plano
         console.log('💾 Guardando mensaje en BD...');
         try {
+<<<<<<< HEAD
+=======
+            // Guardar en base de datos
+>>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
             const response = await fetch('/api/save-message.php', {
                 method: 'POST',
                 headers: {
@@ -1390,7 +1410,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     message_id: currentEditMessageId,
                     new_message: newMessage
-                })
+                }),
+                credentials: 'include'
             });
             
             const data = await response.json();
@@ -1525,7 +1546,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     message_id: messageId,
                     delete_for_all: deleteType === 'all'
-                })
+                }),
+                credentials: 'include'
             });
             
             const data = await response.json();

@@ -35,6 +35,17 @@ body {
     pointer-events: none;
 }
 
+/* Líneas diagonales decorativas para el header del perfil */
+.perfil-header::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(135deg, #B7E4C7 0px, #B7E4C7 2px, transparent 2px, transparent 18px);
+    opacity: 0.18;
+    z-index: 1;
+}
+
 .perfil-cover {
     display: none; /* No necesitamos cover separado */
 }
