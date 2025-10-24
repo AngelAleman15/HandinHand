@@ -663,9 +663,6 @@ Este proyecto está bajo la Licencia ISC.
   <p><strong>HandinHand © 2025</strong></p>
 </div>
 
-añade esto:
-Documentación de optimización de rendimiento y tiempos de carga
-
 1. Análisis de rendimiento
 
   1.1 ***Métricas clave (FCP, LCP, TBT)***
@@ -815,3 +812,4 @@ socket.emit('user_connected', window.CURRENT_USER_ID);
 - First Contentful Paint (FCP): 0.5s ⬇️ (-0.3s)
 - Largest Contentful Paint (LCP): 1.4s ⬇️ (-0.1s)
 - Total Blocking Time (TBT): 0.0s ➡️ (sin cambios)
+
