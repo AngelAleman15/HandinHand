@@ -3,6 +3,20 @@
 -- Este archivo contiene todos los scripts de migración, creación y alteración de tablas del sistema HandinHand.
 
 -- ========== add_message_actions.sql ==========
+-- ========== DEFINICIÓN DE TABLA PRINCIPAL: productos ========== 
+CREATE TABLE IF NOT EXISTS productos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    precio DECIMAL(10,2) NOT NULL,
+    estado VARCHAR(50) DEFAULT 'disponible',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    latitud DECIMAL(10,8) DEFAULT NULL,
+    longitud DECIMAL(11,8) DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- Agregar columnas para eliminar y editar mensajes
 ALTER TABLE mensajes 
 ADD COLUMN edited_at TIMESTAMP NULL DEFAULT NULL,
