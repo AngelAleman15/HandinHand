@@ -1789,16 +1789,21 @@ body.body-messaging .header {
                     Contactos
                 </h2>
             </div>
-            
-            <div class="contacts-search">
+            <div class="contacts-tabs" style="display: flex; border-bottom: 1px solid #e9ecef;">
+                <button id="tab-contactos" class="contacts-tab active" style="flex:1; padding: 10px; border:none; background:#f8f9fa; cursor:pointer; font-weight:600;">Contactos</button>
+                <button id="tab-solicitudes" class="contacts-tab" style="flex:1; padding: 10px; border:none; background:#f8f9fa; cursor:pointer; font-weight:600;">Solicitudes</button>
+            </div>
+            <div class="contacts-search" id="contacts-search-wrapper">
                 <div class="search-wrapper">
                     <i class="fas fa-search"></i>
                     <input type="text" class="search-input" placeholder="Buscar contactos..." id="search-contacts">
                 </div>
             </div>
-            
             <div class="contacts-list" id="contacts-list">
                 <!-- Los contactos se cargarán dinámicamente aquí -->
+            </div>
+            <div class="solicitudes-list" id="solicitudes-list" style="display:none; flex:1; overflow-y:auto; padding:10px;">
+                <!-- Las solicitudes de amistad se cargarán aquí -->
             </div>
         </div>
 
@@ -1834,7 +1839,7 @@ body.body-messaging .header {
             <div class="chat-header">
                 <div class="chat-header-info">
                     <a href="#" class="chat-header-avatar" id="chat-header-avatar-link" title="Ver perfil">
-                        <img src="img/usuario.png" alt="Avatar" id="chat-user-avatar">
+                        <img src="img/usuario.png" alt="Avatar" id="chat-user-avatar" onerror="this.src='img/usuario.png'">
                     </a>
                     <div class="chat-header-details">
                         <h3 id="chat-user-name">Usuario</h3>
@@ -1846,7 +1851,7 @@ body.body-messaging .header {
                 </div>
                 <div class="chat-header-actions">
                     <button class="chat-header-btn" title="Buscar en conversación" id="search-icon">
-                        <i class="fas fa-search" id="search-icon></i>
+                        <i class="fas fa-search" id="search-icon"></i>
                     </button>
                     <button class="chat-header-btn" title="Información del usuario">
                         <i class="fas fa-info-circle"></i>
@@ -2009,13 +2014,9 @@ body.body-messaging .header {
             body.style.paddingTop = headerHeight + 'px';
             messagingContainer.style.height = `calc(100vh - ${headerHeight}px)`;
             messagingContainer.style.marginTop = '0';
-            
             if (chatMainContainer) {
                 chatMainContainer.style.height = '100%';
             }
-            
-            console.log('📏 Header height:', headerHeight + 'px');
-            console.log('📐 Container height:', messagingContainer.style.height);
         }
     }
     

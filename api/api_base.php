@@ -274,8 +274,29 @@ function getCurrentUser() {
     require_once __DIR__ . '/../config/database.php';
     try {
         $pdo = getConnection();
+<<<<<<< HEAD
+        
+        // Consultar datos del usuario
+        $stmt = $pdo->prepare("
+            SELECT 
+                id,
+                fullname,
+                username,
+                email,
+                phone,
+                password,
+                birthdate,
+                created_at,
+                updated_at,
+                avatar_path
+            FROM usuarios 
+            WHERE id = ?
+        ");
+        
+=======
         // Consulta adaptada a tu estructura real
         $stmt = $pdo->prepare("SELECT id, fullname, username, email, avatar_path, created_at FROM usuarios WHERE id = ?");
+>>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
         $stmt->execute([$user_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$user) {

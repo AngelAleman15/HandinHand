@@ -54,12 +54,8 @@ HandinHand Socket.IO (TCP 3001)      True    Inbound   Allow
 
 ## ✅ Verificar que funciona
 
-Desde otro dispositivo en la misma red, abre:
-```
-http://TU_IP:3001/socket.io/socket.io.js
-```
 
-Si ves código JavaScript, el puerto está abierto correctamente.
+Desde otro dispositivo en la misma red, abre una página de tu frontend y verifica que la mensajería funcione en tiempo real. Ya no es necesario acceder a /socket.io/socket.io.js, solo asegúrate de que el puerto 3001 esté accesible para WebSocket.
 
 ---
 

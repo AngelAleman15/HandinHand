@@ -68,6 +68,21 @@ try {
     $diasMiembro = 0;
 }
 
+// Obtener promedio y total de valoraciones para mostrar en el perfil
+$promedio_val = 0;
+$total_val = 0;
+try {
+    require_once __DIR__ . '/config/database.php';
+    $db = getConnection();
+    $stmt = $db->prepare('SELECT AVG(puntuacion) as promedio, COUNT(*) as total FROM valoraciones WHERE usuario_id = ?');
+    $stmt->execute([$user['id']]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row) {
+        $promedio_val = round(floatval($row['promedio']), 1);
+        $total_val = intval($row['total']);
+    }
+} catch (Exception $e) {}
+
 // Incluir header
 include 'includes/header.php';
 ?>
@@ -106,6 +121,14 @@ body {
                     </div>
                     <p class="member-since">Miembro desde hace <?php echo $diasMiembro; ?> días</p>
                     <div class="profile-actions">
+<<<<<<< HEAD
+                        <button class="btn btn-primary" onclick="editPersonalInfo()">
+                            <i class="fas fa-edit"></i> Editar Perfil
+                        </button>
+                        <a href="mis-productos.php" class="btn btn-primary">
+                            <i class="fas fa-box"></i> Mis Productos
+                        </a>
+=======
                         <?php
                         // Si el perfil es de otro usuario
                         $mi_id = $_SESSION['user_id'];
@@ -138,6 +161,7 @@ body {
                             echo '<button class="btn btn-primary" onclick="showWipMessage(\'Mis Productos\')"><i class="fas fa-box"></i> Mis Productos <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></button>';
                         }
                         ?>
+>>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
                     </div>
                 </div>
             </div>
@@ -146,7 +170,7 @@ body {
 
     <!-- Contenido principal -->
     <div class="profile-content">
-        <!-- Tarjetas de estadísticas -->
+        <!-- Tarjetas de estadísticas (solo una fila, sin duplicados) -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">
@@ -157,7 +181,6 @@ body {
                     <p>Productos Totales</p>
                 </div>
             </div>
-            
             <div class="stat-card">
                 <div class="stat-icon available">
                     <i class="fas fa-check-circle"></i>
@@ -167,7 +190,6 @@ body {
                     <p>Disponibles</p>
                 </div>
             </div>
-            
             <div class="stat-card">
                 <div class="stat-icon exchanged">
                     <i class="fas fa-exchange-alt"></i>
@@ -177,7 +199,6 @@ body {
                     <p>Intercambiados</p>
                 </div>
             </div>
-            
             <div class="stat-card">
                 <div class="stat-icon messages">
                     <i class="fas fa-comment"></i>
@@ -187,6 +208,150 @@ body {
                     <p>Mensajes</p>
                 </div>
             </div>
+        </div>
+
+        <!-- Tarjeta de promedio de valoraciones ocupando toda la fila -->
+        <?php
+        // Obtener las 3 mejores y más recientes valoraciones ANTES de cualquier salida
+        $valoraciones_top = [];
+        $valoraciones_debug = '';
+        try {
+            $db = getConnection();
+            $stmt = $db->prepare('SELECT * FROM valoraciones WHERE usuario_id = ? ORDER BY puntuacion DESC, created_at DESC LIMIT 3');
+            $stmt->execute([$user['id']]);
+            $valoraciones_top = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Verificar si la tabla users existe
+            $users_exists = false;
+            try {
+                $db->query("SELECT 1 FROM users LIMIT 1");
+                $users_exists = true;
+            } catch (Exception $e) {
+                $users_exists = false;
+            }
+            $nombres_valoradores = [];
+            $usernames_valoradores = [];
+            $usuarios_map = [];
+            error_log('VALORACIONES DEBUG: INICIO procesamiento valoraciones_top: ' . print_r($valoraciones_top, true));
+            // Cambiar a tabla 'usuarios'
+            $usuarios_exists = false;
+            try {
+                $db->query("SELECT 1 FROM usuarios LIMIT 1");
+                $usuarios_exists = true;
+            } catch (Exception $e) {
+                $usuarios_exists = false;
+            }
+            $ids_valoradores = array_column($valoraciones_top, 'valorador_id');
+            if ($usuarios_exists && !empty($ids_valoradores)) {
+                $in = str_repeat('?,', count($ids_valoradores) - 1) . '?';
+                $stmt2 = $db->prepare("SELECT id, fullname, username FROM usuarios WHERE id IN ($in)");
+                $stmt2->execute($ids_valoradores);
+                $usuarios_result = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+                error_log('VALORACIONES DEBUG: resultado consulta usuarios=' . print_r($usuarios_result, true));
+                foreach ($usuarios_result as $row) {
+                    $usuarios_map[$row['id']] = $row;
+                }
+            }
+            error_log('VALORACIONES DEBUG: usuarios_map=' . print_r($usuarios_map, true));
+            foreach ($valoraciones_top as &$v) {
+                $nombre = '';
+                $username = '';
+                if ($usuarios_exists && isset($v['valorador_id']) && isset($usuarios_map[$v['valorador_id']])) {
+                    $nombre = $usuarios_map[$v['valorador_id']]['fullname'];
+                    $username = $usuarios_map[$v['valorador_id']]['username'];
+                }
+                $v['valorador_nombre'] = ($nombre !== null && $nombre !== '') ? $nombre : (($username !== null && $username !== '') ? '@'.$username : 'Usuario');
+                // Siempre asignar un string
+                if (!isset($v['valorador_nombre']) || $v['valorador_nombre'] === null) {
+                    $v['valorador_nombre'] = 'Usuario';
+                }
+                error_log('VALORACIONES DEBUG: valorador_id=' . (isset($v['valorador_id']) ? $v['valorador_id'] : 'NO_ID') . ' nombre=' . $nombre . ' username=' . $username . ' valorador_nombre=' . $v['valorador_nombre']);
+            }
+            unset($v);
+            error_log('VALORACIONES DEBUG: valoraciones_top FINAL=' . print_r($valoraciones_top, true));
+            $valoraciones_debug = '<!-- Valoraciones encontradas: '.count($valoraciones_top).'\n'.print_r($valoraciones_top, true).' -->';
+        } catch (Exception $e) {
+            $valoraciones_debug = '<!-- Error SQL: '.htmlspecialchars($e->getMessage()).' -->';
+        }
+        echo $valoraciones_debug;
+        ?>
+        <div style="width:100%; max-width:700px; margin:18px auto 0 auto;">
+            <div style="background:#fff; border-radius:18px; box-shadow:0 2px 16px #313C2633; padding:32px 38px 18px 38px; display:flex; flex-direction:column; align-items:center; width:100%;">
+                <div style="display:flex; align-items:center; gap:18px; margin-bottom:10px;">
+                    <span style="background:#313C26; color:#FFD700; border-radius:12px; padding:10px 16px; font-size:2em; display:flex; align-items:center;"><i class="fas fa-star"></i></span>
+                    <span style="font-size:2.2em; color:#3A5D1A; font-weight:700; letter-spacing:1px;"> <?php echo $promedio_val; ?> </span>
+                    <span>
+                        <?php
+                        $rounded = round($promedio_val);
+                        for ($i=1; $i<=5; $i++) {
+                            echo "<i class='fas fa-star' style='color:".($i<=$rounded?'#FFD700':'#eee')."; font-size:1.5em;'></i>";
+                        }
+                        ?>
+                    </span>
+                </div>
+                <div style="color:#888; font-size:1.1em; margin-bottom:10px;">Promedio (<?php echo $total_val; ?> valoraciones)</div>
+
+                <!-- Mostrar las 3 mejores y más recientes valoraciones -->
+                <div style="width:100%; display:flex; flex-direction:column; gap:12px; justify-content:center; align-items:center;">
+                    <?php if (count($valoraciones_top) === 0): ?>
+                        <div style="color:#bbb; font-size:1.1em; text-align:center; width:100%;">No hay valoraciones para mostrar.</div>
+                    <?php else: ?>
+                        <?php if (count($valoraciones_top) > 0): ?>
+                            <?php $v =& $valoraciones_top[0]; // referencia para asegurar que tenga valorador_nombre ?>
+                            <div style="background:#F8FFF2; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.07); padding:16px 24px 16px 24px; min-width:320px; max-width:700px; width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:8px; margin-bottom:6px; min-height:70px;">
+                                <div style="display:flex; align-items:center; gap:16px; margin-bottom:6px;">
+                                    <img src='img/usuario.png' style='width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid #C9F89B;'>
+                                    <div>
+                                        <div style="font-weight:700; color:#3A5D1A; font-size:1.18em; margin-bottom:2px;"> <?php echo htmlspecialchars(isset($v['valorador_nombre']) && $v['valorador_nombre'] ? $v['valorador_nombre'] : 'Usuario'); ?> </div>
+                                        <div style="font-size:1em; color:#888;"> <?php echo date('d/m/Y', strtotime($v['created_at'])); ?> </div>
+                                    </div>
+                                </div>
+                                <div style="font-size:1.13em; color:#333; margin-bottom:8px; word-break:break-word; line-height:1.6; padding-left:4px;"> <?php echo $v['comentario'] ? htmlspecialchars($v['comentario']) : '<span style=\'color:#bbb\'>(Sin comentario)</span>'; ?> </div>
+                                <div style="display:flex; align-items:center; gap:10px; margin-left:4px;">
+                                    <span>
+                                        <?php
+                                        $p = intval(round($v['puntuacion']));
+                                        for ($i=1; $i<=5; $i++) {
+                                            echo "<i class='fas fa-star' style='color:".($i<=$p?'#FFD700':'#eee')."; font-size:1.3em;'></i>";
+                                        }
+                                        ?>
+                                    </span>
+                                    <span style="font-size:1.18em; color:#FFD700; font-weight:bold; margin-left:6px;"> <?php echo $v['puntuacion']; ?> </span>
+                                </div>
+                            </div>
+                            <?php if (count($valoraciones_top) > 1): ?>
+                                <button id="btn-mostrar-mas-valoraciones" onclick="document.getElementById('valoraciones-extra').style.display='block'; this.style.display='none';" style="margin:8px 0 0 0; background:#C9F89B; color:#313C26; border:none; border-radius:8px; padding:8px 18px; font-size:1em; cursor:pointer; font-weight:600;">Ver más valoraciones</button>
+                                <div id="valoraciones-extra" style="display:none; width:100%; margin-top:8px;">
+                                    <?php for ($i=1; $i<count($valoraciones_top); $i++): $v = $valoraciones_top[$i]; ?>
+                                        <div style="background:#F8FFF2; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.07); padding:16px 24px 16px 24px; min-width:320px; max-width:700px; width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:8px; margin-bottom:6px; min-height:70px;">
+                                            <div style="display:flex; align-items:center; gap:16px; margin-bottom:6px;">
+                                                <img src='img/usuario.png' style='width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid #C9F89B;'>
+                                                <div>
+                                                    <div style="font-weight:700; color:#3A5D1A; font-size:1.18em; margin-bottom:2px;"> <?php echo htmlspecialchars(isset($v['valorador_nombre']) && $v['valorador_nombre'] ? $v['valorador_nombre'] : 'Usuario'); ?> </div>
+                                                    <div style="font-size:1em; color:#888;"> <?php echo date('d/m/Y', strtotime($v['created_at'])); ?> </div>
+                                                </div>
+                                            </div>
+                                            <div style="font-size:1.13em; color:#333; margin-bottom:8px; word-break:break-word; line-height:1.6; padding-left:4px;"> <?php echo $v['comentario'] ? htmlspecialchars($v['comentario']) : '<span style=\'color:#bbb\'>(Sin comentario)</span>'; ?> </div>
+                                            <div style="display:flex; align-items:center; gap:10px; margin-left:4px;">
+                                                <span>
+                                                    <?php
+                                                    $p = intval(round($v['puntuacion']));
+                                                    for ($j=1; $j<=5; $j++) {
+                                                        echo "<i class='fas fa-star' style='color:".($j<=$p?'#FFD700':'#eee')."; font-size:1.3em;'></i>";
+                                                    }
+                                                    ?>
+                                                </span>
+                                                <span style="font-size:1.18em; color:#FFD700; font-weight:bold; margin-left:6px;"> <?php echo $v['puntuacion']; ?> </span>
+                                            </div>
+                                        </div>
+                                    <?php endfor; ?>
+                                    <button id="btn-ocultar-valoraciones" onclick="document.getElementById('valoraciones-extra').style.display='none'; document.getElementById('btn-mostrar-mas-valoraciones').style.display='inline-block';" style="margin:8px 0 0 0; background:#eee; color:#313C26; border:none; border-radius:8px; padding:8px 18px; font-size:1em; cursor:pointer; font-weight:600; width:100%;">Ocultar valoraciones</button>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
         </div>
 
         <div class="profile-sections">
@@ -275,9 +440,9 @@ body {
                             <i class="fas fa-comments"></i>
                             <span>Mensajes <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></span>
                         </button>
-                        <button class="quick-action-btn" onclick="showWipMessage('Valoraciones')">
+                        <button class="quick-action-btn" onclick="mostrarValoraciones()">
                             <i class="fas fa-star"></i>
-                            <span>Valoraciones <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></span>
+                            <span>Valoraciones</span>
                         </button>
                         <button class="quick-action-btn" onclick="testConnectivitySimple()">
                             <i class="fas fa-wifi"></i>
@@ -309,6 +474,87 @@ body {
         </div>
     </div>
 </div>
+
+<!-- MODAL DE VALORACIONES: debe ir fuera de cualquier contenedor principal -->
+<div id="valoraciones-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.32); z-index:99999; align-items:center; justify-content:center; transition:background 0.2s;">
+    <div id="valoraciones-modal-content" style="background:white; max-width:700px; width:98vw; border-radius:22px; box-shadow:0 12px 40px rgba(0,0,0,0.22); padding:44px 36px 36px 36px; position:relative; min-height:350px; max-height:80vh; display:flex; flex-direction:column; justify-content:flex-start; animation:fadeInModal 0.35s cubic-bezier(.4,1.4,.6,1.0);">
+        <button onclick="cerrarValoracionesModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; font-size:28px; color:#888; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#313C26'" onmouseout="this.style.color='#888'"><i class='fas fa-times'></i></button>
+        <h2 style="margin-top:0; color:#3A5D1A; font-size:2.1em; margin-bottom:18px; font-family:'Segoe UI',sans-serif; letter-spacing:0.5px;">Valoraciones recibidas</h2>
+        <div id="valoraciones-list" style="flex:1; overflow-y:auto; margin-top:18px; padding-right:8px; min-height:120px;"></div>
+    </div>
+</div>
+
+<style>
+@keyframes fadeInModal {
+  from { opacity:0; transform:scale(0.97); }
+  to { opacity:1; transform:scale(1); }
+}
+</style>
+
+<script>
+function cerrarValoracionesModal() {
+    document.getElementById('valoraciones-modal').style.display = 'none';
+    document.removeEventListener('keydown', escListenerValoraciones);
+}
+function escListenerValoraciones(e) {
+    if (e.key === 'Escape') cerrarValoracionesModal();
+}
+function mostrarValoraciones() {
+    const modal = document.getElementById('valoraciones-modal');
+    const list = document.getElementById('valoraciones-list');
+    list.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Cargando valoraciones...</div>';
+    modal.style.display = 'flex';
+    setTimeout(() => document.addEventListener('keydown', escListenerValoraciones), 100);
+    fetch('api/valoraciones.php?usuario_id=<?php echo $user['id']; ?>')
+        .then(r => r.json())
+        .then(res => {
+            let valoraciones = [];
+            let promedio = 0;
+            let total = 0;
+            if (Array.isArray(res)) {
+                valoraciones = res;
+            } else if (res.data && Array.isArray(res.data.valoraciones)) {
+                valoraciones = res.data.valoraciones;
+                promedio = res.data.promedio || 0;
+                total = res.data.total || valoraciones.length;
+            } else if (res.valoraciones && Array.isArray(res.valoraciones)) {
+                valoraciones = res.valoraciones;
+                promedio = res.promedio || 0;
+                total = res.total || valoraciones.length;
+            }
+            if (valoraciones.length > 0) {
+                let stars = '';
+                for (let i = 1; i <= 5; i++) {
+                    stars += `<i class='fas fa-star' style='color:${i <= Math.round(promedio) ? '#FFD700' : '#eee'}; font-size:1.5em;'></i>`;
+                }
+                list.innerHTML = `
+                    <div style='text-align:center; margin-bottom:24px;'>
+                        <div style='font-size:1.2em; color:#3A5D1A; font-weight:600; font-family:Segoe UI;'>Promedio: <span style='color:#FFD700; font-size:1.5em;'>${promedio.toFixed(1)}</span> ${stars}</div>
+                        <div style='font-size:1em; color:#888; margin-bottom:10px;'>${total} valoraciones</div>
+                    </div>
+                    <div style='display:flex; flex-direction:column; gap:24px;'>
+                        ${valoraciones.map(v => `
+                            <div style="background:linear-gradient(90deg,#F8FFF2 80%,#F3F3F3 100%); border-radius:16px; box-shadow:0 2px 12px rgba(60,120,40,0.07); padding:22px 20px; display:flex; align-items:center; gap:22px; margin:0 8px; min-height:80px; border:1.5px solid #C9F89B; transition:box-shadow 0.2s;">
+                                <img src="${v.valorador_avatar || 'img/usuario.png'}" style="width:62px; height:62px; border-radius:50%; object-fit:cover; border:2.5px solid #C9F89B; box-shadow:0 2px 8px #C9F89B33;">
+                                <div style="flex:1; min-width:0;">
+                                    <div style="font-weight:600; color:#3A5D1A; font-size:1.15em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:Segoe UI;">${v.valorador_nombre || v.valorador_username || v.valorador_id || 'Usuario'}</div>
+                                    <div style="font-size:14px; color:#888; margin-bottom:2px;">${v.created_at ? (new Date(v.created_at)).toLocaleDateString() : ''}</div>
+                                    <div style="font-size:16px; color:#333; margin-top:8px; white-space:pre-line; word-break:break-word; font-family:Segoe UI;">${v.comentario ? v.comentario : '<span style=\'color:#bbb\'>(Sin comentario)</span>'}</div>
+                                </div>
+                                <div style="font-size:2.2em; color:#FFD700; font-weight:bold; min-width:62px; text-align:center; text-shadow:0 2px 8px #FFD70033;">${v.puntuacion} <i class="fas fa-star"></i></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                list.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">No hay valoraciones aún.</div>';
+            }
+        })
+        .catch(() => {
+            list.innerHTML = '<div style="color:red; text-align:center; padding:20px;">Error al cargar valoraciones.</div>';
+        });
+}
+</script>
 
 <style>
 /* === ESTILOS MODERNOS PARA EL PERFIL === */
@@ -1755,9 +2001,11 @@ function changePassword() {
                            placeholder="Repite la nueva contraseña"
                            style="margin: 0; width: 100%; box-sizing: border-box; height: 40px; font-size: 14px;">
                 </div>
-                <div style="background: #fff3cd; padding: 10px; border-radius: 6px; border-left: 3px solid #ffc107;">
+                <div style="background: #fff3cd; padding: 10px; border-radius: 6px; border-left: 4px solid #ffc107;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #dc3545; font-size: 14px;">
+                        <i class="fas fa-shield-alt"></i> Seguridad:
+                    </label>
                     <small style="color: #856404; font-size: 11px;">
-                        <i class="fas fa-shield-alt"></i> 
                         Por seguridad, deberás iniciar sesión nuevamente después del cambio.
                     </small>
                 </div>
@@ -1810,18 +2058,13 @@ function changePassword() {
             // Mostrar loading
             Swal.fire({
                 title: '🔐 Cambiando Contraseña...',
+
                 html: `
                     <div style="text-align: center;">
                         <div style="width: 60px; height: 60px; margin: 0 auto 15px; border: 4px solid #f3f3f3; border-top: 4px solid #A2CB8D; border-radius: 50%; animation: spin 1s linear infinite;"></div>
                         <p>Actualizando tu contraseña...</p>
                         <small style="color: #666;">Esto puede tomar unos segundos</small>
                     </div>
-                    <style>
-                        @keyframes spin {
-                            0% { transform: rotate(0deg); }
-                            100% { transform: rotate(360deg); }
-                        }
-                    </style>
                 `,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
@@ -1830,1109 +2073,6 @@ function changePassword() {
             
             // Enviar datos al servidor
             updatePassword(data);
-        }
-    });
-}
-
-// Función para actualizar la contraseña en el servidor
-function updatePassword(passwordData) {
-    const formData = new FormData();
-    formData.append('action', 'change_password');
-    formData.append('current_password', passwordData.currentPassword);
-    formData.append('new_password', passwordData.newPassword);
-    formData.append('confirm_password', passwordData.confirmPassword);
-    
-    console.log('=== DEBUG: Enviando cambio de contraseña ===');
-    console.log('Action:', 'change_password');
-    console.log('Current password length:', passwordData.currentPassword.length);
-    console.log('New password length:', passwordData.newPassword.length);
-    
-    fetch('api/update-profile.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        console.log('=== DEBUG: Respuesta del servidor ===');
-        console.log('Status:', response.status);
-        console.log('Status Text:', response.statusText);
-        console.log('Headers:', response.headers);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return response.text();
-    })
-    .then(textData => {
-        console.log('=== DEBUG: Datos recibidos ===');
-        console.log('Raw response:', textData);
-        console.log('Response length:', textData.length);
-        
-        try {
-            const data = JSON.parse(textData);
-            console.log('Parsed data:', data);
-            
-            if (data.success) {
-                // Éxito: mostrar mensaje y redirigir al login
-                Swal.fire({
-                    title: '✅ ¡Contraseña Actualizada!',
-                    text: 'Tu contraseña se ha cambiado correctamente. Por seguridad, debes iniciar sesión nuevamente.',
-                    icon: 'success',
-                    confirmButtonColor: '#A2CB8D',
-                    confirmButtonText: 'Ir al Login',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                }).then(() => {
-                    // Redirigir al logout para que inicie sesión nuevamente
-                    window.location.href = 'logout.php';
-                });
-            } else {
-                // Error del servidor
-                Swal.fire({
-                    title: '❌ Error al Cambiar Contraseña',
-                    html: `
-                        <div style="text-align: left;">
-                            <p style="margin-bottom: 15px;">${data.message || 'Hubo un problema al cambiar tu contraseña'}</p>
-                            ${data.errors && data.errors.length > 0 ? 
-                                '<ul style="color: #dc3545; margin: 0; padding-left: 20px;">' + 
-                                data.errors.map(error => `<li>${error}</li>`).join('') + 
-                                '</ul>' : ''
-                            }
-                        </div>
-                    `,
-                    icon: 'error',
-                    confirmButtonColor: '#A2CB8D'
-                });
-            }
-        } catch (parseError) {
-            console.error('=== DEBUG: Error de parsing JSON ===');
-            console.error('Parse error:', parseError);
-            console.error('Raw response that failed to parse:', textData);
-            
-            Swal.fire({
-                title: '❌ Error de Comunicación',
-                html: `
-                    <div style="text-align: left;">
-                        <p>Error en la respuesta del servidor.</p>
-                        <details style="margin-top: 10px;">
-                            <summary>Detalles técnicos (clic para expandir)</summary>
-                            <div style="background: #f8f8f8; padding: 10px; margin-top: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; word-break: break-all;">
-                                <strong>Error:</strong> ${parseError.message}<br><br>
-                                <strong>Respuesta del servidor:</strong><br>
-                                ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                            </div>
-                        </details>
-                    </div>
-                `,
-                icon: 'error',
-                confirmButtonColor: '#A2CB8D',
-                width: '600px'
-            });
-        }
-    })
-    .catch(error => {
-        console.error('=== DEBUG: Error de fetch ===');
-        console.error('Fetch error:', error);
-        
-        Swal.fire({
-            title: '❌ Error de Conexión',
-            html: `
-                <div style="text-align: left;">
-                    <p>No se pudo conectar con el servidor.</p>
-                    <div style="margin-top: 10px; padding: 10px; background: #f8f8f8; border-radius: 4px;">
-                        <strong>Error:</strong> ${error.message}
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <button onclick="testConnectivity()" style="background: #A2CB8D; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
-                            🔧 Probar Conectividad
-                        </button>
-                    </div>
-                </div>
-            `,
-            icon: 'error',
-            confirmButtonColor: '#A2CB8D',
-            width: '500px'
-        });
-    });
-}
-
-// Test actualización visual del avatar
-function testVisualUpdate() {
-    const results = document.getElementById('testResults');
-    
-    // Encontrar el elemento de imagen actual
-    const avatarImg = document.querySelector('.profile-avatar img');
-    
-    if (!avatarImg) {
-        results.innerHTML = '<div style="color: red;">❌ No se encontró el elemento de imagen del avatar</div>';
-        return;
-    }
-    
-    const currentSrc = avatarImg.src;
-    
-    results.innerHTML = `
-        <div style="color: blue;">🔄 Probando actualización visual...</div>
-        <div style="background: white; padding: 10px; border-radius: 3px; margin: 10px 0;">
-            <strong>Imagen actual:</strong><br>
-            <div style="font-family: monospace; font-size: 12px; word-break: break-all;">${currentSrc}</div>
-        </div>
-        <div style="margin: 10px 0;">
-            <button onclick="forceUpdateAvatar()" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 3px;">
-                🔄 Forzar Actualización de Imagen
-            </button>
-        </div>
-    `;
-}
-
-// Forzar actualización del avatar
-function forceUpdateAvatar() {
-    const avatarImg = document.querySelector('.profile-avatar img');
-    const results = document.getElementById('testResults');
-    
-    if (!avatarImg) {
-        results.innerHTML += '<div style="color: red;">❌ No se puede actualizar: elemento no encontrado</div>';
-        return;
-    }
-    
-    // Generar nueva URL con timestamp
-    const currentSrc = avatarImg.src;
-    const baseSrc = currentSrc.split('?')[0]; // Quitar timestamp previo
-    const newSrc = baseSrc + '?t=' + Date.now();
-    
-    console.log('Forzando actualización de:', currentSrc, 'a:', newSrc);
-    
-    avatarImg.src = newSrc;
-    
-    results.innerHTML += `
-        <div style="color: green; margin-top: 10px;">✅ Imagen forzada a actualizar</div>
-        <div style="background: white; padding: 10px; border-radius: 3px; margin: 10px 0;">
-            <strong>Nueva URL:</strong><br>
-            <div style="font-family: monospace; font-size: 12px; word-break: break-all;">${newSrc}</div>
-        </div>
-    `;
-}
-
-// Test datos de recorte
-function testCropData() {
-    const results = document.getElementById('testResults');
-    
-    // Crear un input file temporal para simular el proceso
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    
-    input.onchange = function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        results.innerHTML = '<div style="color: blue;">🔄 Probando datos de recorte...</div>';
-        
-        // Crear una imagen temporal para el cropper
-        const imageUrl = URL.createObjectURL(file);
-        const tempImg = document.createElement('img');
-        tempImg.src = imageUrl;
-        tempImg.style.position = 'absolute';
-        tempImg.style.left = '-9999px';
-        tempImg.style.width = '300px';
-        document.body.appendChild(tempImg);
-        
-        tempImg.onload = function() {
-            // Inicializar cropper temporal
-            const tempCropper = new Cropper(tempImg, {
-                aspectRatio: 1,
-                viewMode: 1,
-                ready: function() {
-                    // Obtener datos del recorte
-                    const cropData = tempCropper.getData();
-                    
-                    // Mostrar datos
-                    results.innerHTML = `
-                        <div style="color: green;">✅ Datos de recorte obtenidos</div>
-                        <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
-Archivo: ${file.name}
-Tamaño: ${file.size} bytes
-Tipo: ${file.type}
-
-Datos de recorte:
-${JSON.stringify(cropData, null, 2)}
-                        </pre>
-                        <div style="margin-top: 10px;">
-                            <button onclick="testCropUpload()" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px;">
-                                📤 Probar Upload con estos datos
-                            </button>
-                        </div>
-                    `;
-                    
-                    // Guardar datos globalmente para el test
-                    window.testCropFile = file;
-                    window.testCropData = cropData;
-                    
-                    // Limpiar recursos
-                    tempCropper.destroy();
-                    document.body.removeChild(tempImg);
-                    URL.revokeObjectURL(imageUrl);
-                }
-            });
-        };
-    };
-    
-    // Simular click
-    input.click();
-}
-
-// Test upload con datos de recorte
-function testCropUpload() {
-    if (!window.testCropFile || !window.testCropData) {
-        document.getElementById('testResults').innerHTML = '<div style="color: red;">❌ No hay datos de recorte para probar</div>';
-        return;
-    }
-    
-    const results = document.getElementById('testResults');
-    results.innerHTML = '<div style="color: blue;">🔄 Probando upload con recorte...</div>';
-    
-    const formData = new FormData();
-    formData.append('avatar', window.testCropFile);
-    formData.append('cropData', JSON.stringify({ cropData: window.testCropData }));
-    
-    console.log('=== TEST CROP UPLOAD ===');
-    console.log('Archivo:', window.testCropFile.name);
-    console.log('Datos de recorte:', window.testCropData);
-    
-    fetch('api/upload-avatar.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        console.log('Respuesta:', response.status, response.statusText);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        return response.text();
-    })
-    .then(textData => {
-        console.log('Respuesta raw:', textData);
-        
-        try {
-            const data = JSON.parse(textData);
-            results.innerHTML = `
-                <div style="color: green;">✅ Upload con recorte exitoso</div>
-                <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
-${JSON.stringify(data, null, 2)}
-                </pre>
-            `;
-        } catch (parseError) {
-            results.innerHTML = `
-                <div style="color: red;">❌ Error de JSON en upload con recorte: ${parseError.message}</div>
-                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
-                    <strong>Respuesta raw:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                </div>
-            `;
-        }
-    })
-    .catch(error => {
-        console.error('Error en test crop upload:', error);
-        results.innerHTML = `<div style="color: red;">❌ Error en upload con recorte: ${error.message}</div>`;
-    });
-}
-
-// Test ultra básico - PHP puro sin JSON
-function testUltraBasic() {
-    const results = document.getElementById('testResults');
-    results.innerHTML = '<div style="color: blue;">🔄 Probando PHP ultra básico...</div>';
-    
-    fetch('test-ultra-basic.php')
-    .then(response => {
-        console.log('Ultra basic - Response status:', response.status);
-        console.log('Ultra basic - Response headers:', response.headers);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        return response.text();
-    })
-    .then(textData => {
-        console.log('Ultra basic - Raw response:', textData);
-        
-        if (textData.includes('PHP funciona correctamente')) {
-            results.innerHTML = `
-                <div style="color: green;">✅ PHP Ultra Básico OK</div>
-                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace;">
-                    Respuesta: ${textData}
-                </div>
-            `;
-        } else {
-            results.innerHTML = `
-                <div style="color: orange;">⚠️ Respuesta inesperada</div>
-                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace;">
-                    ${textData}
-                </div>
-            `;
-        }
-    })
-    .catch(error => {
-        console.error('Ultra basic error:', error);
-        results.innerHTML = `<div style="color: red;">❌ Error ultra básico: ${error.message}</div>`;
-    });
-}
-
-// Test ultra JSON - PHP con JSON pero sin includes
-function testUltraJson() {
-    const results = document.getElementById('testResults');
-    results.innerHTML = '<div style="color: blue;">🔄 Probando PHP con JSON...</div>';
-    
-    fetch('api/test-ultra-json.php')
-    .then(response => {
-        console.log('Ultra JSON - Response status:', response.status);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        return response.text();
-    })
-    .then(textData => {
-        console.log('Ultra JSON - Raw response:', textData);
-        
-        try {
-            const data = JSON.parse(textData);
-            results.innerHTML = `
-                <div style="color: green;">✅ PHP con JSON OK</div>
-                <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
-${JSON.stringify(data, null, 2)}
-                </pre>
-            `;
-        } catch (parseError) {
-            results.innerHTML = `
-                <div style="color: red;">❌ Error de JSON en ultra test: ${parseError.message}</div>
-                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
-                    <strong>Respuesta raw:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                </div>
-            `;
-        }
-    })
-    .catch(error => {
-        console.error('Ultra JSON error:', error);
-        results.innerHTML = `<div style="color: red;">❌ Error en ultra JSON: ${error.message}</div>`;
-    });
-}
-
-// Test mínimo para verificar que PHP funciona
-function testMinimal() {
-    const results = document.getElementById('testResults');
-    results.innerHTML = '<div style="color: blue;">🔄 Probando PHP básico...</div>';
-    
-    fetch('api/test-minimal.php', {
-        method: 'POST',
-        body: new FormData()
-    })
-    .then(response => {
-        console.log('Minimal test - Response status:', response.status);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        return response.text();
-    })
-    .then(textData => {
-        console.log('Minimal test - Raw response:', textData);
-        
-        try {
-            const data = JSON.parse(textData);
-            results.innerHTML = `
-                <div style="color: green;">✅ PHP Básico OK</div>
-                <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
-${JSON.stringify(data, null, 2)}
-                </pre>
-            `;
-        } catch (parseError) {
-            results.innerHTML = `
-                <div style="color: red;">❌ Error de JSON en test mínimo: ${parseError.message}</div>
-                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
-                    <strong>Respuesta raw:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                </div>
-            `;
-        }
-    })
-    .catch(error => {
-        console.error('Minimal test error:', error);
-        results.innerHTML = `<div style="color: red;">❌ Error en test mínimo: ${error.message}</div>`;
-    });
-}
-
-// Test de conectividad básica
-function testConnectivity() {
-    const results = document.getElementById('testResults');
-    results.innerHTML = '<div style="color: blue;">🔄 Probando conectividad...</div>';
-    
-    fetch('api/test-simple.php', {
-        method: 'POST',
-        body: new FormData()
-    })
-    .then(response => {
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        return response.text(); // Primero como texto para ver qué llega
-    })
-    .then(textData => {
-        console.log('Raw response:', textData);
-        
-        try {
-            const data = JSON.parse(textData);
-            results.innerHTML = `
-                <div style="color: green;">✅ Conectividad OK</div>
-                <pre style="font-size: 12px; background: white; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;">
-${JSON.stringify(data, null, 2)}
-                </pre>
-            `;
-        } catch (parseError) {
-            results.innerHTML = `
-                <div style="color: red;">❌ Error de JSON: ${parseError.message}</div>
-                <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
-                    <strong>Respuesta raw:</strong><br>
-                    ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                </div>
-            `;
-        }
-    })
-    .catch(error => {
-        console.error('Connectivity test error:', error);
-        results.innerHTML = `<div style="color: red;">❌ Error de conectividad: ${error.message}</div>`;
-    });
-}
-
-// Test de upload simple sin recorte
-function testSimpleUpload() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    
-    input.onchange = function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        const results = document.getElementById('testResults');
-        results.innerHTML = '<div style="color: blue;">🔄 Probando upload simple...</div>';
-        
-        const formData = new FormData();
-        formData.append('avatar', file);
-        
-        fetch('api/upload-simple.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            console.log('Upload response status:', response.status);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            return response.text(); // Primero como texto
-        })
-        .then(textData => {
-            console.log('Upload raw response:', textData);
-            
-            try {
-                const data = JSON.parse(textData);
-                
-                if (data.success) {
-                    results.innerHTML = `
-                        <div style="color: green;">✅ Upload simple exitoso</div>
-                        <div>Archivo: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)</div>
-                        <div>Avatar guardado en: ${data.data.avatar_path}</div>
-                    `;
-                    
-                    // Actualizar avatar en la página
-                    const avatarImg = document.querySelector('.profile-avatar img');
-                    if (avatarImg) {
-                        avatarImg.src = data.data.avatar_path + '?t=' + Date.now();
-                    }
-                } else {
-                    results.innerHTML = `<div style="color: red;">❌ Error: ${data.message}</div>`;
-                }
-            } catch (parseError) {
-                results.innerHTML = `
-                    <div style="color: red;">❌ Error de JSON: ${parseError.message}</div>
-                    <div style="background: white; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
-                        <strong>Respuesta raw:</strong><br>
-                        ${textData.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                    </div>
-                `;
-            }
-        })
-        .catch(error => {
-            results.innerHTML = `<div style="color: red;">❌ Error de red: ${error.message}</div>`;
-        });
-    };
-    
-    input.click();
-}
-
-// FUNCIÓN PRINCIPAL PARA EDITAR AVATAR
-// Esta función maneja todo el proceso: verificación, selección, recorte y subida
-function editAvatar() {
-    // Verificar si el usuario ya tiene avatar
-    const currentAvatar = document.querySelector('.profile-avatar img').src;
-    const hasAvatar = !currentAvatar.includes('usuario.png');
-    
-    // Si ya tiene avatar, preguntar si quiere cambiarlo
-    if (hasAvatar) {
-        Swal.fire({
-            title: '📸 ¿Cambiar Avatar?',
-            text: 'Ya tienes una foto de perfil. ¿Quieres cambiarla por una nueva?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, cambiar',
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#A2CB8D',
-            cancelButtonColor: '#6c757d'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                showAvatarUploader();
-            }
-        });
-    } else {
-        // Si no tiene avatar, ir directo al selector
-        showAvatarUploader();
-    }
-}
-
-// FUNCIÓN PARA MOSTRAR EL SELECTOR DE ARCHIVOS
-// Crea un input file temporal y lo activa
-function showAvatarUploader() {
-    Swal.fire({
-        title: '📷 Seleccionar Imagen',
-        html: `
-            <div style="text-align: center; padding: 20px;">
-                <div style="margin-bottom: 20px;">
-                    <i class="fas fa-cloud-upload-alt" style="font-size: 3em; color: #A2CB8D; margin-bottom: 15px;"></i>
-                    <p style="color: #666; margin-bottom: 20px;">Selecciona una imagen para tu foto de perfil</p>
-                </div>
-                
-                <input type="file" id="avatarFile" accept="image/*" style="display: none;">
-                <button type="button" class="btn btn-primary" onclick="document.getElementById('avatarFile').click()">
-                    <i class="fas fa-images"></i> Seleccionar Imagen
-                </button>
-                
-                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: left;">
-                    <small style="color: #666;">
-                        <strong>📋 Requisitos:</strong><br>
-                        • Tamaño máximo: 25MB<br>
-                        • Formatos: JPG, PNG, GIF, WebP<br>
-                        • Dimensión mínima: 100x100px<br>
-                        • Recomendado: Imagen cuadrada
-                    </small>
-                </div>
-            </div>
-        `,
-        showConfirmButton: false,
-        showCancelButton: true,
-        cancelButtonText: 'Cancelar',
-        cancelButtonColor: '#6c757d',
-        didOpen: () => {
-            // Cuando se abre el modal, configuramos el evento del input file
-            const fileInput = document.getElementById('avatarFile');
-            fileInput.addEventListener('change', handleFileSelection);
-        }
-    });
-}
-
-// FUNCIÓN PARA MANEJAR LA SELECCIÓN DE ARCHIVO
-// Se ejecuta cuando el usuario selecciona una imagen
-function handleFileSelection(event) {
-    const file = event.target.files[0];
-    
-    // Validar que se seleccionó un archivo
-    if (!file) {
-        return;
-    }
-    
-    // Validar tipo de archivo
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-        Swal.fire({
-            title: '❌ Archivo No Válido',
-            text: 'Por favor selecciona una imagen válida (JPG, PNG, GIF o WebP)',
-            icon: 'error',
-            confirmButtonColor: '#A2CB8D'
-        });
-        return;
-    }
-    
-    // Validar tamaño
-    const maxSize = 25 * 1024 * 1024; // 25MB
-    if (file.size > maxSize) {
-        Swal.fire({
-            title: '📏 Archivo Muy Grande',
-            text: 'La imagen debe ser menor a 25MB',
-            icon: 'error',
-            confirmButtonColor: '#A2CB8D'
-        });
-        return;
-    }
-    
-    // Si todo está bien, mostrar el recortador
-    showImageCropper(file);
-}
-
-// FUNCIÓN PARA MOSTRAR EL RECORTADOR DE IMAGEN
-// Usa Cropper.js para permitir al usuario recortar su imagen
-function showImageCropper(file) {
-    // Cerrar el modal actual
-    Swal.close();
-    
-    // Crear URL temporal para mostrar la imagen
-    const imageUrl = URL.createObjectURL(file);
-    
-    Swal.fire({
-        title: '✂️ Recortar Imagen',
-        html: `
-            <div style="max-width: 100%; margin: 0 auto;">
-                <div style="margin-bottom: 15px;">
-                    <p style="color: #666; margin: 0;">Arrastra para ajustar el área de tu foto de perfil</p>
-                </div>
-                <div style="max-height: 400px; overflow: hidden; border-radius: 8px;">
-                    <img id="cropperImage" src="${imageUrl}" style="max-width: 100%; display: block;">
-                </div>
-                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                    <small style="color: #666;">
-                        <i class="fas fa-info-circle"></i> 
-                        La imagen se recortará como un cuadrado perfecto para tu avatar
-                    </small>
-                </div>
-            </div>
-        `,
-        width: '600px',
-        showCancelButton: true,
-        confirmButtonText: '<i class="fas fa-upload"></i> Subir Avatar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#A2CB8D',
-        cancelButtonColor: '#6c757d',
-        didOpen: () => {
-            // Inicializar Cropper.js cuando el modal se abre
-            const image = document.getElementById('cropperImage');
-            window.cropper = new Cropper(image, {
-                aspectRatio: 1, // Forzar cuadrado (1:1)
-                viewMode: 1, // Mostrar imagen completa
-                dragMode: 'move',
-                autoCropArea: 0.8, // 80% del área inicial
-                restore: false,
-                guides: true,
-                center: true,
-                highlight: false,
-                cropBoxMovable: true,
-                cropBoxResizable: true,
-                toggleDragModeOnDblclick: false,
-                responsive: true,
-                checkOrientation: true
-            });
-        },
-        willClose: () => {
-            // NO destruir cropper aquí, lo haremos después del upload
-            URL.revokeObjectURL(imageUrl);
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Obtener datos del cropper ANTES de destruirlo
-            if (window.cropper) {
-                const cropData = window.cropper.getData();
-                console.log('=== DATOS DE RECORTE OBTENIDOS ===');
-                console.log('Crop data:', cropData);
-                
-                // Destruir cropper después de obtener datos
-                window.cropper.destroy();
-                window.cropper = null;
-                
-                // Subir con los datos obtenidos
-                uploadCroppedImageWithData(file, cropData);
-            } else {
-                console.error('❌ No hay cropper disponible');
-                Swal.fire({
-                    title: '❌ Error',
-                    text: 'Error en el recortador de imagen',
-                    icon: 'error',
-                    confirmButtonColor: '#A2CB8D'
-                });
-            }
-        } else {
-            // Si cancela, destruir cropper
-            if (window.cropper) {
-                window.cropper.destroy();
-                window.cropper = null;
-            }
-        }
-    });
-}
-
-// FUNCIÓN MEJORADA PARA SUBIR LA IMAGEN RECORTADA
-// Recibe los datos del cropper como parámetro (no depende de window.cropper)
-function uploadCroppedImageWithData(originalFile, cropData) {
-    // Validar que los datos de recorte sean válidos
-    if (!cropData || typeof cropData.x === 'undefined' || typeof cropData.y === 'undefined' ||
-        typeof cropData.width === 'undefined' || typeof cropData.height === 'undefined') {
-        Swal.fire({
-            title: '❌ Error',
-            text: 'Los datos de recorte no son válidos. Intenta de nuevo.',
-            icon: 'error',
-            confirmButtonColor: '#A2CB8D'
-        });
-        return;
-    }
-    
-    // Mostrar loading
-    Swal.fire({
-        title: '📤 Subiendo Avatar...',
-        html: `
-            <div style="text-align: center;">
-                <div style="margin-bottom: 15px;">
-                    <div style="width: 60px; height: 60px; margin: 0 auto 15px; border: 4px solid #f3f3f3; border-top: 4px solid #A2CB8D; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                </div>
-                <p>Procesando tu imagen...</p>
-                <small style="color: #666;">Esto puede tomar unos segundos</small>
-            </div>
-            <style>
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-            </style>
-        `,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false
-    });
-    
-    // Crear FormData para enviar el archivo y datos del recorte
-    const formData = new FormData();
-    formData.append('avatar', originalFile);
-    formData.append('cropData', JSON.stringify({ cropData }));
-    
-    console.log('FormData creado, enviando a upload-avatar.php...');
-    
-    // Enviar directamente al endpoint principal (saltamos el test de conectividad)
-    fetch('api/upload-avatar.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        return response.text();
-    })
-    .then(textData => {
-        try {
-            const data = JSON.parse(textData);
-            
-            if (data.success) {
-                // Primero cerrar el loading
-                Swal.close();
-                
-                // Éxito: actualizar la imagen en la página
-                const avatarImg = document.querySelector('.profile-avatar img');
-                
-                if (avatarImg) {
-                    const newPath = data.data.avatar_path + '?t=' + Date.now();
-                    avatarImg.src = newPath; // Cache busting
-                    
-                    // También actualizar el avatar del menú si existe
-                    const menuAvatar = document.querySelector('.dropdown-header img');
-                    if (menuAvatar) {
-                        menuAvatar.src = newPath;
-                    }
-                }
-                
-                // Pequeña pausa para que se vea el cambio de imagen
-                setTimeout(() => {
-                    Swal.fire({
-                        title: '✅ ¡Avatar Actualizado!',
-                        text: 'Tu foto de perfil se ha actualizado correctamente',
-                        icon: 'success',
-                        confirmButtonColor: '#A2CB8D',
-                        timer: 2000, // Se cierra automáticamente en 2 segundos
-                        showConfirmButton: true
-                    });
-                }, 300);
-            } else {
-                // Error del servidor
-                Swal.close(); // Cerrar loading
-                
-                setTimeout(() => {
-                    Swal.fire({
-                        title: '❌ Error al Subir',
-                        text: data.message || 'Hubo un problema al subir tu avatar',
-                        icon: 'error',
-                        confirmButtonColor: '#A2CB8D'
-                    });
-                }, 200);
-            }
-        } catch (parseError) {
-            Swal.close(); // Cerrar loading
-            
-            setTimeout(() => {
-                Swal.fire({
-                    title: '❌ Error de Formato',
-                    text: 'Error en la respuesta del servidor',
-                    icon: 'error',
-                    confirmButtonColor: '#A2CB8D'
-                });
-            }, 200);
-        }
-    })
-    .catch(error => {
-        // Error de red o JS
-        Swal.close(); // Cerrar loading
-        
-        setTimeout(() => {
-            Swal.fire({
-                title: '❌ Error de Conexión',
-                text: 'No se pudo conectar con el servidor. Verifica tu conexión.',
-                icon: 'error',
-                confirmButtonColor: '#A2CB8D'
-            });
-        }, 200);
-    });
-}
-
-// FUNCIÓN PARA SUBIR LA IMAGEN RECORTADA (VERSIÓN ANTIGUA - MANTENER PARA COMPATIBILIDAD)
-// Obtiene los datos del recorte y envía todo al servidor
-function uploadCroppedImage(originalFile) {
-    if (!window.cropper) {
-        Swal.fire({
-            title: '❌ Error',
-            text: 'Error en el recortador de imagen',
-            icon: 'error',
-            confirmButtonColor: '#A2CB8D'
-        });
-        return;
-    }
-    
-    // Obtener datos del recorte
-    const cropData = window.cropper.getData();
-    
-    // Debug: Log de los datos de recorte
-    console.log('Datos de recorte:', cropData);
-    
-    // Validar que los datos de recorte sean válidos
-    if (!cropData || typeof cropData.x === 'undefined' || typeof cropData.y === 'undefined' ||
-        typeof cropData.width === 'undefined' || typeof cropData.height === 'undefined') {
-        Swal.fire({
-            title: '❌ Error',
-            text: 'Los datos de recorte no son válidos. Intenta de nuevo.',
-            icon: 'error',
-            confirmButtonColor: '#A2CB8D'
-        });
-        return;
-    }
-    
-    // Mostrar loading
-    Swal.fire({
-        title: '📤 Subiendo Avatar...',
-        html: `
-            <div style="text-align: center;">
-                <div style="margin-bottom: 15px;">
-                    <div style="width: 60px; height: 60px; margin: 0 auto 15px; border: 4px solid #f3f3f3; border-top: 4px solid #A2CB8D; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                </div>
-                <p>Procesando tu imagen...</p>
-                <small style="color: #666;">Esto puede tomar unos segundos</small>
-            </div>
-            <style>
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-            </style>
-        `,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false
-    });
-    
-    // Crear FormData para enviar el archivo y datos del recorte
-    const formData = new FormData();
-    formData.append('avatar', originalFile);
-    formData.append('cropData', JSON.stringify({ cropData }));
-    
-    // Debug: Log del FormData
-    console.log('Enviando archivo:', originalFile.name, originalFile.size, 'bytes');
-    console.log('Datos de recorte JSON:', JSON.stringify({ cropData }));
-    
-    // PRIMERA PRUEBA: Enviar al test simple para verificar conectividad
-    console.log('=== INICIANDO TEST DE CONECTIVIDAD ===');
-    
-    // Enviar al test simple primero
-    fetch('api/test-simple.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        console.log('Test simple - Respuesta:', response.status, response.statusText);
-        return response.json();
-    })
-    .then(testData => {
-        console.log('Test simple - Datos:', testData);
-        
-        if (testData.success) {
-            console.log('✅ Test simple exitoso, probando upload real...');
-            
-            // Si el test funciona, intentar el upload real
-            return fetch('api/upload-avatar.php', {
-                method: 'POST',
-                body: formData
-            });
-        } else {
-            throw new Error('Test simple falló: ' + testData.error);
-        }
-    })
-    .then(response => {
-        console.log('Respuesta del servidor:', response.status, response.statusText);
-        return response.json();
-    })
-    .then(data => {
-        console.log('=== RESPUESTA DEL UPLOAD NORMAL ===');
-        console.log('Datos recibidos:', data);
-        console.log('Success:', data.success);
-        console.log('Avatar path:', data.data ? data.data.avatar_path : 'NO DATA');
-        
-        if (data.success) {
-            // Éxito: actualizar la imagen en la página
-            const avatarImg = document.querySelector('.profile-avatar img');
-            console.log('Avatar img element:', avatarImg);
-            
-            if (avatarImg) {
-                const newPath = data.data.avatar_path + '?t=' + Date.now();
-                console.log('Actualizando imagen a:', newPath);
-                avatarImg.src = newPath; // Cache busting
-                
-                // También actualizar el avatar del menú si existe
-                const menuAvatar = document.querySelector('.dropdown-header img');
-                if (menuAvatar) {
-                    console.log('Actualizando avatar del menú también');
-                    menuAvatar.src = newPath;
-                }
-            } else {
-                console.error('❌ No se encontró el elemento de imagen del avatar');
-            }
-            
-            Swal.fire({
-                title: '✅ ¡Avatar Actualizado!',
-                text: 'Tu foto de perfil se ha actualizado correctamente',
-                icon: 'success',
-                confirmButtonColor: '#A2CB8D'
-            });
-        } else {
-            // Error del servidor
-            console.error('Error del servidor:', data.message);
-            Swal.fire({
-                title: '❌ Error al Subir',
-                text: data.message || 'Hubo un problema al subir tu avatar',
-                icon: 'error',
-                confirmButtonColor: '#A2CB8D'
-            });
-        }
-    })
-    .catch(error => {
-        // Error de red o JS
-        console.error('Error de conexión:', error);
-        Swal.fire({
-            title: '❌ Error de Conexión',
-            text: 'No se pudo conectar con el servidor. Verifica tu conexión.',
-            icon: 'error',
-            confirmButtonColor: '#A2CB8D'
-        });
-    })
-    .finally(() => {
-        // Limpiar cropper
-        if (window.cropper) {
-            window.cropper.destroy();
-            window.cropper = null;
-        }
-    });
-}
-
-function changePassword() {
-    Swal.fire({
-        title: 'Cambiar Contraseña',
-        html: `
-            <div style="text-align: left;">
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Contraseña Actual:</label>
-                    <input type="password" id="currentPassword" class="swal2-input" placeholder="Contraseña actual">
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nueva Contraseña:</label>
-                    <input type="password" id="newPassword" class="swal2-input" placeholder="Nueva contraseña">
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Confirmar Contraseña:</label>
-                    <input type="password" id="confirmPassword" class="swal2-input" placeholder="Confirmar contraseña">
-                </div>
-            </div>
-        `,
-        focusConfirm: false,
-        confirmButtonText: 'Cambiar Contraseña',
-        confirmButtonColor: '#A2CB8D',
-        cancelButtonText: 'Cancelar',
-        showCancelButton: true,
-        preConfirm: () => {
-            const current = document.getElementById('currentPassword').value;
-            const newPass = document.getElementById('newPassword').value;
-            const confirm = document.getElementById('confirmPassword').value;
-            
-            if (!current || !newPass || !confirm) {
-                Swal.showValidationMessage('Todos los campos son obligatorios');
-                return false;
-            }
-            
-            if (newPass !== confirm) {
-                Swal.showValidationMessage('Las contraseñas no coinciden');
-                return false;
-            }
-            
-            if (newPass.length < 6) {
-                Swal.showValidationMessage('La contraseña debe tener al menos 6 caracteres');
-                return false;
-            }
-            
-            return { current, newPass };
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const data = result.value;
-            
-            // Mostrar loading mientras se procesa
-            Swal.fire({
-                title: '🔐 Cambiando Contraseña...',
-                html: `
-                    <div style="text-align: center;">
-                        <div style="width: 60px; height: 60px; margin: 0 auto 15px; border: 4px solid #f3f3f3; border-top: 4px solid #A2CB8D; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                        <p>Actualizando tu contraseña...</p>
-                        <small style="color: #666;">Esto puede tomar unos segundos</small>
-                    </div>
-                `,
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                showConfirmButton: false
-            });
-            
-            // Enviar datos al servidor usando updatePassword
-            updatePassword({
-                currentPassword: data.current,
-                newPassword: data.newPass,
-                confirmPassword: data.newPass
-            });
         }
     });
 }
@@ -3066,7 +2206,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
     
-    // Animar las tarjetas de estadísticas
+    // Animar las tarjetas de estadísticas (código existente)
     const statCards = document.querySelectorAll('.stat-card');
     statCards.forEach((card, index) => {
         card.style.opacity = '0';
