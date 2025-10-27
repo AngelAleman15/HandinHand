@@ -225,10 +225,10 @@ function validateRequired($data, $requiredFields) {
 // requireAuth: Nombre que describe la función (requiere autenticación)
 // Sin parámetros porque verifica el estado global de la sesión actual
 function requireAuth() {
-    // session_start(): Función que inicia una nueva sesión o reanuda una existente
-    // Sesión: Mecanismo para mantener datos del usuario entre diferentes páginas/solicitudes
-    // Necesario para poder acceder a la variable superglobal $_SESSION
-    session_start();
+    // Iniciar sesión solo si no hay una activa
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     
     // VERIFICACIÓN DE ESTADO DE AUTENTICACIÓN
     // isset(): Verifica si la variable de sesión existe y no es null
@@ -245,6 +245,47 @@ function requireAuth() {
     // Esto permite que las APIs usen el ID sin verificar la sesión nuevamente
     // El ID se puede usar para consultas de base de datos específicas del usuario
     return $_SESSION['user_id'];
+}
+
+/**
+ * FUNCIÓN REQUIRELOGIN() - ALIAS DE REQUIREAUTH()
+ * Verifica que el usuario esté autenticado
+ * Es un alias para mantener compatibilidad con código existente
+ */
+function requireLogin() {
+    return requireAuth();
+}
+
+/**
+ * FUNCIÓN PARA OBTENER LOS DATOS DEL USUARIO ACTUAL
+ * Retorna todos los datos del usuario autenticado desde la base de datos
+ * Incluye información completa del perfil del usuario
+ */
+function getCurrentUser() {
+    // Iniciar sesión solo si no hay una activa
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    // Verificar que haya sesión activa
+    if (!isset($_SESSION['user_id'])) {
+        sendError('Se requiere autenticación', 401);
+    }
+    $user_id = $_SESSION['user_id'];
+    require_once __DIR__ . '/../config/database.php';
+    try {
+        $pdo = getConnection();
+    // Consulta adaptada a tu estructura real
+    $stmt = $pdo->prepare("SELECT id, fullname, username, email, avatar_path, created_at FROM usuarios WHERE id = ?");
+        $stmt->execute([$user_id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$user) {
+            sendError('Usuario no encontrado', 404);
+        }
+        return $user;
+    } catch (PDOException $e) {
+        error_log("Error al obtener usuario actual: " . $e->getMessage());
+        sendError('Error al obtener datos del usuario', 500);
+    }
 }
 
 /**

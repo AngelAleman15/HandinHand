@@ -130,6 +130,8 @@ function getProducto($id) {
     try {
         $pdo = getConnection();
         
+
+        // Obtener producto principal
         $stmt = $pdo->prepare("SELECT p.*, u.username as vendedor_username, u.fullname as vendedor_name,
                                       u.phone as vendedor_phone, u.email as vendedor_email,
                                       COALESCE(AVG(v.puntuacion), 0) as promedio_estrellas,
@@ -141,11 +143,19 @@ function getProducto($id) {
                                GROUP BY p.id");
         $stmt->execute([$id]);
         $producto = $stmt->fetch(PDO::FETCH_ASSOC);
-        
         if (!$producto) {
             sendError('Producto no encontrado', 404);
         }
-        
+        // Obtener categorías
+        $catStmt = $pdo->prepare("SELECT c.id, c.nombre FROM producto_categorias pc JOIN categorias c ON pc.categoria_id = c.id WHERE pc.producto_id = ?");
+        $catStmt->execute([$id]);
+        $categorias = $catStmt->fetchAll(PDO::FETCH_ASSOC);
+        // Obtener imágenes
+        $imgStmt = $pdo->prepare("SELECT imagen FROM producto_imagenes WHERE producto_id = ?");
+        $imgStmt->execute([$id]);
+        $imagenes = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
+        $producto['categorias'] = $categorias;
+        $producto['imagenes'] = $imagenes;
         sendSuccess($producto, 'Producto obtenido exitosamente');
         
     } catch (Exception $e) {
@@ -160,33 +170,42 @@ function createProducto() {
     $userId = requireAuth();
     
     $data = getJsonInput();
-    validateRequired($data, ['nombre', 'descripcion', 'categoria']);
-    
+    validateRequired($data, ['nombre', 'descripcion', 'categorias']);
     $data = sanitizeData($data);
-    
     try {
         $pdo = getConnection();
-        
-        $stmt = $pdo->prepare("INSERT INTO productos (user_id, nombre, descripcion, imagen, categoria, estado) 
-                               VALUES (?, ?, ?, ?, ?, 'disponible')");
-        
-        $imagen = isset($data['imagen']) ? $data['imagen'] : 'img/zapato.jpg'; // Imagen por defecto
-        
+        $stmt = $pdo->prepare("INSERT INTO productos (user_id, nombre, descripcion, estado, latitud, longitud) VALUES (?, ?, ?, ?, ?, ?)");
+        $estado = isset($data['estado']) ? $data['estado'] : 'disponible';
+        $latitud = isset($data['latitud']) ? $data['latitud'] : null;
+        $longitud = isset($data['longitud']) ? $data['longitud'] : null;
         $success = $stmt->execute([
             $userId,
             $data['nombre'],
             $data['descripcion'],
-            $imagen,
-            $data['categoria']
+            $estado,
+            $latitud,
+            $longitud
         ]);
-        
         if ($success) {
             $productoId = $pdo->lastInsertId();
+            // Categorías (array de IDs)
+            if (!empty($data['categorias']) && is_array($data['categorias'])) {
+                $catStmt = $pdo->prepare("INSERT INTO producto_categorias (producto_id, categoria_id) VALUES (?, ?)");
+                foreach ($data['categorias'] as $catId) {
+                    $catStmt->execute([$productoId, $catId]);
+                }
+            }
+            // Imágenes (array de rutas)
+            if (!empty($data['imagenes']) && is_array($data['imagenes'])) {
+                $imgStmt = $pdo->prepare("INSERT INTO producto_imagenes (producto_id, imagen) VALUES (?, ?)");
+                foreach ($data['imagenes'] as $img) {
+                    $imgStmt->execute([$productoId, $img]);
+                }
+            }
             sendSuccess(['id' => $productoId], 'Producto creado exitosamente para intercambio', 201);
         } else {
             sendError('Error al crear el producto', 500);
         }
-        
     } catch (Exception $e) {
         sendError('Error al crear producto: ' . $e->getMessage(), 500);
     }
@@ -227,30 +246,42 @@ function updateProducto($id) {
         $fields = [];
         $params = [];
         
-        $allowedFields = ['nombre', 'descripcion', 'imagen', 'categoria', 'estado', 'ubicacion_lat', 'ubicacion_lng', 'ubicacion_nombre'];
-        
+
+        $allowedFields = ['nombre', 'descripcion', 'estado', 'latitud', 'longitud'];
         foreach ($allowedFields as $field) {
             if (isset($data[$field])) {
                 $fields[] = "$field = ?";
                 $params[] = sanitizeData($data[$field]);
             }
         }
-        
-        if (empty($fields)) {
-            sendError('No hay campos válidos para actualizar', 400);
+        if (!empty($fields)) {
+            $params[] = $id;
+            $sql = "UPDATE productos SET " . implode(', ', $fields) . " WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
+            $success = $stmt->execute($params);
+            if (!$success) {
+                sendError('Error al actualizar el producto', 500);
+            }
         }
-        
-        $params[] = $id;
-        $sql = "UPDATE productos SET " . implode(', ', $fields) . " WHERE id = ?";
-        
-        $stmt = $pdo->prepare($sql);
-        $success = $stmt->execute($params);
-        
-        if ($success) {
-            sendSuccess(['id' => $id], 'Producto actualizado exitosamente');
-        } else {
-            sendError('Error al actualizar el producto', 500);
+        // Actualizar categorías si se envían
+        if (isset($data['categorias']) && is_array($data['categorias'])) {
+            $delCat = $pdo->prepare("DELETE FROM producto_categorias WHERE producto_id = ?");
+            $delCat->execute([$id]);
+            $catStmt = $pdo->prepare("INSERT INTO producto_categorias (producto_id, categoria_id) VALUES (?, ?)");
+            foreach ($data['categorias'] as $catId) {
+                $catStmt->execute([$id, $catId]);
+            }
         }
+        // Actualizar imágenes si se envían
+        if (isset($data['imagenes']) && is_array($data['imagenes'])) {
+            $delImg = $pdo->prepare("DELETE FROM producto_imagenes WHERE producto_id = ?");
+            $delImg->execute([$id]);
+            $imgStmt = $pdo->prepare("INSERT INTO producto_imagenes (producto_id, imagen) VALUES (?, ?)");
+            foreach ($data['imagenes'] as $img) {
+                $imgStmt->execute([$id, $img]);
+            }
+        }
+        sendSuccess(['id' => $id], 'Producto actualizado exitosamente');
         
     } catch (Exception $e) {
         sendError('Error al actualizar producto: ' . $e->getMessage(), 500);

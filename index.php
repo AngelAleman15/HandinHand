@@ -20,6 +20,9 @@ include 'includes/header.php';
 ?>
 
 <div class="main-wrapper">
+<script>
+window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
+</script>
     <div>
         <div class="navbar-container">
             <div class="quote"><p>"Reutilizá, Intercambiá, Conectá"</p></div>
@@ -33,21 +36,36 @@ include 'includes/header.php';
         <div class="cardscontainer">
             <?php if (!empty($productos)): ?>
                 <?php foreach ($productos as $producto): ?>
-                <div class="card" onclick="window.location.href='producto.php?id=<?php echo $producto['id']; ?>'">
+                <div class="card">
+                    <?php if (!isLoggedIn() || $_SESSION['user_id'] != $producto['user_id']): ?>
+                        <a href="producto.php?id=<?php echo $producto['id']; ?>" style="text-decoration:none;color:inherit;display:block;">
+                    <?php endif; ?>
                     <div class="cardcontent">
                         <div class="cardimg"><img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>"></div>
                         <div class="cardtitle"><?php echo htmlspecialchars($producto['nombre']); ?></div>
                         <div class="carddescription"><?php echo htmlspecialchars($producto['descripcion']); ?></div>
                     </div>
+                    <?php if (!isLoggedIn() || $_SESSION['user_id'] != $producto['user_id']): ?>
+                        </a>
+                    <?php endif; ?>
                     <div class="cardfooter">
                         <div class="sellerinfo">
                             <div class="profile">
-                                <?php if (!empty($producto['avatar_path'])): ?>
-                                    <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
-                                         alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
-                                         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"
-                                         onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
-                                <?php endif; ?>
+                                <div class="contact-avatar">
+                                    <?php if (!empty($producto['avatar_path'])): ?>
+                                        <?php if (isLoggedIn() && $_SESSION['user_id'] != $producto['user_id']): ?>
+                                            <a href="ver-perfil.php?id=<?php echo $producto['user_id']; ?>" title="Ver perfil de <?php echo htmlspecialchars($producto['vendedor_name']); ?>">
+                                                <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
+                                                     alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
+                                                     onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
+                                            </a>
+                                        <?php else: ?>
+                                            <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
+                                                 alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
+                                                 onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                             <div class="usercontainer">
                                 <div class="name"><?php echo htmlspecialchars($producto['vendedor_name']); ?></div>
@@ -64,8 +82,8 @@ include 'includes/header.php';
                                 </button>
                             </div>
                         <?php else: ?>
-                            <!-- Botón contactar para productos de otros usuarios -->
-                            <button class="btncontact" onclick="contactarVendedor(<?php echo $producto['id']; ?>)">Contactar</button>
+                            <!-- Botón ver detalle para productos de otros usuarios -->
+                            <a href="producto.php?id=<?php echo $producto['id']; ?>" class="btncontact" style="text-decoration:none;display:inline-block;">Ver detalle</a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -109,12 +127,19 @@ include 'includes/header.php';
 
     function contactarVendedor(productoId) {
         <?php if (isLoggedIn()): ?>
-            // Si está logueado, redirigir a página de mensajes
-            window.location.href = 'mensajeria.php?producto=' + productoId;
+            // Si está logueado, redirigir al chat del vendedor
+            window.location.href = 'mensajeria.php?user=' + productoId;
         <?php else: ?>
-            // Si no está logueado, redirigir a login
-            alert('Debes iniciar sesión para contactar al vendedor');
-            window.location.href = 'iniciarsesion.php';
+            // Si no está logueado, mostrar notificación personalizada
+            Swal.fire({
+                icon: 'info',
+                title: 'Inicia sesión para contactar',
+                text: 'Debes iniciar sesión para contactar al vendedor.',
+                confirmButtonColor: '#6a994e',
+                confirmButtonText: 'Iniciar sesión'
+            }).then(() => {
+                window.location.href = 'iniciarsesion.php';
+            });
         <?php endif; ?>
     }
 

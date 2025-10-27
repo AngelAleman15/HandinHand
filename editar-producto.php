@@ -246,11 +246,6 @@ textarea.form-control {
 </style>
 
 <div class="edit-product-container">
-    <!-- Banner WIP -->
-    <div style="background: linear-gradient(135deg, #ffc107, #fd7e14); color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 15px rgba(255,193,7,0.3);">
-        <h3 style="margin: 0; font-size: 1.2em;">🚧 Página en Desarrollo</h3>
-        <p style="margin: 5px 0 0; opacity: 0.9;">Esta sección está siendo desarrollada. Funcionalidad completa próximamente.</p>
-    </div>
     
     <div class="edit-product-card">
         <div class="card-header">
@@ -259,6 +254,19 @@ textarea.form-control {
         </div>
         
         <div class="card-body">
+            <!-- Imagen actual y formulario de cambio -->
+            <div class="form-group" style="text-align:center;">
+                <label style="display:block; font-weight:600; margin-bottom:8px;">Imagen del producto</label>
+                <div style="margin-bottom:10px;">
+                    <img id="producto-img-preview" src="<?php echo !empty($producto['imagen']) ? htmlspecialchars($producto['imagen']) : 'img/productos/default.png'; ?>" alt="Imagen del producto" style="width:120px; height:120px; object-fit:cover; border-radius:12px; border:2px solid #A2CB8D; background:#f8f8f8;">
+                </div>
+                <form id="form-img-producto" enctype="multipart/form-data" style="display:inline-block;">
+                    <input type="file" name="imagen" id="input-img-producto" accept="image/*" style="margin-bottom:8px;">
+                    <input type="hidden" name="producto_id" value="<?php echo $producto_id; ?>">
+                    <button type="submit" class="btn btn-primary" style="min-width:unset; padding:8px 18px; font-size:14px;">Actualizar Imagen</button>
+                </form>
+                <div id="img-producto-msg" style="margin-top:8px; font-size:13px;"></div>
+            </div>
             <?php if ($message): ?>
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($message); ?>
@@ -339,6 +347,40 @@ textarea.form-control {
 </div>
 
 <script>
+// Subida AJAX de imagen de producto
+document.getElementById('form-img-producto').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var form = this;
+    var input = document.getElementById('input-img-producto');
+    var msg = document.getElementById('img-producto-msg');
+    if (!input.files.length) {
+        msg.textContent = 'Selecciona una imagen.';
+        msg.style.color = '#dc3545';
+        return;
+    }
+    var data = new FormData(form);
+    msg.textContent = 'Subiendo...';
+    msg.style.color = '#666';
+    fetch('api/upload-producto-imagen.php', {
+        method: 'POST',
+        body: data
+    })
+    .then(res => res.json())
+    .then(json => {
+        if (json.success) {
+            document.getElementById('producto-img-preview').src = json.url + '?t=' + Date.now();
+            msg.textContent = 'Imagen actualizada correctamente.';
+            msg.style.color = '#28a745';
+        } else {
+            msg.textContent = json.message || 'Error al subir la imagen.';
+            msg.style.color = '#dc3545';
+        }
+    })
+    .catch(() => {
+        msg.textContent = 'Error de red al subir la imagen.';
+        msg.style.color = '#dc3545';
+    });
+});
 // Validación del formulario
 document.querySelector('form').addEventListener('submit', function(e) {
     const nombre = document.getElementById('nombre').value.trim();

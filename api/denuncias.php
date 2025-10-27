@@ -1,56 +1,78 @@
 <?php
-require_once '../config/database.php';
 session_start();
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/api_base.php';
 
-// Verificar que el usuario está logueado
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Usuario no autenticado']);
-    exit;
-}
+validateMethod(['POST', 'GET']);
 
-$usuario_id = $_SESSION['user_id'];
+$user_id = requireAuth();
+$data = getJsonInput();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
+try {
+    $pdo = getConnection();
     
-    $producto_id = $data['producto_id'] ?? null;
-    $motivo = $data['motivo'] ?? null;
-    $descripcion = $data['descripcion'] ?? null;
-
-    if (!$producto_id || !$motivo) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Faltan datos requeridos']);
-        exit;
-    }
-
-    // Verificar si el usuario ya ha denunciado este producto
-    $stmt = $conn->prepare("SELECT id FROM denuncias_productos WHERE usuario_id = ? AND producto_id = ?");
-    $stmt->bind_param('ii', $usuario_id, $producto_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Ya has denunciado este producto']);
-        exit;
-    }
-
-    // Crear la denuncia
-    $stmt = $conn->prepare("INSERT INTO denuncias_productos (usuario_id, producto_id, motivo, descripcion) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param('iiss', $usuario_id, $producto_id, $motivo, $descripcion);
+    $action = $data['action'] ?? '';
     
-    if ($stmt->execute()) {
-        echo json_encode([
-            'success' => true,
-            'message' => 'Denuncia registrada correctamente'
-        ]);
-    } else {
-        http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Error al registrar la denuncia'
-        ]);
+    switch ($action) {
+        case 'crear':
+            validateRequired($data, ['denunciado_id', 'motivo', 'descripcion']);
+            
+            $denunciado_id = intval($data['denunciado_id']);
+            $motivo = sanitizeData($data['motivo']);
+            $descripcion = sanitizeData($data['descripcion']);
+            
+            // Verificar que no se denuncie a sí mismo
+            if ($user_id == $denunciado_id) {
+                sendError('No puedes denunciarte a ti mismo', 400);
+            }
+            
+            // Verificar que el usuario denunciado existe
+            $stmt = $pdo->prepare("SELECT id FROM usuarios WHERE id = ?");
+            $stmt->execute([$denunciado_id]);
+            if (!$stmt->fetch()) {
+                sendError('Usuario no encontrado', 404);
+            }
+            
+            // Verificar motivos válidos
+            $motivos_validos = ['spam', 'fraude', 'contenido_inapropiado', 'acoso', 'suplantacion', 'otro'];
+            if (!in_array($motivo, $motivos_validos)) {
+                sendError('Motivo de denuncia no válido', 400);
+            }
+            
+            // Insertar denuncia
+            $stmt = $pdo->prepare("
+                INSERT INTO denuncias (denunciante_id, denunciado_id, motivo, descripcion, estado)
+                VALUES (?, ?, ?, ?, 'pendiente')
+            ");
+            $stmt->execute([$user_id, $denunciado_id, $motivo, $descripcion]);
+            
+            sendSuccess(['denuncia_id' => $pdo->lastInsertId()], 'Denuncia enviada correctamente');
+            break;
+            
+        case 'listar':
+            // Solo administradores pueden listar denuncias
+            $stmt = $pdo->prepare("
+                SELECT 
+                    d.*,
+                    u1.fullname as denunciante_nombre,
+                    u2.fullname as denunciado_nombre
+                FROM denuncias d
+                JOIN usuarios u1 ON d.denunciante_id = u1.id
+                JOIN usuarios u2 ON d.denunciado_id = u2.id
+                ORDER BY d.created_at DESC
+            ");
+            $stmt->execute();
+            $denuncias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            sendSuccess($denuncias);
+            break;
+            
+        default:
+            sendError('Acción no válida', 400);
     }
+    
+} catch (PDOException $e) {
+    error_log("Error en denuncias.php: " . $e->getMessage());
+    sendError('Error al procesar la solicitud', 500);
 }
 ?>

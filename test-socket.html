@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Socket.io</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .online {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .offline {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        #log {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prueba de Conexión Socket.io</h1>
+    
+    <div id="connection-status" class="status offline">
+        Desconectado
+    </div>
+
+    <div>
+        <label>ID de Usuario: 
+            <input type="number" id="userId" value="1" min="1">
+        </label>
+        <button onclick="connectUser()">Conectar Usuario</button>
+        <button onclick="disconnect()">Desconectar</button>
+    </div>
+
+    <h3>Usuarios Online:</h3>
+    <div id="users-online"></div>
+
+    <h3>Log de Eventos:</h3>
+    <div id="log"></div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        const statusDiv = document.getElementById('connection-status');
+        const usersDiv = document.getElementById('users-online');
+        const logDiv = document.getElementById('log');
+
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            entry.style.color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'black';
+            logDiv.insertBefore(entry, logDiv.firstChild);
+        }
+
+        function connectUser() {
+            const userId = document.getElementById('userId').value;
+            
+            if (socket && socket.connected) {
+                log('Ya estás conectado. Desconéctate primero.', 'error');
+                return;
+            }
+
+            log(`Intentando conectar como usuario ${userId}...`);
+            
+            socket = io('http://localhost:3001');
+
+            socket.on('connect', () => {
+                log('✓ Conectado al servidor', 'success');
+                statusDiv.textContent = 'Conectado';
+                statusDiv.className = 'status online';
+                
+                // Identificar usuario
+                socket.emit('user_connected', userId);
+                log(`Usuario ${userId} identificado`, 'success');
+            });
+
+            socket.on('disconnect', () => {
+                log('✗ Desconectado del servidor', 'error');
+                statusDiv.textContent = 'Desconectado';
+                statusDiv.className = 'status offline';
+            });
+
+            socket.on('users_online', (users) => {
+                log(`Usuarios online actualizados: ${users.join(', ')}`, 'success');
+                usersDiv.innerHTML = '<strong>Usuarios online:</strong> ' + 
+                    (users.length > 0 ? users.join(', ') : 'Ninguno');
+            });
+
+            socket.on('error', (error) => {
+                log(`Error: ${error}`, 'error');
+            });
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                log('Desconectado manualmente');
+            }
+        }
+
+        // Auto-conectar al cargar
+        log('Página cargada. Haz clic en "Conectar Usuario" para empezar.');
+    </script>
+</body>
+</html>

@@ -10,8 +10,9 @@ require_once __DIR__ . '/functions.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="css/perseo-actions.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/css/perseo-actions.css?v=<?php echo time(); ?>">
     <title><?php echo isset($page_title) ? $page_title : 'HandinHand'; ?></title>
 
     <!-- SweetAlert2 -->
@@ -19,6 +20,33 @@ require_once __DIR__ . '/functions.php';
 
     <!-- Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+    <!-- Definir variables globales para Socket.IO y usuario -->
+    <?php if (isLoggedIn()): ?>
+        <?php
+            require_once __DIR__ . '/../config/chat_server.php';
+            $currentUser = getCurrentUser();
+            $userId = isset($currentUser['id']) ? (int)$currentUser['id'] : 0;
+            $chatServerUrl = getChatServerUrl();
+        ?>
+        <script>
+            window.CURRENT_USER_ID = <?php echo json_encode($userId); ?>;
+            window.CHAT_SERVER_URL = <?php echo json_encode($chatServerUrl); ?>;
+            // Emitir user_connected al cargar cualquier página
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.io && window.CURRENT_USER_ID && window.CHAT_SERVER_URL) {
+                    try {
+                        window.globalSocket = window.globalSocket || io(window.CHAT_SERVER_URL, { transports: ['websocket', 'polling'] });
+                        window.globalSocket.emit('user_connected', window.CURRENT_USER_ID);
+                    } catch (e) { console.warn('No se pudo conectar a Socket.IO global:', e); }
+                }
+            });
+        </script>
+        <!-- Cliente Socket.IO solo por CDN -->
+        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+        <script src="js/notifications.js?v=<?php echo time(); ?>"></script>
+    <?php endif; ?>
 
     <!-- Scripts adicionales si están definidos -->
     <?php if (isset($additional_scripts) && is_array($additional_scripts)): ?>
@@ -58,14 +86,14 @@ require_once __DIR__ . '/functions.php';
                                     Mi Perfil
                                 </button>
                             </a>
-                            <a href="mensajeria.php" onclick="showWipMessage('Mensajes');">
+                            <a href="mensajeria.php">
                                 <button class="dropdown-item">
-                                    Mensajes <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;"></span>
+                                    💬 Mensajes
                                 </button>
                             </a>
-                            <a href="#" onclick="showWipMessage('Mis Productos'); return false;">
+                            <a href="mis-productos.php">
                                 <button class="dropdown-item">
-                                    Mis Productos <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(WIP)</span>
+                                    Mis Productos
                                 </button>
                             </a>
                             <div class="dropdown-divider"></div>
