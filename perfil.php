@@ -121,14 +121,6 @@ body {
                     </div>
                     <p class="member-since">Miembro desde hace <?php echo $diasMiembro; ?> días</p>
                     <div class="profile-actions">
-<<<<<<< HEAD
-                        <button class="btn btn-primary" onclick="editPersonalInfo()">
-                            <i class="fas fa-edit"></i> Editar Perfil
-                        </button>
-                        <a href="mis-productos.php" class="btn btn-primary">
-                            <i class="fas fa-box"></i> Mis Productos
-                        </a>
-=======
                         <?php
                         // Si el perfil es de otro usuario
                         $mi_id = $_SESSION['user_id'];
@@ -161,7 +153,6 @@ body {
                             echo '<button class="btn btn-primary" onclick="showWipMessage(\'Mis Productos\')"><i class="fas fa-box"></i> Mis Productos <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></button>';
                         }
                         ?>
->>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
                     </div>
                 </div>
             </div>

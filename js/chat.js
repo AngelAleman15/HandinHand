@@ -472,10 +472,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar usuarios
     async function loadUsers() {
         try {
-<<<<<<< HEAD
-            // Usar ruta relativa a la raíz para producción
-=======
->>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
             const response = await fetch('/api/users.php');
             const data = await response.json();
 
@@ -925,11 +921,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Guardar en base de datos en segundo plano
         console.log('💾 Guardando mensaje en BD...');
-        try {
-<<<<<<< HEAD
-=======
-            // Guardar en base de datos
->>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
+    try {
             const response = await fetch('/api/save-message.php', {
                 method: 'POST',
                 headers: {

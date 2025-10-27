@@ -17,13 +17,9 @@ try {
     error_log('Usuario actual en sesión: ' . json_encode($user_id));
 
     $pdo = getConnection();
-<<<<<<< HEAD
-    $action = $data['action'] ?? '';
-=======
     error_log("[amistades.php] Conexión a BD exitosa");
     $action = $data['action'] ?? '';
     error_log("[amistades.php] Acción recibida: $action");
->>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
     switch ($action) {
         case 'enviar_solicitud':
             error_log("[amistades.php] Acción: enviar_solicitud");
@@ -145,22 +141,10 @@ try {
             // Eliminar amistad en ambas direcciones
             $stmt = $pdo->prepare("DELETE FROM amistades WHERE (usuario1_id = ? AND usuario2_id = ?) OR (usuario1_id = ? AND usuario2_id = ?)");
             $stmt->execute([$user_id, $amigo_id, $amigo_id, $user_id]);
-<<<<<<< HEAD
-
-            // Eliminar todas las solicitudes de amistad entre ambos usuarios (de cualquier estado)
-            $stmt = $pdo->prepare("
-                DELETE FROM solicitudes_amistad
-                WHERE (solicitante_id = ? AND receptor_id = ?)
-                   OR (solicitante_id = ? AND receptor_id = ?)
-            ");
-            $stmt->execute([$user_id, $amigo_id, $amigo_id, $user_id]);
-            
-=======
             // Eliminar todas las solicitudes previas entre ambos usuarios
             $stmt = $pdo->prepare("DELETE FROM solicitudes_amistad WHERE (solicitante_id = ? AND receptor_id = ?) OR (solicitante_id = ? AND receptor_id = ?)");
             $stmt->execute([$user_id, $amigo_id, $amigo_id, $user_id]);
             error_log("[amistades.php] Amistad eliminada entre $user_id y $amigo_id");
->>>>>>> 263ae01ba057b88ac719a4f10164613050e44276
             // Actualizar estadísticas
             $stmt = $pdo->prepare("UPDATE estadisticas_usuario SET total_amigos = GREATEST(total_amigos - 1, 0) WHERE usuario_id IN (?, ?)");
             $stmt->execute([$user_id, $amigo_id]);

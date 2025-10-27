@@ -1,6 +1,35 @@
-<style>
-</style>
 <script>
+// Favoritos AJAX
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.btn-fav').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var id = this.getAttribute('data-producto-id');
+            var self = this;
+            fetch('api/favorito-producto.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'producto_id=' + encodeURIComponent(id)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.favorito) {
+                        self.querySelector('i').classList.add('fas');
+                        self.querySelector('i').classList.remove('far');
+                        self.style.color = '#ffc107';
+                        self.title = 'Quitar de favoritos';
+                    } else {
+                        self.querySelector('i').classList.remove('fas');
+                        self.querySelector('i').classList.add('far');
+                        self.style.color = '#e0a800';
+                        self.title = 'Agregar a favoritos';
+                    }
+                }
+            });
+        });
+    });
+});
 // Cambio de estado por click en el badge
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.estado-badge').forEach(function(badge) {
@@ -28,9 +57,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(() => alert('Error de red al actualizar estado.'));
-        });
+        };
     });
 });
+</script>
 <?php
 session_start();
 require_once 'includes/functions.php';
@@ -65,7 +95,7 @@ if ($catStmt) {
     
     <div class="page-header">
         <h1>Mis Productos</h1>
-        <button class="btn btn-primary" onclick="showWipMessage('Agregar Producto')">+ Agregar Producto <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></button>
+    <a class="btn btn-primary" href="publicar-producto.php">+ Agregar Producto</a>
     </div>
     
     <div class="products-list">
@@ -110,7 +140,7 @@ if ($catStmt) {
                         </span>
                     </div>
                     <div class="product-col product-col-acciones">
-                        <button class="btn btn-sm btn-secondary" onclick="editProduct(<?php echo $producto['id']; ?>)">Editar</button>
+                        <a class="btn btn-sm btn-secondary" href="editar-producto.php?id=<?php echo $producto['id']; ?>">Editar</a>
                         <button class="btn btn-sm btn-danger" onclick="deleteProduct(<?php echo $producto['id']; ?>)">Eliminar</button>
                     </div>
                 </div>
@@ -119,7 +149,7 @@ if ($catStmt) {
             <div class="no-products">
                 <h3>No tienes productos publicados</h3>
                 <p>¡Agrega tu primer producto para comenzar a intercambiar!</p>
-                <button class="btn btn-primary" onclick="addProduct()">Agregar mi primer producto</button>
+                <a class="btn btn-primary" href="publicar-producto.php">Agregar mi primer producto</a>
             </div>
         <?php endif; ?>
     </div>
@@ -423,14 +453,6 @@ function addProduct() {
     });
 }
 
-function editProduct(id) {
-    Swal.fire({
-        title: 'Editar Producto',
-        text: 'Funcionalidad de edición próximamente',
-        icon: 'info',
-        confirmButtonColor: '#6a994e'
-    });
-}
 
 function deleteProduct(id) {
     Swal.fire({
