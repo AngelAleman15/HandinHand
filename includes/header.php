@@ -13,6 +13,7 @@ require_once __DIR__ . '/functions.php';
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/css/style.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="/css/tema-usuarios.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/css/fyp-section.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="/css/perseo-actions.css?v=<?php echo time(); ?>">
     <title><?php echo isset($page_title) ? $page_title : 'HandinHand'; ?></title>
 
@@ -22,6 +23,8 @@ require_once __DIR__ . '/functions.php';
     <!-- Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- FYP Tracking System -->
+    <script src="/js/fyp-tracking.js?v=<?php echo time(); ?>" defer></script>
 
     <!-- Definir variables globales para Socket.IO y usuario -->
     <?php if (isLoggedIn()): ?>

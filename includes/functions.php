@@ -222,4 +222,124 @@ function buscarUsuarios($busqueda = null, $limit = 20) {
     
     return $usuarios;
 }
+
+/**
+ * Función para obtener productos recomendados (FYP)
+ */
+function getProductosRecomendados($limit = 8) {
+    require_once __DIR__ . '/../config/database.php';
+    $pdo = getConnection();
+    
+    $usuario_id = $_SESSION['user_id'] ?? null;
+    
+    // Si el usuario está logueado, personalizar
+    if ($usuario_id) {
+        // Obtener categorías que le gustan (de productos vistos/guardados)
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT p.categoria
+            FROM producto_vistas pv
+            JOIN productos p ON pv.producto_id = p.id
+            WHERE pv.usuario_id = ?
+            UNION
+            SELECT DISTINCT p.categoria
+            FROM producto_guardados pg
+            JOIN productos p ON pg.producto_id = p.id
+            WHERE pg.usuario_id = ?
+            LIMIT 3
+        ");
+        $stmt->execute([$usuario_id, $usuario_id]);
+        $categorias_favoritas = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        // Query personalizado
+        if (!empty($categorias_favoritas)) {
+            $placeholders = str_repeat('?,', count($categorias_favoritas) - 1) . '?';
+            
+            $sql = "
+                SELECT 
+                    p.*,
+                    u.username as vendedor_username,
+                    u.fullname as vendedor_name,
+                    u.avatar_path,
+                    COALESCE(ps.total_vistas, 0) as total_vistas,
+                    COALESCE(ps.total_guardados, 0) as total_guardados,
+                    COALESCE(ps.total_chats, 0) as total_chats,
+                    COALESCE(ps.score_total, 0) as score_total
+                FROM productos p
+                LEFT JOIN usuarios u ON p.user_id = u.id
+                LEFT JOIN producto_scores ps ON p.id = ps.producto_id
+                WHERE p.estado = 'disponible'
+                AND p.user_id != ?
+                AND (p.categoria IN ($placeholders) OR ps.score_total > 10)
+                AND p.id NOT IN (
+                    SELECT producto_id FROM producto_vistas 
+                    WHERE usuario_id = ? 
+                    AND fecha_vista >= DATE_SUB(NOW(), INTERVAL 1 DAY)
+                )
+                ORDER BY 
+                    CASE WHEN p.categoria IN ($placeholders) THEN 1 ELSE 2 END,
+                    ps.score_total DESC,
+                    p.created_at DESC
+                LIMIT ?
+            ";
+            
+            $params = array_merge(
+                [$usuario_id],
+                $categorias_favoritas,
+                [$usuario_id],
+                $categorias_favoritas,
+                [$limit]
+            );
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+        } else {
+            // Sin historial, mostrar más populares
+            $sql = "
+                SELECT 
+                    p.*,
+                    u.username as vendedor_username,
+                    u.fullname as vendedor_name,
+                    u.avatar_path,
+                    COALESCE(ps.total_vistas, 0) as total_vistas,
+                    COALESCE(ps.total_guardados, 0) as total_guardados,
+                    COALESCE(ps.total_chats, 0) as total_chats,
+                    COALESCE(ps.score_total, 0) as score_total
+                FROM productos p
+                LEFT JOIN usuarios u ON p.user_id = u.id
+                LEFT JOIN producto_scores ps ON p.id = ps.producto_id
+                WHERE p.estado = 'disponible'
+                AND p.user_id != ?
+                ORDER BY ps.score_total DESC, p.created_at DESC
+                LIMIT ?
+            ";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$usuario_id, $limit]);
+        }
+    } else {
+        // Usuario no logueado: mostrar trending
+        $sql = "
+            SELECT 
+                p.*,
+                u.username as vendedor_username,
+                u.fullname as vendedor_name,
+                u.avatar_path,
+                COALESCE(ps.total_vistas, 0) as total_vistas,
+                COALESCE(ps.total_guardados, 0) as total_guardados,
+                COALESCE(ps.total_chats, 0) as total_chats,
+                COALESCE(ps.score_total, 0) as score_total
+            FROM productos p
+            LEFT JOIN usuarios u ON p.user_id = u.id
+            LEFT JOIN producto_scores ps ON p.id = ps.producto_id
+            WHERE p.estado = 'disponible'
+            ORDER BY ps.score_total DESC, p.created_at DESC
+            LIMIT ?
+        ";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$limit]);
+    }
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>

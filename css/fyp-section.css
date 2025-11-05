@@ -1,0 +1,271 @@
+/* ========================================
+   ESTILOS PARA LA SECCIÓN FYP (FOR YOU PAGE)
+   ======================================== */
+
+/* Sección principal FYP */
+.fyp-section {
+    margin: 30px auto;
+    padding: 0 20px;
+    max-width: 1400px;
+}
+
+/* Header de la sección */
+.fyp-header {
+    text-align: center;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.fyp-title {
+    font-size: 2em;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 8px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.fyp-subtitle {
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Contenedor de cards (scroll horizontal) */
+.fyp-container {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 15px 5px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar personalizado */
+.fyp-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.fyp-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.fyp-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.fyp-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #63408b 100%);
+}
+
+/* Card individual FYP */
+.fyp-card {
+    min-width: 280px;
+    max-width: 280px;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    position: relative;
+}
+
+.fyp-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+}
+
+/* Imagen del producto */
+.fyp-card .card-image-container {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.fyp-card .card-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.fyp-card:hover .card-image-container img {
+    transform: scale(1.1);
+}
+
+/* Badge Trending */
+.badge-trending {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(238, 90, 111, 0.4);
+    animation: pulse-trending 2s infinite;
+    z-index: 2;
+}
+
+@keyframes pulse-trending {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 10px rgba(238, 90, 111, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 15px rgba(238, 90, 111, 0.6);
+    }
+}
+
+/* Contenido de la card */
+.fyp-card .card-content {
+    padding: 15px;
+}
+
+.fyp-card .card-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 8px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fyp-card .card-description {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    margin: 0 0 12px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+    height: 2.8em;
+}
+
+/* Estadísticas de la card */
+.card-stats {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    border-top: 1px solid #ecf0f1;
+    margin-top: 10px;
+}
+
+.card-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+    color: #7f8c8d;
+}
+
+.card-stat i {
+    font-size: 1.1em;
+}
+
+.card-stat.views i {
+    color: #3498db;
+}
+
+.card-stat.hearts i {
+    color: #e74c3c;
+}
+
+.card-stat.chats i {
+    color: #2ecc71;
+}
+
+/* Divider entre secciones */
+.section-divider {
+    margin: 50px auto 30px;
+    text-align: center;
+    position: relative;
+}
+
+.section-divider::before,
+.section-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #ddd, transparent);
+}
+
+.section-divider::before {
+    left: 0;
+}
+
+.section-divider::after {
+    right: 0;
+}
+
+.section-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #2c3e50;
+    background: white;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .fyp-section {
+        padding: 0 10px;
+    }
+    
+    .fyp-header {
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    .fyp-title {
+        font-size: 1.5em;
+    }
+    
+    .fyp-subtitle {
+        font-size: 0.9em;
+    }
+    
+    .fyp-card {
+        min-width: 250px;
+        max-width: 250px;
+    }
+    
+    .section-title {
+        font-size: 1.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .fyp-card {
+        min-width: 220px;
+        max-width: 220px;
+    }
+    
+    .fyp-card .card-image-container {
+        height: 180px;
+    }
+    
+    .card-stats {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+}

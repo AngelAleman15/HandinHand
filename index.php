@@ -26,6 +26,12 @@ if ($tipo_busqueda === 'usuarios') {
     $usuarios = [];
 }
 
+// Obtener productos recomendados (solo si no hay búsqueda activa)
+$productos_recomendados = [];
+if (!$busqueda && !$filtro_categoria && !$filtro_estado && $tipo_busqueda === 'productos') {
+    $productos_recomendados = getProductosRecomendados(8);
+}
+
 // Incluir header
 include 'includes/header.php';
 ?>
@@ -98,6 +104,92 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
                 </form>
             </div>
         </div>
+        
+        <!-- Sección "Para Ti" (FYP) -->
+        <?php if (!empty($productos_recomendados) && $tipo_busqueda === 'productos'): ?>
+        <div class="fyp-section">
+            <div class="fyp-header">
+                <h2 class="fyp-title">
+                    <i class="fas fa-star"></i> Para Ti
+                    <span class="fyp-subtitle">Recomendaciones personalizadas</span>
+                </h2>
+            </div>
+            <div class="fyp-container">
+                <?php foreach ($productos_recomendados as $producto): ?>
+                <div class="card fyp-card">
+                    <a href="producto.php?id=<?php echo $producto['id']; ?>" style="text-decoration:none;color:inherit;display:block;">
+                        <div class="cardimg">
+                            <?php if ($producto['score_total'] > 20): ?>
+                                <div class="badge-trending">🔥 Trending</div>
+                            <?php endif; ?>
+                            <img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>">
+                        </div>
+                        <div class="card-body">
+                            <div class="cardtitle"><?php echo htmlspecialchars($producto['nombre']); ?></div>
+                            <div class="card-badges">
+                                <span class="badge-estado badge-<?php echo $producto['estado']; ?>">
+                                    <?php echo ucfirst($producto['estado']); ?>
+                                </span>
+                                <?php if (!empty($producto['categoria'])): ?>
+                                    <span class="badge-categoria">
+                                        <?php echo htmlspecialchars($producto['categoria']); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="card-seller">
+                                <div class="contact-avatar-small">
+                                    <?php if (!empty($producto['avatar_path'])): ?>
+                                        <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
+                                             alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
+                                             onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
+                                    <?php endif; ?>
+                                </div>
+                                <div class="seller-info">
+                                    <div class="name"><?php echo htmlspecialchars($producto['vendedor_name']); ?></div>
+                                    <div class="stars">
+                                        <?php echo generateStars($producto['promedio_estrellas']); ?>
+                                        <span class="rating-count">(<?php echo (int)$producto['total_valoraciones']; ?>)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php if ($producto['total_vistas'] > 0 || $producto['total_guardados'] > 0): ?>
+                            <div class="card-stats">
+                                <?php if ($producto['total_vistas'] > 0): ?>
+                                    <span><i class="fas fa-eye"></i> <?php echo $producto['total_vistas']; ?></span>
+                                <?php endif; ?>
+                                <?php if ($producto['total_guardados'] > 0): ?>
+                                    <span><i class="fas fa-heart"></i> <?php echo $producto['total_guardados']; ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                    <div class="card-actions">
+                        <?php if (isLoggedIn() && $_SESSION['user_id'] == $producto['user_id']): ?>
+                            <a href="editar-producto.php?id=<?php echo $producto['id']; ?>" class="btn-card btn-edit-card" onclick="event.stopPropagation();">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                        <?php else: ?>
+                            <a href="producto.php?id=<?php echo $producto['id']; ?>" class="btn-card btn-intercambiar">
+                                <i class="fas fa-exchange-alt"></i> Proponer intercambio
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Sección "Todos los productos" -->
+        <?php if (!empty($productos_recomendados)): ?>
+        <div class="section-divider">
+            <h2 class="section-title">
+                <i class="fas fa-box-open"></i> Todos los productos
+            </h2>
+        </div>
+        <?php endif; ?>
+        
         <div class="cardscontainer">
             <?php if ($tipo_busqueda === 'usuarios' && !empty($usuarios)): ?>
                 <!-- Tarjetas de usuarios -->
