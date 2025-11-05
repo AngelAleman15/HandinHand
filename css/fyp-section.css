@@ -1,84 +1,62 @@
 /* ========================================
    ESTILOS PARA LA SECCIÓN FYP (FOR YOU PAGE)
+   DISEÑO: MINIMALISTA MODERNO
    ======================================== */
 
 /* Sección principal FYP */
 .fyp-section {
-    margin: 40px auto;
+    margin: 50px auto;
     padding: 0 20px;
     max-width: 1400px;
     position: relative;
 }
 
-/* Header de la sección con diseño único */
+/* Header de la sección - Minimalista */
 .fyp-header {
     text-align: center;
-    margin-bottom: 35px;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(15, 52, 96, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    margin-bottom: 40px;
+    background: #ffffff;
+    padding: 35px 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f0f0f0;
     position: relative;
-    overflow: hidden;
-}
-
-/* Efecto de brillo animado en el header */
-.fyp-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent,
-        rgba(255, 255, 255, 0.05),
-        transparent
-    );
-    transform: rotate(45deg);
-    animation: shine 3s infinite;
-}
-
-@keyframes shine {
-    0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
 
 .fyp-title {
-    font-size: 2.2em;
-    font-weight: 800;
-    background: linear-gradient(90deg, #00d4ff, #7b2ff7, #f107a3);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0 0 10px 0;
-    text-shadow: none;
-    position: relative;
-    letter-spacing: 1px;
+    font-size: 1.8em;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.fyp-title i {
+    color: #fbbf24;
+    margin-right: 8px;
+    font-size: 0.9em;
 }
 
 .fyp-subtitle {
-    font-size: 1.1em;
-    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95em;
+    color: #6b7280;
     margin: 0;
-    font-weight: 300;
-    letter-spacing: 0.5px;
+    font-weight: 400;
+    letter-spacing: 0.2px;
 }
 
 /* Contenedor del carrusel */
 .fyp-carousel-wrapper {
     position: relative;
-    padding: 0 60px;
+    padding: 0 55px;
 }
 
 /* Contenedor de cards (carrusel) */
 .fyp-container {
     display: flex;
-    gap: 25px;
+    gap: 20px;
     overflow: hidden;
-    padding: 20px 5px;
+    padding: 15px 5px 25px;
     scroll-behavior: smooth;
     position: relative;
 }
@@ -88,39 +66,39 @@
     display: none; /* Ocultar scrollbar en carrusel */
 }
 
-/* Botones de navegación del carrusel */
+/* Botones de navegación del carrusel - Minimalista */
 .fyp-nav-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    width: 50px;
-    height: 50px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 10;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .fyp-nav-btn:hover {
-    background: linear-gradient(135deg, #0f3460 0%, #533483 100%);
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 8px 25px rgba(83, 52, 131, 0.5);
-    border-color: rgba(255, 255, 255, 0.4);
+    background: #f9fafb;
+    border-color: #d1d5db;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-50%) scale(1.05);
 }
 
 .fyp-nav-btn:active {
-    transform: translateY(-50%) scale(0.95);
+    transform: translateY(-50%) scale(0.98);
 }
 
 .fyp-nav-btn i {
-    font-size: 1.3em;
+    font-size: 1.1em;
 }
 
 .fyp-nav-btn.prev {
@@ -132,64 +110,64 @@
 }
 
 .fyp-nav-btn:disabled {
-    opacity: 0.3;
+    opacity: 0.4;
     cursor: not-allowed;
-    background: #333;
+    background: #f9fafb;
 }
 
 .fyp-nav-btn:disabled:hover {
     transform: translateY(-50%) scale(1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Indicadores del carrusel */
+/* Indicadores del carrusel - Minimalista */
 .fyp-indicators {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-top: 25px;
+    gap: 8px;
+    margin-top: 20px;
 }
 
 .fyp-indicator {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: rgba(15, 52, 96, 0.3);
+    background: #d1d5db;
     cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
+    transition: all 0.25s ease;
+    border: none;
 }
 
 .fyp-indicator.active {
-    background: linear-gradient(135deg, #00d4ff, #7b2ff7);
-    transform: scale(1.3);
-    box-shadow: 0 0 10px rgba(123, 47, 247, 0.5);
+    background: #6366f1;
+    transform: scale(1.4);
+    border-radius: 4px;
 }
 
 .fyp-indicator:hover {
-    background: rgba(15, 52, 96, 0.6);
+    background: #9ca3af;
     transform: scale(1.2);
 }
 
-/* Card individual FYP */
+/* Card individual FYP - Minimalista */
 .fyp-card {
     min-width: 280px;
     max-width: 280px;
-    background: white;
-    border-radius: 15px;
+    background: #ffffff;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.25s ease;
     cursor: pointer;
     position: relative;
     flex-shrink: 0;
-    border: 2px solid transparent;
+    border: 1px solid #f3f4f6;
 }
 
 .fyp-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 40px rgba(123, 47, 247, 0.3);
-    border-color: rgba(123, 47, 247, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #e5e7eb;
 }
 
 /* Imagen del producto */
@@ -212,31 +190,20 @@
     transform: scale(1.1);
 }
 
-/* Badge Trending */
+/* Badge Trending - Minimalista */
 .badge-trending {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: linear-gradient(135deg, #f107a3 0%, #fd5949 100%);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.85em;
-    font-weight: 700;
-    box-shadow: 0 4px 15px rgba(241, 7, 163, 0.5);
-    animation: pulse-trending 2s infinite;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #ffffff;
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 0.75em;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.25);
     z-index: 2;
-}
-
-@keyframes pulse-trending {
-    0%, 100% {
-        transform: scale(1);
-        box-shadow: 0 4px 15px rgba(241, 7, 163, 0.5);
-    }
-    50% {
-        transform: scale(1.08);
-        box-shadow: 0 6px 25px rgba(241, 7, 163, 0.7);
-    }
+    letter-spacing: 0.3px;
 }
 
 /* Contenido de la card */
@@ -300,9 +267,9 @@
     color: #2ecc71;
 }
 
-/* Divider entre secciones */
+/* Divider entre secciones - Minimalista */
 .section-divider {
-    margin: 50px auto 30px;
+    margin: 60px auto 40px;
     text-align: center;
     position: relative;
 }
@@ -313,8 +280,8 @@
     position: absolute;
     top: 50%;
     width: 40%;
-    height: 2px;
-    background: linear-gradient(to right, transparent, #ddd, transparent);
+    height: 1px;
+    background: #e5e7eb;
 }
 
 .section-divider::before {
@@ -326,45 +293,52 @@
 }
 
 .section-title {
-    font-size: 1.5em;
+    font-size: 1.3em;
     font-weight: 600;
-    color: #2c3e50;
+    color: #374151;
     background: white;
     padding: 0 20px;
     position: relative;
     z-index: 1;
 }
 
+.section-title i {
+    color: #6b7280;
+    margin-right: 8px;
+    font-size: 0.9em;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .fyp-section {
         padding: 0 10px;
+        margin: 40px auto;
     }
     
     .fyp-header {
-        padding: 20px;
-        border-radius: 15px;
+        padding: 25px 20px;
+        border-radius: 10px;
     }
     
     .fyp-title {
-        font-size: 1.6em;
+        font-size: 1.5em;
     }
     
     .fyp-subtitle {
-        font-size: 0.95em;
+        font-size: 0.9em;
     }
     
     .fyp-carousel-wrapper {
-        padding: 0 50px;
+        padding: 0 45px;
     }
     
     .fyp-nav-btn {
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
     }
     
     .fyp-nav-btn i {
-        font-size: 1.1em;
+        font-size: 1em;
     }
     
     .fyp-card {
@@ -373,27 +347,27 @@
     }
     
     .section-title {
-        font-size: 1.2em;
+        font-size: 1.15em;
     }
 }
 
 @media (max-width: 480px) {
     .fyp-carousel-wrapper {
-        padding: 0 40px;
+        padding: 0 38px;
     }
     
     .fyp-nav-btn {
-        width: 35px;
-        height: 35px;
+        width: 34px;
+        height: 34px;
     }
     
     .fyp-nav-btn i {
-        font-size: 1em;
+        font-size: 0.95em;
     }
     
     .fyp-card {
-        min-width: 220px;
-        max-width: 220px;
+        min-width: 230px;
+        max-width: 230px;
     }
     
     .fyp-card .card-image-container {
@@ -407,10 +381,11 @@
     
     .fyp-indicators {
         gap: 6px;
+        margin-top: 15px;
     }
     
     .fyp-indicator {
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
     }
 }
