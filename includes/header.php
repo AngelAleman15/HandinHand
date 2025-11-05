@@ -25,6 +25,7 @@ require_once __DIR__ . '/functions.php';
 
     <!-- FYP Tracking System -->
     <script src="/js/fyp-tracking.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/js/fyp-carousel.js?v=<?php echo time(); ?>" defer></script>
 
     <!-- Definir variables globales para Socket.IO y usuario -->
     <?php if (isLoggedIn()): ?>

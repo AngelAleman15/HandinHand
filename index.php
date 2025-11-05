@@ -111,60 +111,67 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
             <div class="fyp-header">
                 <h2 class="fyp-title">
                     <i class="fas fa-star"></i> Para Ti
-                    <span class="fyp-subtitle">Recomendaciones personalizadas</span>
                 </h2>
+                <p class="fyp-subtitle">Recomendaciones personalizadas basadas en tus intereses</p>
             </div>
-            <div class="fyp-container">
-                <?php foreach ($productos_recomendados as $producto): ?>
-                <div class="card fyp-card">
-                    <a href="producto.php?id=<?php echo $producto['id']; ?>" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="cardimg">
-                            <?php if ($producto['score_total'] > 20): ?>
-                                <div class="badge-trending">🔥 Trending</div>
-                            <?php endif; ?>
-                            <img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>">
-                        </div>
-                        <div class="card-body">
-                            <div class="cardtitle"><?php echo htmlspecialchars($producto['nombre']); ?></div>
-                            <div class="card-badges">
-                                <span class="badge-estado badge-<?php echo $producto['estado']; ?>">
-                                    <?php echo ucfirst($producto['estado']); ?>
-                                </span>
-                                <?php if (!empty($producto['categoria'])): ?>
-                                    <span class="badge-categoria">
-                                        <?php echo htmlspecialchars($producto['categoria']); ?>
-                                    </span>
+            
+            <div class="fyp-carousel-wrapper">
+                <!-- Botón anterior -->
+                <button class="fyp-nav-btn prev" id="fyp-prev">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <div class="fyp-container" id="fyp-carousel">
+                    <?php foreach ($productos_recomendados as $producto): ?>
+                    <div class="card fyp-card" data-producto-id="<?php echo $producto['id']; ?>">
+                        <a href="producto.php?id=<?php echo $producto['id']; ?>" style="text-decoration:none;color:inherit;display:block;">
+                            <div class="cardimg">
+                                <?php if ($producto['score_total'] > 20): ?>
+                                    <div class="badge-trending">🔥 Trending</div>
                                 <?php endif; ?>
+                                <img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>">
                             </div>
-                            <div class="card-seller">
-                                <div class="contact-avatar-small">
-                                    <?php if (!empty($producto['avatar_path'])): ?>
-                                        <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
-                                             alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
-                                             onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
+                            <div class="card-body">
+                                <div class="cardtitle"><?php echo htmlspecialchars($producto['nombre']); ?></div>
+                                <div class="card-badges">
+                                    <span class="badge-estado badge-<?php echo $producto['estado']; ?>">
+                                        <?php echo ucfirst($producto['estado']); ?>
+                                    </span>
+                                    <?php if (!empty($producto['categoria'])): ?>
+                                        <span class="badge-categoria">
+                                            <?php echo htmlspecialchars($producto['categoria']); ?>
+                                        </span>
                                     <?php endif; ?>
                                 </div>
-                                <div class="seller-info">
-                                    <div class="name"><?php echo htmlspecialchars($producto['vendedor_name']); ?></div>
-                                    <div class="stars">
-                                        <?php echo generateStars($producto['promedio_estrellas']); ?>
-                                        <span class="rating-count">(<?php echo (int)$producto['total_valoraciones']; ?>)</span>
+                                <div class="card-seller">
+                                    <div class="contact-avatar-small">
+                                        <?php if (!empty($producto['avatar_path'])): ?>
+                                            <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
+                                                 alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
+                                                 onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="seller-info">
+                                        <div class="name"><?php echo htmlspecialchars($producto['vendedor_name']); ?></div>
+                                        <div class="stars">
+                                            <?php echo generateStars($producto['promedio_estrellas']); ?>
+                                            <span class="rating-count">(<?php echo (int)$producto['total_valoraciones']; ?>)</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <?php if ($producto['total_vistas'] > 0 || $producto['total_guardados'] > 0): ?>
-                            <div class="card-stats">
-                                <?php if ($producto['total_vistas'] > 0): ?>
-                                    <span><i class="fas fa-eye"></i> <?php echo $producto['total_vistas']; ?></span>
+                                <?php if ($producto['total_vistas'] > 0 || $producto['total_guardados'] > 0): ?>
+                                <div class="card-stats">
+                                    <?php if ($producto['total_vistas'] > 0): ?>
+                                        <span><i class="fas fa-eye"></i> <?php echo $producto['total_vistas']; ?></span>
+                                    <?php endif; ?>
+                                    <?php if ($producto['total_guardados'] > 0): ?>
+                                        <span><i class="fas fa-heart"></i> <?php echo $producto['total_guardados']; ?></span>
+                                    <?php endif; ?>
+                                </div>
                                 <?php endif; ?>
-                                <?php if ($producto['total_guardados'] > 0): ?>
-                                    <span><i class="fas fa-heart"></i> <?php echo $producto['total_guardados']; ?></span>
-                                <?php endif; ?>
                             </div>
-                            <?php endif; ?>
-                        </div>
-                    </a>
-                    <div class="card-actions">
+                        </a>
+                        <div class="card-actions">
                         <?php if (isLoggedIn() && $_SESSION['user_id'] == $producto['user_id']): ?>
                             <a href="editar-producto.php?id=<?php echo $producto['id']; ?>" class="btn-card btn-edit-card" onclick="event.stopPropagation();">
                                 <i class="fas fa-edit"></i> Editar
@@ -178,6 +185,15 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
                 </div>
                 <?php endforeach; ?>
             </div>
+            
+            <!-- Botón siguiente -->
+            <button class="fyp-nav-btn next" id="fyp-next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <!-- Indicadores del carrusel -->
+        <div class="fyp-indicators" id="fyp-indicators"></div>
         </div>
         <?php endif; ?>
         

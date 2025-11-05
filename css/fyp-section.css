@@ -4,64 +4,171 @@
 
 /* Sección principal FYP */
 .fyp-section {
-    margin: 30px auto;
+    margin: 40px auto;
     padding: 0 20px;
     max-width: 1400px;
+    position: relative;
 }
 
-/* Header de la sección */
+/* Header de la sección con diseño único */
 .fyp-header {
     text-align: center;
-    margin-bottom: 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    margin-bottom: 35px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(15, 52, 96, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efecto de brillo animado en el header */
+.fyp-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.05),
+        transparent
+    );
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
 
 .fyp-title {
-    font-size: 2em;
-    font-weight: 700;
-    color: white;
-    margin: 0 0 8px 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    font-size: 2.2em;
+    font-weight: 800;
+    background: linear-gradient(90deg, #00d4ff, #7b2ff7, #f107a3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 10px 0;
+    text-shadow: none;
+    position: relative;
+    letter-spacing: 1px;
 }
 
 .fyp-subtitle {
-    font-size: 1em;
-    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1em;
+    color: rgba(255, 255, 255, 0.85);
     margin: 0;
-    font-weight: 400;
+    font-weight: 300;
+    letter-spacing: 0.5px;
 }
 
-/* Contenedor de cards (scroll horizontal) */
+/* Contenedor del carrusel */
+.fyp-carousel-wrapper {
+    position: relative;
+    padding: 0 60px;
+}
+
+/* Contenedor de cards (carrusel) */
 .fyp-container {
     display: flex;
-    gap: 20px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 15px 5px;
+    gap: 25px;
+    overflow: hidden;
+    padding: 20px 5px;
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
+    position: relative;
 }
 
 /* Scrollbar personalizado */
 .fyp-container::-webkit-scrollbar {
-    height: 8px;
+    display: none; /* Ocultar scrollbar en carrusel */
 }
 
-.fyp-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
+/* Botones de navegación del carrusel */
+.fyp-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.fyp-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 10px;
+.fyp-nav-btn:hover {
+    background: linear-gradient(135deg, #0f3460 0%, #533483 100%);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 8px 25px rgba(83, 52, 131, 0.5);
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
-.fyp-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #5568d3 0%, #63408b 100%);
+.fyp-nav-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.fyp-nav-btn i {
+    font-size: 1.3em;
+}
+
+.fyp-nav-btn.prev {
+    left: 0;
+}
+
+.fyp-nav-btn.next {
+    right: 0;
+}
+
+.fyp-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: #333;
+}
+
+.fyp-nav-btn:disabled:hover {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Indicadores del carrusel */
+.fyp-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.fyp-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(15, 52, 96, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.fyp-indicator.active {
+    background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+    transform: scale(1.3);
+    box-shadow: 0 0 10px rgba(123, 47, 247, 0.5);
+}
+
+.fyp-indicator:hover {
+    background: rgba(15, 52, 96, 0.6);
+    transform: scale(1.2);
 }
 
 /* Card individual FYP */
@@ -75,11 +182,14 @@
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     cursor: pointer;
     position: relative;
+    flex-shrink: 0;
+    border: 2px solid transparent;
 }
 
 .fyp-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 15px 40px rgba(123, 47, 247, 0.3);
+    border-color: rgba(123, 47, 247, 0.3);
 }
 
 /* Imagen del producto */
@@ -107,13 +217,13 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    background: linear-gradient(135deg, #f107a3 0%, #fd5949 100%);
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 0.85em;
     font-weight: 700;
-    box-shadow: 0 4px 10px rgba(238, 90, 111, 0.4);
+    box-shadow: 0 4px 15px rgba(241, 7, 163, 0.5);
     animation: pulse-trending 2s infinite;
     z-index: 2;
 }
@@ -121,11 +231,11 @@
 @keyframes pulse-trending {
     0%, 100% {
         transform: scale(1);
-        box-shadow: 0 4px 10px rgba(238, 90, 111, 0.4);
+        box-shadow: 0 4px 15px rgba(241, 7, 163, 0.5);
     }
     50% {
-        transform: scale(1.05);
-        box-shadow: 0 6px 15px rgba(238, 90, 111, 0.6);
+        transform: scale(1.08);
+        box-shadow: 0 6px 25px rgba(241, 7, 163, 0.7);
     }
 }
 
@@ -233,15 +343,28 @@
     
     .fyp-header {
         padding: 20px;
-        border-radius: 10px;
+        border-radius: 15px;
     }
     
     .fyp-title {
-        font-size: 1.5em;
+        font-size: 1.6em;
     }
     
     .fyp-subtitle {
-        font-size: 0.9em;
+        font-size: 0.95em;
+    }
+    
+    .fyp-carousel-wrapper {
+        padding: 0 50px;
+    }
+    
+    .fyp-nav-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .fyp-nav-btn i {
+        font-size: 1.1em;
     }
     
     .fyp-card {
@@ -255,6 +378,19 @@
 }
 
 @media (max-width: 480px) {
+    .fyp-carousel-wrapper {
+        padding: 0 40px;
+    }
+    
+    .fyp-nav-btn {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .fyp-nav-btn i {
+        font-size: 1em;
+    }
+    
     .fyp-card {
         min-width: 220px;
         max-width: 220px;
@@ -267,5 +403,14 @@
     .card-stats {
         flex-wrap: wrap;
         gap: 5px;
+    }
+    
+    .fyp-indicators {
+        gap: 6px;
+    }
+    
+    .fyp-indicator {
+        width: 8px;
+        height: 8px;
     }
 }
