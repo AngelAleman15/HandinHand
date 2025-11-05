@@ -1,0 +1,95 @@
+/* ============================================
+   TEMA DE USUARIOS - PALETA ROSA/MORADO/CYAN
+   HandinHand Platform - VERSIÓN MINIMALISTA
+   ============================================ */
+
+/* Paleta de colores usuarios:
+   #FBBDE4 - Rosa claro
+   #FE5EB6 - Rosa brillante
+   #3B007E - Morado oscuro
+   #6D0099 - Morado
+   #076DAF - Azul
+   #11D7DF - Cyan
+*/
+
+/* ===== SOLO ELEMENTOS DE BÚSQUEDA ===== */
+
+/* 1. INPUT DE BÚSQUEDA */
+body.tema-usuarios .inputnav {
+  border: 2px solid #FBBDE4;
+  transition: all 0.3s ease;
+}
+
+body.tema-usuarios .inputnav:focus {
+  border: 2px solid #6D0099;
+  box-shadow: 0 0 0 3px rgba(109, 0, 153, 0.1);
+}
+
+/* 2. BOTÓN DE BUSCAR */
+body.tema-usuarios .btnnav {
+  background: linear-gradient(135deg, #6D0099, #3B007E);
+  transition: all 0.3s ease;
+}
+
+body.tema-usuarios .btnnav:hover {
+  background: linear-gradient(135deg, #FE5EB6, #6D0099);
+  transform: scale(1.02);
+}
+
+body.tema-usuarios .btnnav:active {
+  transform: scale(0.98);
+}
+
+/* 3. BOTÓN TOGGLE DE USUARIOS (cuando está activo) */
+body.tema-usuarios .toggle-btn.active {
+  background: linear-gradient(135deg, #6D0099, #3B007E);
+  color: white;
+  border-color: #6D0099;
+  box-shadow: 0 4px 10px rgba(109, 0, 153, 0.3);
+}
+
+/* Toggle de usuarios cuando NO está activo */
+body.tema-usuarios .toggle-btn:not(.active) {
+  border-color: #6D0099;
+  color: #6D0099;
+}
+
+body.tema-usuarios .toggle-btn:not(.active):hover {
+  background: rgba(109, 0, 153, 0.1);
+}
+
+/* 4. BOTÓN DE FILTROS (opcional, solo si existe) */
+body.tema-usuarios .btn-filtros {
+  border-color: #6D0099;
+  color: #6D0099;
+}
+
+body.tema-usuarios .btn-filtros:hover {
+  background: #6D0099;
+  color: white;
+}
+
+/* 5. PANEL DE FILTROS - Selectores */
+body.tema-usuarios .filtro-select:hover {
+  border-color: #FE5EB6;
+}
+
+body.tema-usuarios .filtro-select:focus {
+  border-color: #6D0099;
+  box-shadow: 0 0 0 3px rgba(109, 0, 153, 0.1);
+}
+
+/* Iconos de filtros */
+body.tema-usuarios .filtro-grupo label i {
+  color: #FE5EB6;
+}
+
+/* Transiciones suaves solo en elementos afectados */
+.inputnav,
+.btnnav,
+.toggle-btn,
+.btn-filtros,
+.filtro-select {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+

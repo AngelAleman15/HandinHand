@@ -12,6 +12,7 @@ require_once __DIR__ . '/functions.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/css/tema-usuarios.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="/css/perseo-actions.css?v=<?php echo time(); ?>">
     <title><?php echo isset($page_title) ? $page_title : 'HandinHand'; ?></title>
 
@@ -64,7 +65,6 @@ require_once __DIR__ . '/functions.php';
         <div class="logo"><a href="index.php"><img src="img/Hand(sinfondo).png" alt="Icono"></a></div>
         <div class="menu">
             <ul>
-                <li><img src="img/ayuda.png" alt="ayuda"></li>
                 <li class="menu-toggle-container">
                     <img src="img/menudesplegable.png" alt="menú desplegable" id="menu-toggle" class="menutoggle">
                     <div class="dropdown-menu" id="dropdown-menu">

@@ -51,6 +51,9 @@ try {
         $user_id = requireAuth();
         $data = getJsonInput();
         
+        // Log para debug
+        error_log("Valoraciones POST - Data recibida: " . json_encode($data));
+        
         $action = $data['action'] ?? '';
         
         switch ($action) {
@@ -59,11 +62,13 @@ try {
                 
                 $usuario_id = intval($data['usuario_id']);
                 $puntuacion = floatval($data['puntuacion']);
-                $comentario = isset($data['comentario']) ? sanitizeData($data['comentario']) : null;
+                $comentario = isset($data['comentario']) && !empty($data['comentario']) 
+                    ? trim($data['comentario']) 
+                    : null;
                 
-                // Validar puntuación (0.5 a 5.0, en pasos de 0.5)
-                if ($puntuacion < 0.5 || $puntuacion > 5 || fmod($puntuacion * 10, 5) != 0) {
-                    sendError('Puntuación debe ser entre 0.5 y 5.0 en pasos de 0.5', 400);
+                // Validar puntuación (1 a 5, números enteros)
+                if ($puntuacion < 1 || $puntuacion > 5) {
+                    sendError('Puntuación debe ser entre 1 y 5', 400);
                 }
                 
                 // No valorarse a sí mismo

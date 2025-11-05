@@ -1,6 +1,6 @@
 <?php
-require_once '../api_base.php';
-require_once '../config/database.php';
+require_once __DIR__ . '/api_base.php';
+require_once __DIR__ . '/../config/database.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;

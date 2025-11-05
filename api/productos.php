@@ -1,7 +1,6 @@
 <?php
-require_once '../api_base.php';
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/api_base.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Determinar la acción basada en el método y parámetros
 $method = $_SERVER['REQUEST_METHOD'];
@@ -132,30 +131,43 @@ function getProducto($id) {
         
 
         // Obtener producto principal
-        $stmt = $pdo->prepare("SELECT p.*, u.username as vendedor_username, u.fullname as vendedor_name,
+        $stmt = $pdo->prepare("SELECT p.*, u.username, u.fullname as vendedor_name, u.avatar_path,
                                       u.phone as vendedor_phone, u.email as vendedor_email,
-                                      COALESCE(AVG(v.puntuacion), 0) as promedio_estrellas,
-                                      COUNT(v.puntuacion) as total_valoraciones
+                                      COALESCE(p.promedio_estrellas, 0) as promedio_estrellas,
+                                      COALESCE(p.total_valoraciones, 0) as total_valoraciones
                                FROM productos p 
                                JOIN usuarios u ON p.user_id = u.id 
-                               LEFT JOIN valoraciones v ON u.id = v.usuario_id
-                               WHERE p.id = ?
-                               GROUP BY p.id");
+                               WHERE p.id = ?");
         $stmt->execute([$id]);
         $producto = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$producto) {
             sendError('Producto no encontrado', 404);
         }
-        // Obtener categorías
-        $catStmt = $pdo->prepare("SELECT c.id, c.nombre FROM producto_categorias pc JOIN categorias c ON pc.categoria_id = c.id WHERE pc.producto_id = ?");
-        $catStmt->execute([$id]);
-        $categorias = $catStmt->fetchAll(PDO::FETCH_ASSOC);
-        // Obtener imágenes
-        $imgStmt = $pdo->prepare("SELECT imagen FROM producto_imagenes WHERE producto_id = ?");
-        $imgStmt->execute([$id]);
-        $imagenes = $imgStmt->fetchAll(PDO::FETCH_COLUMN);
-        $producto['categorias'] = $categorias;
-        $producto['imagenes'] = $imagenes;
+        
+        // COMPATIBILIDAD: Usar estructura simple (columna categoria e imagen)
+        // En lugar de tablas relacionales producto_categorias y producto_imagenes
+        
+        // Categoría: convertir de string a array para mantener compatibilidad
+        $producto['categorias'] = $producto['categoria'] ? [['nombre' => $producto['categoria']]] : [];
+        
+        // Imágenes: soportar múltiples imágenes
+        // Formato: imagen-1.jpg, imagen-2.jpg, imagen-3.jpg
+        $producto['imagenes'] = [];
+        if ($producto['imagen']) {
+            // Agregar la imagen principal
+            $producto['imagenes'][] = $producto['imagen'];
+            
+            // Buscar imágenes adicionales (imagen-1.jpg, imagen-2.jpg, imagen-3.jpg)
+            $imagenBase = preg_replace('/\.(jpg|jpeg|png|gif)$/i', '', $producto['imagen']);
+            for ($i = 2; $i <= 3; $i++) {
+                $extension = pathinfo($producto['imagen'], PATHINFO_EXTENSION);
+                $imagenAdicional = $imagenBase . '-' . $i . '.' . $extension;
+                if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $imagenAdicional)) {
+                    $producto['imagenes'][] = $imagenAdicional;
+                }
+            }
+        }
+        
         sendSuccess($producto, 'Producto obtenido exitosamente');
         
     } catch (Exception $e) {

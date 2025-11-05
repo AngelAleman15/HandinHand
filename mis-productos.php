@@ -110,7 +110,7 @@ if ($catStmt) {
                  <div class="product-col product-col-acciones">Acciones</div>
             </div>
             <?php foreach ($misProductos as $producto): ?>
-                <div class="product-row">
+                <div class="product-row" style="cursor:pointer;" onclick="window.location.href='producto.php?id=<?php echo $producto['id']; ?>'">
                     <div class="product-col product-col-img">
                         <img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                     </div>
@@ -130,7 +130,7 @@ if ($catStmt) {
                         </span>
                     </div>
                     <div class="product-col product-col-estado">
-                        <span class="status-badge estado-badge status-<?php echo $producto['estado']; ?>" data-producto-id="<?php echo $producto['id']; ?>" data-estado="<?php echo $producto['estado']; ?>" tabindex="0" title="Haz clic para cambiar el estado">
+                        <span class="status-badge estado-badge status-<?php echo $producto['estado']; ?>" data-producto-id="<?php echo $producto['id']; ?>" data-estado="<?php echo $producto['estado']; ?>" tabindex="0" title="Haz clic para cambiar el estado" onclick="event.stopPropagation();">
                             <?php echo strtoupper($producto['estado']); ?>
                         </span>
                     </div>
@@ -140,8 +140,8 @@ if ($catStmt) {
                         </span>
                     </div>
                     <div class="product-col product-col-acciones">
-                        <a class="btn btn-sm btn-secondary" href="editar-producto.php?id=<?php echo $producto['id']; ?>">Editar</a>
-                        <button class="btn btn-sm btn-danger" onclick="deleteProduct(<?php echo $producto['id']; ?>)">Eliminar</button>
+                        <a class="btn btn-sm btn-secondary" href="editar-producto.php?id=<?php echo $producto['id']; ?>" onclick="event.stopPropagation();">Editar</a>
+                        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteProduct(<?php echo $producto['id']; ?>);">Eliminar</button>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -261,6 +261,12 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: center;
     border-bottom: 1px solid #e0e0e0;
     padding: 10px 0;
+}
+.product-row {
+    transition: background-color 0.2s ease;
+}
+.product-row:hover {
+    background-color: #f0f8f0;
 }
 .products-header-row {
     font-weight: bold;

@@ -66,7 +66,8 @@ function getProductos($limit = null, $busqueda = null) {
     $pdo = getConnection();
     
     $sql = "SELECT p.*, u.username as vendedor_username, u.fullname as vendedor_name, u.avatar_path,
-                   COALESCE(AVG(v.puntuacion), 0) as promedio_estrellas
+                   COALESCE(AVG(v.puntuacion), 0) as promedio_estrellas,
+                   COUNT(v.id) as total_valoraciones
             FROM productos p 
             JOIN usuarios u ON p.user_id = u.id 
             LEFT JOIN valoraciones v ON u.id = v.usuario_id
@@ -99,7 +100,8 @@ function getProducto($id) {
     $pdo = getConnection();
     
     $stmt = $pdo->prepare("SELECT p.*, u.username as vendedor_username, u.fullname as vendedor_name, u.avatar_path,
-                                  COALESCE(AVG(v.puntuacion), 0) as promedio_estrellas
+                                  COALESCE(AVG(v.puntuacion), 0) as promedio_estrellas,
+                                  COUNT(v.id) as total_valoraciones
                            FROM productos p 
                            JOIN usuarios u ON p.user_id = u.id 
                            LEFT JOIN valoraciones v ON u.id = v.usuario_id
@@ -122,5 +124,102 @@ function generateStars($rating, $max = 5) {
         }
     }
     return $html;
+}
+
+/**
+ * Función para obtener productos con filtros avanzados
+ */
+function getProductosFiltrados($limit = null, $busqueda = null, $categoria = null, $estado = null) {
+    require_once __DIR__ . '/../config/database.php';
+    $pdo = getConnection();
+    
+    $sql = "SELECT p.*, u.username as vendedor_username, u.fullname as vendedor_name, u.avatar_path,
+                   p.promedio_estrellas,
+                   p.total_valoraciones
+            FROM productos p 
+            JOIN usuarios u ON p.user_id = u.id
+            WHERE 1=1";
+    
+    $params = [];
+    
+    // Filtro de búsqueda
+    if ($busqueda) {
+        $sql .= " AND (p.nombre LIKE ? OR p.descripcion LIKE ?)";
+        $params[] = "%$busqueda%";
+        $params[] = "%$busqueda%";
+    }
+    
+    // Filtro de categoría
+    if ($categoria) {
+        $sql .= " AND p.categoria = ?";
+        $params[] = $categoria;
+    }
+    
+    // Filtro de estado
+    if ($estado) {
+        $sql .= " AND p.estado = ?";
+        $params[] = $estado;
+    } else {
+        // Por defecto solo mostrar disponibles si no se especifica
+        $sql .= " AND p.estado = 'disponible'";
+    }
+    
+    $sql .= " ORDER BY p.created_at DESC";
+    
+    if ($limit) {
+        $sql .= " LIMIT " . (int)$limit;
+    }
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Función para buscar usuarios
+ */
+function buscarUsuarios($busqueda = null, $limit = 20) {
+    require_once __DIR__ . '/../config/database.php';
+    $pdo = getConnection();
+    
+    // Verificar si existe la columna ubicacion
+    $checkColumn = $pdo->query("SHOW COLUMNS FROM usuarios LIKE 'ubicacion'")->fetch();
+    $ubicacionExists = $checkColumn !== false;
+    
+    $ubicacionField = $ubicacionExists ? 'u.ubicacion,' : '';
+    
+    $sql = "SELECT u.id, u.username, u.fullname, u.avatar_path, {$ubicacionField}
+                   COUNT(DISTINCT p.id) as total_productos,
+                   0 as total_intercambios
+            FROM usuarios u
+            LEFT JOIN productos p ON u.id = p.user_id
+            WHERE 1=1";
+    
+    $params = [];
+    
+    if ($busqueda) {
+        $sql .= " AND (u.username LIKE ? OR u.fullname LIKE ?)";
+        $params[] = "%$busqueda%";
+        $params[] = "%$busqueda%";
+    }
+    
+    $sql .= " GROUP BY u.id ORDER BY u.created_at DESC";
+    
+    if ($limit) {
+        $sql .= " LIMIT " . (int)$limit;
+    }
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Asegurar que ubicacion existe en cada resultado
+    if (!$ubicacionExists) {
+        foreach ($usuarios as &$usuario) {
+            $usuario['ubicacion'] = null;
+        }
+    }
+    
+    return $usuarios;
 }
 ?>

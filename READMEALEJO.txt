@@ -1,3 +1,4 @@
+Eliminado el archivo READMEALEJO.txt
 Alejosantos007: En esta documentacion:
 # 🤝 HandinHand - Plataforma de Intercambio y Trueque
 

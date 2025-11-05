@@ -1,3 +1,4 @@
+Eliminado el archivo INSTRUCCIONES-EDITAR-ELIMINAR.md
 # 🔧 Pasos para activar Editar y Eliminar Mensajes
 
 ## 1️⃣ Ejecutar la migración SQL

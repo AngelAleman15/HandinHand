@@ -1,3 +1,4 @@
+Eliminado el archivo README-CHAT.md
 # 🚀 HandinHand - Sistema de Chat en Tiempo Real
 
 ## 📋 Descripción

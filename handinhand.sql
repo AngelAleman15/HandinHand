@@ -122,12 +122,12 @@ CREATE TABLE IF NOT EXISTS `producto_imagenes` (
 --
 
 INSERT INTO `productos` (`id`, `user_id`, `nombre`, `descripcion`, `imagen`, `categoria`, `estado`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Zapatos Deportivos Nike', 'Zapatos deportivos en excelente estado, poco uso. Perfectos para correr o hacer ejercicio.', 'img/productos/Zapatosdeportivosnike.jpg', 'Calzado', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(2, 1, 'Guitarra Acústica', 'Guitarra acústica en buen estado, ideal para principiantes. Incluye funda protectora.', 'img/productos/Guitarraacustica.jpg', 'Música', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(1, 1, 'Zapatos Deportivos Nike', 'Zapatos deportivos en excelente estado, poco uso. Perfectos para correr o hacer ejercicio.', 'img/productos/zapatosdeportivosnike.jpg', 'Calzado', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(2, 1, 'Guitarra Acústica', 'Guitarra acústica en buen estado, ideal para principiantes. Incluye funda protectora.', 'img/productos/guitarraacustica.jpg', 'Música', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
 (3, 1, 'Libro \"El Principito\"', 'Clásico de la literatura en perfecto estado. Edición especial con ilustraciones.', 'img/productos/elprincipito.jpg', 'Libros', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(4, 2, 'Smartphone Samsung', 'Samsung Galaxy en excelente estado, con cargador y protector. Funciona perfectamente.', 'img/productos/smartphonesamsungjpg.jpg', 'Electrónicos', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(5, 2, 'Chaqueta de Cuero', 'Chaqueta de cuero genuino, talla M. Muy poco uso, perfecta para invierno.', 'img/productos/chaquetadecuerojpg.jpg', 'Ropa', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
-(6, 2, 'Bicicleta de Montaña', 'Bicicleta en muy buen estado, ideal para aventuras al aire libre. Incluye casco.', 'img/productos/bicicletademontaña.jpg', 'Deportes', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(4, 2, 'Smartphone Samsung', 'Samsung Galaxy en excelente estado, con cargador y protector. Funciona perfectamente.', 'img/productos/smartphonesamsung.jpg', 'Electrónicos', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(5, 2, 'Chaqueta de Cuero', 'Chaqueta de cuero genuino, talla M. Muy poco uso, perfecta para invierno.', 'img/productos/chaquetadecuero.jpg', 'Ropa', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
+(6, 2, 'Bicicleta de Montaña', 'Bicicleta en muy buen estado, ideal para aventuras al aire libre. Incluye casco.', 'img/productos/bicicletademontana.jpg', 'Deportes', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
 (7, 3, 'Cafetera Express', 'Cafetera express automática, hace café delicioso. Incluye manual de uso.', 'img/productos/cafeteraexpress.jpg', 'Hogar', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
 (8, 3, 'Juego de Mesa Monopoly', 'Monopoly clásico en excelente estado, completo con todas las piezas.', 'img/productos/monopoly.jpg', 'Juguetes', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),
 (9, 3, 'Taladro Eléctrico', 'Taladro eléctrico con set de brocas. Perfecto para proyectos de hogar.', 'img/productos/taladroelectrico.jpg', 'Herramientas', 'disponible', '2025-10-02 19:10:12', '2025-10-02 23:11:14'),

@@ -1,19 +1,30 @@
 <?php
 session_start();
 
-// Configuración de la página
-$page_title = "HandinHand - Inicio";
-$body_class = "body-index";
-
 // Incluir funciones
 require_once 'includes/functions.php';
 
 // Verificar si se cerró sesión
 $logout_success = isset($_GET['logout']) && $_GET['logout'] === 'success';
 
-// Obtener productos de la base de datos
+// Obtener parámetros de búsqueda y filtros
 $busqueda = isset($_GET['busqueda']) ? trim($_GET['busqueda']) : null;
-$productos = getProductos(20, $busqueda); // Limitar a 20 productos
+$tipo_busqueda = isset($_GET['tipo']) ? $_GET['tipo'] : 'productos'; // 'productos' o 'usuarios'
+$filtro_categoria = isset($_GET['categoria']) ? $_GET['categoria'] : null;
+$filtro_estado = isset($_GET['estado']) ? $_GET['estado'] : null;
+
+// Configuración de la página
+$page_title = "HandinHand - Inicio";
+$body_class = "body-index " . ($tipo_busqueda === 'usuarios' ? 'tema-usuarios' : 'tema-productos');
+
+// Obtener productos o usuarios según el tipo de búsqueda
+if ($tipo_busqueda === 'usuarios') {
+    $usuarios = buscarUsuarios($busqueda, 20);
+    $productos = [];
+} else {
+    $productos = getProductosFiltrados(20, $busqueda, $filtro_categoria, $filtro_estado);
+    $usuarios = [];
+}
 
 // Incluir header
 include 'includes/header.php';
@@ -27,75 +38,163 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
         <div class="navbar-container">
             <div class="quote"><p>"Reutilizá, Intercambiá, Conectá"</p></div>
             <div class="navbar">
-                <form method="GET" action="index.php" style="display: flex; align-items: center;">
-                    <input type="text" name="busqueda" placeholder="¿Qué te interesa?" class="inputnav" value="<?php echo htmlspecialchars($busqueda ?: ''); ?>">
-                    <button class="btnnav" type="submit">Buscar</button>
+                <form method="GET" action="index.php" id="search-form">
+                    <!-- Toggle Productos/Usuarios -->
+                    <div class="search-toggle">
+                        <button type="button" class="toggle-btn <?php echo $tipo_busqueda === 'productos' ? 'active' : ''; ?>" onclick="cambiarTipoBusqueda('productos')">
+                            <i class="fas fa-box"></i> Productos
+                        </button>
+                        <button type="button" class="toggle-btn <?php echo $tipo_busqueda === 'usuarios' ? 'active' : ''; ?>" onclick="cambiarTipoBusqueda('usuarios')">
+                            <i class="fas fa-users"></i> Usuarios
+                        </button>
+                    </div>
+                    <input type="hidden" name="tipo" id="tipo-busqueda" value="<?php echo htmlspecialchars($tipo_busqueda); ?>">
+                    
+                    <!-- Barra de búsqueda -->
+                    <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                        <input type="text" name="busqueda" placeholder="<?php echo $tipo_busqueda === 'usuarios' ? '¿A quién buscás?' : '¿Qué te interesa?'; ?>" class="inputnav" value="<?php echo htmlspecialchars($busqueda ?: ''); ?>">
+                        
+                        <!-- Botón de filtros (solo para productos) -->
+                        <?php if ($tipo_busqueda === 'productos'): ?>
+                        <button type="button" class="btn-filtros" onclick="toggleFiltros()">
+                            <i class="fas fa-filter"></i> Filtros
+                        </button>
+                        <?php endif; ?>
+                        
+                        <button class="btnnav" type="submit">Buscar</button>
+                    </div>
+                    
+                    <!-- Panel de filtros (solo para productos) -->
+                    <?php if ($tipo_busqueda === 'productos'): ?>
+                    <div class="filtros-panel" id="filtros-panel" style="display: <?php echo ($filtro_categoria || $filtro_estado) ? 'flex' : 'none'; ?>;">
+                        <div class="filtro-grupo">
+                            <label><i class="fas fa-tags"></i> Categoría:</label>
+                            <select name="categoria" class="filtro-select">
+                                <option value="">Todas</option>
+                                <option value="Electrónicos" <?php echo $filtro_categoria === 'Electrónicos' ? 'selected' : ''; ?>>Electrónicos</option>
+                                <option value="Ropa" <?php echo $filtro_categoria === 'Ropa' ? 'selected' : ''; ?>>Ropa</option>
+                                <option value="Calzado" <?php echo $filtro_categoria === 'Calzado' ? 'selected' : ''; ?>>Calzado</option>
+                                <option value="Libros" <?php echo $filtro_categoria === 'Libros' ? 'selected' : ''; ?>>Libros</option>
+                                <option value="Deportes" <?php echo $filtro_categoria === 'Deportes' ? 'selected' : ''; ?>>Deportes</option>
+                                <option value="Música" <?php echo $filtro_categoria === 'Música' ? 'selected' : ''; ?>>Música</option>
+                                <option value="Hogar" <?php echo $filtro_categoria === 'Hogar' ? 'selected' : ''; ?>>Hogar</option>
+                                <option value="Juguetes" <?php echo $filtro_categoria === 'Juguetes' ? 'selected' : ''; ?>>Juguetes</option>
+                                <option value="Otros" <?php echo $filtro_categoria === 'Otros' ? 'selected' : ''; ?>>Otros</option>
+                            </select>
+                        </div>
+                        <div class="filtro-grupo">
+                            <label><i class="fas fa-check-circle"></i> Estado:</label>
+                            <select name="estado" class="filtro-select">
+                                <option value="">Todos</option>
+                                <option value="disponible" <?php echo $filtro_estado === 'disponible' ? 'selected' : ''; ?>>Disponible</option>
+                                <option value="reservado" <?php echo $filtro_estado === 'reservado' ? 'selected' : ''; ?>>Reservado</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn-limpiar-filtros" onclick="limpiarFiltros()">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
+                    <?php endif; ?>
                 </form>
             </div>
         </div>
         <div class="cardscontainer">
-            <?php if (!empty($productos)): ?>
+            <?php if ($tipo_busqueda === 'usuarios' && !empty($usuarios)): ?>
+                <!-- Tarjetas de usuarios -->
+                <?php foreach ($usuarios as $usuario): ?>
+                <div class="card card-usuario">
+                    <a href="ver-perfil.php?id=<?php echo $usuario['id']; ?>" style="text-decoration:none;color:inherit;display:block;">
+                        <div class="usuario-header">
+                            <div class="usuario-avatar-grande">
+                                <img src="<?php echo !empty($usuario['avatar_path']) ? htmlspecialchars($usuario['avatar_path']) : 'img/usuario.png'; ?>"
+                                     alt="<?php echo htmlspecialchars($usuario['fullname']); ?>"
+                                     onerror="this.src='img/usuario.png'">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="cardtitle"><?php echo htmlspecialchars($usuario['fullname']); ?></div>
+                            <div class="usuario-username">@<?php echo htmlspecialchars($usuario['username']); ?></div>
+                            <?php if (!empty($usuario['ubicacion'])): ?>
+                            <div class="usuario-ubicacion">
+                                <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($usuario['ubicacion']); ?>
+                            </div>
+                            <?php endif; ?>
+                            <div class="usuario-stats">
+                                <span><i class="fas fa-box"></i> <?php echo (int)$usuario['total_productos']; ?> productos</span>
+                                <span><i class="fas fa-exchange-alt"></i> <?php echo (int)$usuario['total_intercambios']; ?> intercambios</span>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="card-actions">
+                        <?php if (isLoggedIn() && $_SESSION['user_id'] != $usuario['id']): ?>
+                            <a href="ver-perfil.php?id=<?php echo $usuario['id']; ?>" class="btn-card btn-intercambiar">
+                                <i class="fas fa-user"></i> Ver perfil
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            <?php elseif (!empty($productos)): ?>
+                <!-- Tarjetas de productos (código original) -->
                 <?php foreach ($productos as $producto): ?>
                 <div class="card">
-                    <?php if (!isLoggedIn() || $_SESSION['user_id'] != $producto['user_id']): ?>
-                        <a href="producto.php?id=<?php echo $producto['id']; ?>" style="text-decoration:none;color:inherit;display:block;">
-                    <?php endif; ?>
-                    <div class="cardcontent">
-                        <div class="cardimg"><img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>"></div>
-                        <div class="cardtitle"><?php echo htmlspecialchars($producto['nombre']); ?></div>
-                        <div class="carddescription"><?php echo htmlspecialchars($producto['descripcion']); ?></div>
-                    </div>
-                    <?php if (!isLoggedIn() || $_SESSION['user_id'] != $producto['user_id']): ?>
-                        </a>
-                    <?php endif; ?>
-                    <div class="cardfooter">
-                        <div class="sellerinfo">
-                            <div class="profile">
-                                <div class="contact-avatar">
+                    <a href="producto.php?id=<?php echo $producto['id']; ?>" style="text-decoration:none;color:inherit;display:block;">
+                        <div class="cardimg">
+                            <img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>">
+                        </div>
+                        <div class="card-body">
+                            <div class="cardtitle"><?php echo htmlspecialchars($producto['nombre']); ?></div>
+                            <div class="card-badges">
+                                <span class="badge-estado badge-<?php echo $producto['estado']; ?>">
+                                    <?php echo ucfirst($producto['estado']); ?>
+                                </span>
+                                <?php if (!empty($producto['categoria'])): ?>
+                                    <span class="badge-categoria">
+                                        <?php echo htmlspecialchars($producto['categoria']); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="card-seller">
+                                <div class="contact-avatar-small">
                                     <?php if (!empty($producto['avatar_path'])): ?>
-                                        <?php if (isLoggedIn() && $_SESSION['user_id'] != $producto['user_id']): ?>
-                                            <a href="ver-perfil.php?id=<?php echo $producto['user_id']; ?>" title="Ver perfil de <?php echo htmlspecialchars($producto['vendedor_name']); ?>">
-                                                <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
-                                                     alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
-                                                     onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
-                                            </a>
-                                        <?php else: ?>
-                                            <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
-                                                 alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
-                                                 onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
-                                        <?php endif; ?>
+                                        <img src="<?php echo htmlspecialchars($producto['avatar_path']); ?>"
+                                             alt="Avatar de <?php echo htmlspecialchars($producto['vendedor_name']); ?>"
+                                             onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#C9F89B';">
                                     <?php endif; ?>
                                 </div>
-                            </div>
-                            <div class="usercontainer">
-                                <div class="name"><?php echo htmlspecialchars($producto['vendedor_name']); ?></div>
-                                <div class="stars">
-                                    <?php echo generateStars($producto['promedio_estrellas']); ?>
+                                <div class="seller-info">
+                                    <div class="name"><?php echo htmlspecialchars($producto['vendedor_name']); ?></div>
+                                    <div class="stars">
+                                        <?php echo generateStars($producto['promedio_estrellas']); ?>
+                                        <span class="rating-count">(<?php echo (int)$producto['total_valoraciones']; ?>)</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </a>
+                    <div class="card-actions">
                         <?php if (isLoggedIn() && $_SESSION['user_id'] == $producto['user_id']): ?>
                             <!-- Botón para productos propios -->
-                            <div class="owner-actions">
-                                <button class="btn-edit" onclick="showWipMessage('Editar producto')" title="Editar producto (En desarrollo)">
-                                    <i class="fas fa-edit"></i> Editar <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span>
-                                </button>
-                            </div>
+                            <a href="editar-producto.php?id=<?php echo $producto['id']; ?>" class="btn-card btn-edit-card" onclick="event.stopPropagation();">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
                         <?php else: ?>
                             <!-- Botón ver detalle para productos de otros usuarios -->
-                            <a href="producto.php?id=<?php echo $producto['id']; ?>" class="btncontact" style="text-decoration:none;display:inline-block;">Ver detalle</a>
+                            <a href="producto.php?id=<?php echo $producto['id']; ?>" class="btn-card btn-intercambiar">
+                                <i class="fas fa-exchange-alt"></i> Proponer intercambio
+                            </a>
                         <?php endif; ?>
                     </div>
                 </div>
                 <?php endforeach; ?>
             <?php else: ?>
                 <div style="grid-column: 1 / -1; text-align: center; padding: 50px;">
-                    <h3>No se encontraron productos</h3>
+                    <h3>No se encontraron <?php echo $tipo_busqueda === 'usuarios' ? 'usuarios' : 'productos'; ?></h3>
                     <?php if ($busqueda): ?>
-                        <p>No hay productos que coincidan con "<?php echo htmlspecialchars($busqueda); ?>"</p>
+                        <p>No hay <?php echo $tipo_busqueda; ?> que coincidan con "<?php echo htmlspecialchars($busqueda); ?>"</p>
                         <a href="index.php" style="color: #6a994e;">Ver todos los productos</a>
                     <?php else: ?>
-                        <p>Aún no hay productos disponibles</p>
+                        <p>Aún no hay <?php echo $tipo_busqueda; ?> disponibles</p>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -114,6 +213,54 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
             timerProgressBar: true
         });
     <?php endif; ?>
+
+    // Aplicar tema al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoBusqueda = '<?php echo $tipo_busqueda; ?>';
+        aplicarTema(tipoBusqueda);
+    });
+
+    function cambiarTipoBusqueda(tipo) {
+        document.getElementById('tipo-busqueda').value = tipo;
+        // Actualizar botones activos
+        document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.closest('.toggle-btn').classList.add('active');
+        // Actualizar placeholder
+        const input = document.querySelector('input[name="busqueda"]');
+        input.placeholder = tipo === 'usuarios' ? '¿A quién buscás?' : '¿Qué te interesa?';
+        // Ocultar filtros si se selecciona usuarios
+        if (tipo === 'usuarios') {
+            document.getElementById('filtros-panel').style.display = 'none';
+        }
+        // Aplicar tema de colores
+        aplicarTema(tipo);
+    }
+
+    function aplicarTema(tipo) {
+        const body = document.body;
+        const navbar = document.querySelector('.navbar-container');
+        
+        if (tipo === 'usuarios') {
+            // Activar tema usuarios (paleta rosa/morado/cyan)
+            body.classList.add('tema-usuarios');
+            body.classList.remove('tema-productos');
+        } else {
+            // Activar tema productos (paleta verde original)
+            body.classList.add('tema-productos');
+            body.classList.remove('tema-usuarios');
+        }
+    }
+
+    function toggleFiltros() {
+        const panel = document.getElementById('filtros-panel');
+        panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function limpiarFiltros() {
+        document.querySelector('select[name="categoria"]').value = '';
+        document.querySelector('select[name="estado"]').value = '';
+        document.getElementById('search-form').submit();
+    }
 
     function showWipMessage(feature) {
         Swal.fire({

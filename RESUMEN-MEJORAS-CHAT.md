@@ -1,3 +1,4 @@
+Eliminado el archivo RESUMEN-MEJORAS-CHAT.md
 # 📋 Resumen de Mejoras - Sistema de Chat y Amistades
 
 ## ✅ Funcionalidades Implementadas

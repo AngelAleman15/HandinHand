@@ -269,120 +269,249 @@ a{
 }
 
 .cardscontainer{
-    padding: 5px 15px;
-    gap: 30px;
+    padding: 20px;
+    gap: 16px;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    margin-bottom: 10px;
-    margin-top: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    margin-bottom: 20px;
+    margin-top: 20px;
     width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
     box-sizing: border-box;
 }
 
 .card{
-    height: auto;
-    min-height: 280px;
-    max-height: 350px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.12);
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 20px 10px 10px 10px;
-    border-radius: 5px;
-    border: 1px solid transparent;
-    background-color:#A2CB8D;
-    backdrop-filter: blur(10px);
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
     overflow: hidden;
+    position: relative;
+    height: 100%;
+    min-height: 380px;
+    animation: cardFadeIn 0.5s ease-out backwards;
 }
 
-.cardcontent {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-}
-
-.card:hover{
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    transform: scale(1.02);
+.card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,.1);
     cursor: pointer;
-    background-color: #76a770;
 }
+
+/* Delay de animación escalonado para cada card */
+.card:nth-child(1) { animation-delay: 0.05s; }
+.card:nth-child(2) { animation-delay: 0.1s; }
+.card:nth-child(3) { animation-delay: 0.15s; }
+.card:nth-child(4) { animation-delay: 0.2s; }
+.card:nth-child(5) { animation-delay: 0.25s; }
+.card:nth-child(6) { animation-delay: 0.3s; }
+.card:nth-child(n+7) { animation-delay: 0.35s; }
 
 .cardimg{
-    width: 85%;
-    height: 150px;
-    background-color: white;
-    border-radius: 5px;
-    margin-bottom: 8px;
+    width: 100%;
+    height: 180px;
+    flex-shrink: 0;
+    background: #f5f5f5;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     position: relative;
-    padding: 5px;
+    padding: 16px;
+    border-bottom: 1px solid #ebebeb;
 }
 
 .cardimg img{
     width: 100%;
     height: 100%;
     object-fit: contain;
-    object-position: center;
-    border-radius: 5px;
     transition: transform 0.3s ease;
 }
 
 .card:hover .cardimg img{
-    transform: scale(1.02);
+    transform: scale(1.05);
 }
 
-.cardfooter {
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     width: 100%;
-     margin-top: auto;
+.card-body {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .cardtitle{
-    color: rgba(0, 0, 0, 0.755);
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-}
-
-.carddescription{
-    color: rgba(0, 0, 0, 0.755);
-    font-size: 12px;
-    margin-top: 5px;
-    text-align: left;
-    flex: 1;
+    color: rgba(0,0,0,.9);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.35;
+    margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.4;
-    max-height: 50px;
+    min-height: 38px;
+    max-height: 38px;
 }
 
-.sellerinfo{
-    padding: 25px 10px 0px 5px;
+/* Badges de estado y categoría */
+.card-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.badge-estado {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.badge-disponible {
+    background: #e6f7e6;
+    color: #00a650;
+}
+
+.badge-intercambiado {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.badge-reservado {
+    background: #fff4e6;
+    color: #f57c00;
+}
+
+.badge-categoria {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    background: #f5f5f5;
+    color: #666;
+}
+
+/* Información del vendedor */
+.card-seller {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    width: 100%;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #ebebeb;
+    margin-top: auto;
+    min-height: 48px;
 }
 
-.usercontainer{
+.contact-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #C9F89B;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+}
+
+.contact-avatar-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.seller-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.seller-info .name {
+    color: rgba(0,0,0,.55);
+    font-size: 12px;
+    font-weight: 400;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: none;
+    letter-spacing: 0;
+    top: 0;
+    max-width: 100%;
+}
+
+.seller-info .stars {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+    color: #FFD700;
+    font-size: 12px;
+    text-shadow: none;
+    filter: none;
+}
+
+.rating-count {
+    color: rgba(0,0,0,.45);
+    font-size: 11px;
+    font-weight: 400;
+}
+
+/* Acciones de la card */
+.card-actions {
+    padding: 12px 16px;
+    border-top: 1px solid #ebebeb;
+    background: #fafafa;
+    margin-top: auto;
+}
+
+.btn-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-intercambiar {
+    background: #6a994e;
+    color: white;
+}
+
+.btn-intercambiar:hover {
+    background: #5a8442;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(106, 153, 78, 0.3);
+}
+
+.btn-edit-card {
+    background: #fff;
+    color: #6a994e;
+    border: 1px solid #6a994e;
+}
+
+.btn-edit-card:hover {
+    background: #f0f8f0;
+    transform: translateY(-1px);
 }
 
 .profile{
@@ -406,14 +535,16 @@ a{
 
 .name{
     top: 15px;
-    color: rgba(0, 0, 0, 0.755);
+    color: rgba(0, 0, 0, 0.85);
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 700;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 120px;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.3px;
 }
 
 .stars{
@@ -421,6 +552,10 @@ a{
     align-items: center;
     justify-content: center;
     gap: 2px;
+    color: #FFD700;
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    filter: drop-shadow(0 1px 2px rgba(255, 215, 0, 0.3));
 }
 
 .stars img{
@@ -428,67 +563,49 @@ a{
     height: 15px;
 }
 
-.btncontact{
+.btncontact, .btn-edit {
   color: white;
   background-color: rgba(0, 0, 0, 0.755);
-  padding: 8px 8px;
+  padding: 8px 12px;
   border-radius: 5px;
   border: none;
   margin: 25px 10px 0px 5px;
   white-space: nowrap;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
 }
 
-.btncontact:hover{
+.btncontact:hover, .btn-edit:hover {
     background-color: black;
-    cursor: pointer;
     transform: scale(1.02);
 }
 
-.btncontact:active{
+.btncontact:active, .btn-edit:active {
     transform: scale(0.98);
+}
+
+.btn-edit i {
+    font-size: 11px;
 }
 
 /* Estilos para botón de editar en cards propias */
 .owner-actions {
   display: flex;
   gap: 8px;
+  margin: 0; /* El margen ya está en .btn-edit */
+}
+
+.owner-actions .btncontact,
+.owner-actions .btn-edit {
   margin: 25px 10px 0px 5px;
 }
 
-.btn-edit {
-  color: white;
-  padding: 8px 12px;
-  border-radius: 5px;
-  border: none;
-  font-size: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: #273122;
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 2px 8px rgba(39,49,34,0.3);
-}
-
-.btn-edit:hover {
-  background: #313C26;
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(39,49,34,0.4);
-}
-
-.btn-edit:active {
-    transform: scale(0.95);
-}
-
-.btn-edit i {
-    font-size: 9px;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
-}
 
 .section-header{
   gap: 10px;
@@ -512,32 +629,7 @@ a{
 }
 
 .btn-edit i {
-    font-size: 9px;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
-}
-
-.owner-actions .btn-edit {
-    min-width: 60px;
-    font-size: 10px;
-    padding: 8px 10px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    position: relative;
-    overflow: hidden;
-}
-
-.owner-actions .btn-edit::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
-}
-
-.owner-actions .btn-edit:hover::before {
-    left: 100%;
+    font-size: 11px;
 }
 
 .footer {
@@ -1186,14 +1278,51 @@ body.no-header-padding {
   75% { transform: translateX(5px); }
 }
 
+/* Animación de entrada para las cards */
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Reborde verde claro igual que en mensajería para los avatares en index */
+.contact-avatar {
+  position: relative;
+}
+
 .contact-avatar img {
   width: 45px;
   height: 45px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2.5px solid #313C26; /* borde base más oscuro para mejor contraste */
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  border: 2.5px solid #313C26;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.contact-avatar:hover img {
+  transform: scale(1.1);
+  border-color: #6a994e;
+  box-shadow: 0 4px 12px rgba(106, 153, 78, 0.4);
+}
+
+/* Indicador decorativo en el avatar */
+.contact-avatar::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: #6a994e;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 
@@ -1630,4 +1759,264 @@ body.no-header-padding {
   background: white;
   border-radius: 50%;
   padding: 2px;
+}
+
+/* ============================================
+   ESTILOS PARA BÚSQUEDA AVANZADA CON FILTROS
+   ============================================ */
+
+/* Toggle Productos/Usuarios */
+.search-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  justify-content: center;
+}
+
+.toggle-btn {
+  background: white;
+  border: 2px solid #6a994e;
+  color: #6a994e;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-btn:hover {
+  background: rgba(106, 153, 78, 0.1);
+  transform: translateY(-2px);
+}
+
+.toggle-btn.active {
+  background: #6a994e;
+  color: white;
+  box-shadow: 0 4px 10px rgba(106, 153, 78, 0.3);
+}
+
+.toggle-btn i {
+  font-size: 16px;
+}
+
+/* Botón de filtros */
+.btn-filtros {
+  background: white;
+  border: 2px solid #6a994e;
+  color: #6a994e;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-filtros:hover {
+  background: #6a994e;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-filtros i {
+  margin-right: 5px;
+}
+
+/* Panel de filtros */
+.filtros-panel {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  margin-top: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filtro-grupo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filtro-grupo label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.filtro-grupo label i {
+  color: #6a994e;
+}
+
+.filtro-select {
+  padding: 8px 12px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #333;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.filtro-select:hover {
+  border-color: #6a994e;
+}
+
+.filtro-select:focus {
+  outline: none;
+  border-color: #6a994e;
+  box-shadow: 0 0 0 3px rgba(106, 153, 78, 0.1);
+}
+
+.btn-limpiar-filtros {
+  background: #dc3545;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-limpiar-filtros:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+}
+
+/* Estilos para tarjetas de usuarios */
+.card-usuario {
+  min-height: 340px;
+  transition: all 0.3s ease;
+}
+
+.usuario-header {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #6a994e, #9FC131);
+  transition: all 0.4s ease;
+}
+
+.usuario-avatar-grande {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.usuario-avatar-grande img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.usuario-username {
+  color: #6a994e;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 5px 0;
+  transition: color 0.3s ease;
+}
+
+.usuario-ubicacion {
+  color: #666;
+  font-size: 13px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s ease;
+}
+
+.usuario-ubicacion i {
+  color: #6a994e;
+  transition: color 0.3s ease;
+}
+
+.usuario-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  transition: border-color 0.3s ease;
+}
+
+.usuario-stats span {
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s ease;
+}
+
+.usuario-stats i {
+  color: #6a994e;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+/* Responsive para búsqueda */
+@media (max-width: 768px) {
+  .search-toggle {
+    flex-direction: column;
+  }
+
+  .toggle-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filtros-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtro-grupo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtro-select {
+    width: 100%;
+  }
+
+  .btn-limpiar-filtros {
+    width: 100%;
+    justify-content: center;
+  }
 }
