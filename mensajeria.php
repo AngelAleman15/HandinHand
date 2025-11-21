@@ -64,7 +64,7 @@ body.body-messaging .header {
     background: white;
     margin: 0;
     position: relative;
-    padding-top: 50px; /* Espacio para el header principal */
+    padding-top: 70px; /* Espacio para el header principal */
 }
 
 /* Panel de contactos */
@@ -1213,6 +1213,7 @@ body.body-messaging .header {
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.2s ease-out;
+    padding-top: 80px; /* Espacio para el header */
 }
 
 .delete-modal.show {
@@ -1402,6 +1403,7 @@ body.body-messaging .header {
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.2s ease-out;
+    padding-top: 80px; /* Espacio para el header */
 }
 
 .edit-modal.show {
@@ -1579,6 +1581,7 @@ body.body-messaging .header {
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.2s ease-out;
+    padding-top: 80px; /* Espacio para el header */
 }
 
 .delete-message-modal.show {
@@ -1776,6 +1779,828 @@ body.body-messaging .header {
     gap: 4px;
 }
 
+/* === ESTILOS PARA PROPUESTAS DE INTERCAMBIO === */
+
+/* Banner de propuesta pendiente */
+.propuesta-banner {
+    display: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.propuesta-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.propuesta-banner-icon {
+    font-size: 24px;
+    background: rgba(255,255,255,0.2);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.propuesta-banner-info {
+    flex: 1;
+}
+
+.propuesta-banner-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.propuesta-banner-productos {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    opacity: 0.95;
+}
+
+.producto-mini {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.producto-mini img {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.propuesta-banner-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-propuesta-accion {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-aceptar {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-aceptar:hover {
+    background: #45a049;
+    transform: translateY(-1px);
+}
+
+.btn-rechazar {
+    background: #f44336;
+    color: white;
+}
+
+.btn-rechazar:hover {
+    background: #da190b;
+    transform: translateY(-1px);
+}
+
+.btn-contraoferta {
+    background: #FF9800;
+    color: white;
+}
+
+.btn-contraoferta:hover {
+    background: #F57C00;
+    transform: translateY(-1px);
+}
+
+.btn-cancelar {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.btn-cancelar:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Mensaje de propuesta en el chat */
+.propuesta-intercambio {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 0;
+    max-width: 100%;
+}
+
+.propuesta-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #667eea;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.propuesta-header i {
+    font-size: 18px;
+}
+
+.propuesta-body {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.producto-card {
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+}
+
+.producto-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.producto-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.producto-imagen {
+    width: 100%;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    background: #f5f5f5;
+}
+
+.producto-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.producto-nombre {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2d3748;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.intercambio-icon {
+    color: #667eea;
+    font-size: 24px;
+    animation: pulseIcon 2s infinite;
+}
+
+@keyframes pulseIcon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.propuesta-mensaje {
+    background: rgba(102, 126, 234, 0.1);
+    border-left: 3px solid #667eea;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #4a5568;
+    display: flex;
+    align-items: start;
+    gap: 8px;
+}
+
+.propuesta-mensaje i {
+    color: #667eea;
+    margin-top: 2px;
+}
+
+/* Burbuja de mensaje para propuestas */
+.message-bubble.propuesta-bubble {
+    background: transparent !important;
+    padding: 0 !important;
+    max-width: 450px;
+}
+
+/* Estilos para propuestas antiguas (formato texto) */
+.propuesta-antigua {
+    background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+}
+
+.propuesta-contenido-antiguo {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #2d3748;
+    white-space: pre-wrap;
+}
+
+.propuesta-nota {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #666;
+    font-size: 11px;
+    opacity: 0.8;
+    margin-top: 8px;
+}
+
+.propuesta-nota i {
+    font-size: 12px;
+}
+
+/* Botones de acción en mensajes de propuesta */
+.propuesta-acciones {
+    display: flex;
+    gap: 8px;
+    padding: 12px 0 0 0;
+    border-top: 1px solid rgba(102, 126, 234, 0.2);
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-propuesta {
+    flex: 1;
+    min-width: 90px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-propuesta i {
+    font-size: 14px;
+}
+
+.btn-aceptar {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+}
+
+.btn-aceptar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.btn-contraoferta {
+    background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
+    color: white;
+}
+
+.btn-contraoferta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+.btn-rechazar {
+    background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+    color: white;
+}
+
+.btn-rechazar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+.btn-cancelar {
+    background: linear-gradient(135deg, #9e9e9e 0%, #757575 100%);
+    color: white;
+}
+
+.btn-cancelar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(158, 158, 158, 0.4);
+}
+
+/* Estados de propuesta */
+.propuesta-estado {
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.estado-aceptada {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    color: #2e7d32;
+    border: 2px solid #4caf50;
+}
+
+.estado-rechazada {
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    color: #c62828;
+    border: 2px solid #f44336;
+}
+
+.estado-completada {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1565c0;
+    border: 2px solid #2196f3;
+}
+
+.propuesta-estado i {
+    font-size: 18px;
+}
+
+/* Responsive para botones de propuesta */
+@media (max-width: 480px) {
+    .propuesta-acciones {
+        flex-direction: column;
+    }
+    
+    .btn-propuesta {
+        width: 100%;
+    }
+}
+
+/* ============ ESTILOS PARA COORDINACIÓN DE INTERCAMBIOS ============ */
+
+/* Modal de coordinación */
+.modal-coordinacion {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-coordinacion.show {
+    opacity: 1;
+}
+
+.modal-coordinacion-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUpFadeIn 0.3s ease;
+}
+
+@keyframes slideUpFadeIn {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-coordinacion-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 24px;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-coordinacion-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-cerrar-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.btn-cerrar-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-coordinacion-body {
+    padding: 24px;
+}
+
+.productos-intercambio-resumen {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e3e8ee 100%);
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.producto-resumen {
+    flex: 1;
+    text-align: center;
+}
+
+.producto-resumen img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 8px;
+}
+
+.producto-resumen p {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.icono-intercambio {
+    padding: 0 20px;
+    color: #667eea;
+    font-size: 24px;
+    animation: pulseIcon 2s infinite;
+}
+
+.coordinacion-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group label i {
+    color: #667eea;
+}
+
+.form-control {
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-hint {
+    font-size: 12px;
+    color: #718096;
+    font-style: italic;
+}
+
+.coordinacion-info {
+    background: #fff8e1;
+    border-left: 4px solid #ffd54f;
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: start;
+    margin-top: 12px;
+}
+
+.coordinacion-info i {
+    color: #ffa000;
+    font-size: 18px;
+    margin-top: 2px;
+}
+
+.coordinacion-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #5d4037;
+    line-height: 1.5;
+}
+
+.modal-coordinacion-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-modal-secundario,
+.btn-modal-primario {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-modal-secundario {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.btn-modal-secundario:hover {
+    background: #cbd5e0;
+}
+
+.btn-modal-primario {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-modal-primario:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Panel de coordinación activa en el banner */
+.coordinacion-activa {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 16px;
+}
+
+.coordinacion-detalles {
+    width: 100%;
+}
+
+.coordinacion-detalles h4 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.coordinacion-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.info-item {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-item.info-full {
+    grid-column: 1 / -1;
+}
+
+.info-item i {
+    color: #667eea;
+    font-size: 16px;
+}
+
+.info-item strong {
+    color: #2d3748;
+    margin-right: 4px;
+}
+
+.confirmacion-estados {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.estado-confirmacion {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #718096;
+    font-weight: 500;
+}
+
+.estado-confirmacion.confirmado {
+    background: #e6ffed;
+    border-color: #4caf50;
+    color: #2e7d32;
+}
+
+.estado-confirmacion i {
+    font-size: 18px;
+}
+
+.estado-confirmacion.confirmado i {
+    color: #4caf50;
+}
+
+.coordinacion-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-coordinacion {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-confirmar {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-confirmar:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.btn-proponer-cambio {
+    background: #ff9800;
+    color: white;
+}
+
+.btn-proponer-cambio:hover {
+    background: #fb8c00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+.btn-marcar-realizado {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-marcar-realizado:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.intercambio-confirmado,
+.esperando-confirmacion {
+    width: 100%;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.intercambio-confirmado {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+}
+
+.intercambio-confirmado i {
+    font-size: 32px;
+    color: #4caf50;
+    margin-bottom: 8px;
+}
+
+.intercambio-confirmado p {
+    margin: 8px 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+.esperando-confirmacion i {
+    font-size: 24px;
+    color: #ff9800;
+    margin-bottom: 8px;
+}
+
+.esperando-confirmacion p {
+    margin: 8px 0 0 0;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-coordinacion-content {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    .productos-intercambio-resumen {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .icono-intercambio {
+        transform: rotate(90deg);
+        padding: 12px 0;
+    }
+    
+    .coordinacion-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .confirmacion-estados {
+        flex-direction: column;
+    }
+}
+
 </style>
 
 <div class="messaging-container">
@@ -1839,7 +2664,7 @@ body.body-messaging .header {
             <div class="chat-header">
                 <div class="chat-header-info">
                     <a href="#" class="chat-header-avatar" id="chat-header-avatar-link" title="Ver perfil">
-                        <img src="img/usuario.png" alt="Avatar" id="chat-user-avatar" onerror="this.src='img/usuario.png'">
+                        <img src="img/usuario.svg" alt="Avatar" id="chat-user-avatar" onerror="this.src='img/usuario.svg'">
                     </a>
                     <div class="chat-header-details">
                         <h3 id="chat-user-name">Usuario</h3>
@@ -2000,7 +2825,7 @@ body.body-messaging .header {
 <script>
     const CHAT_SERVER_URL = '<?php echo getChatServerUrl(); ?>';
     const CURRENT_USER_ID = '<?php echo $user['id']; ?>';
-    const CURRENT_USER_AVATAR = '<?php echo isset($user['avatar_path']) && !empty($user['avatar_path']) ? $user['avatar_path'] : 'img/usuario.png'; ?>';
+    const CURRENT_USER_AVATAR = '<?php echo isset($user['avatar_path']) && !empty($user['avatar_path']) ? $user['avatar_path'] : 'img/usuario.svg'; ?>';
     
     // Ajustar altura del contenedor basado en el header
     function adjustMessagingContainerHeight() {
@@ -2095,6 +2920,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+<script src="js/intercambios.js?v=<?php echo time(); ?>"></script>
 <script src="js/dropdownmenu.js?v=<?php echo time(); ?>"></script>
 
 </body>

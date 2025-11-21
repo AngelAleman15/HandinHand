@@ -108,11 +108,612 @@ try {
 }
 
 $page_title = $perfil_usuario['fullname'] . " - Perfil";
+$additional_css = '<link rel="stylesheet" href="css/perfil-usuario.css?v=20251110004" id="perfil-css">';
 include 'includes/header.php';
 ?>
 
-<link rel="stylesheet" href="css/perfil-usuario.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Diseño profesional minimalista premium -->
+<style>
+:root {
+    --perfil-color-principal: #6a994e;
+    --perfil-color-secundario: #5a8440;
+}
+
+/* Scrollbar personalizada */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--perfil-color-principal), var(--perfil-color-secundario));
+    border-radius: 10px;
+    border: 2px solid #f1f1f1;
+    transition: background 0.3s ease;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--perfil-color-secundario), #4a7230);
+}
+
+/* Firefox scrollbar */
+html,
+body,
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--perfil-color-principal) #f1f1f1;
+}
+
+/* Reset y base */
+body {
+    background: #f5f5f7 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* Container principal */
+.perfil-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Header rediseñado - verde HandinHand */
+.perfil-header {
+    background: linear-gradient(135deg, var(--perfil-color-principal) 0%, var(--perfil-color-secundario) 100%) !important;
+    padding: 0 !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.perfil-header::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+}
+
+.perfil-info-principal {
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    padding: 60px 40px !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 50px !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Avatar - diseño minimalista con borde fino */
+.perfil-avatar-section {
+    position: relative !important;
+}
+
+.perfil-avatar {
+    width: 180px !important;
+    height: 180px !important;
+    border-radius: 50% !important;
+    border: 4px solid rgba(255,255,255,0.95) !important;
+    object-fit: cover !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.perfil-avatar:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.4) !important;
+}
+
+/* Datos del perfil */
+.perfil-datos {
+    flex: 1 !important;
+    padding-top: 20px !important;
+}
+
+.perfil-nombre {
+    font-size: 3.5em !important;
+    font-weight: 900 !important;
+    color: white !important;
+    margin: 0 0 12px 0 !important;
+    letter-spacing: -1.5px !important;
+    line-height: 1.1 !important;
+}
+
+.perfil-username {
+    font-size: 1.4em !important;
+    font-weight: 500 !important;
+    color: rgba(255,255,255,0.7) !important;
+    margin: 0 0 20px 0 !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Rating moderno */
+.perfil-rating {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    margin-bottom: 25px !important;
+    flex-wrap: nowrap !important;
+}
+
+.stars-display {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.stars-display i {
+    font-size: 22px !important;
+}
+
+.rating-value {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #FFD700 !important;
+    margin-left: 10px !important;
+}
+
+.rating-count {
+    font-size: 15px !important;
+    color: rgba(255,255,255,0.6) !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+}
+
+/* Fecha de miembro minimalista */
+.perfil-header p {
+    color: rgba(255,255,255,0.6) !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+}
+
+/* Botones de acción - diseño moderno mejorado */
+.perfil-acciones {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+    margin-top: 30px !important;
+    max-width: 600px !important;
+}
+
+.btn-accion {
+    padding: 16px 28px !important;
+    border-radius: 12px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+}
+
+.btn-accion::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-radius: 50% !important;
+    background: rgba(255,255,255,0.3) !important;
+    transform: translate(-50%, -50%) !important;
+    transition: width 0.6s, height 0.6s !important;
+}
+
+.btn-accion:hover::before {
+    width: 300px !important;
+    height: 300px !important;
+}
+
+.btn-accion i {
+    font-size: 16px !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.btn-accion span {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.btn-agregar-amigo {
+    background: linear-gradient(135deg, #6a994e 0%, #5a8440 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 20px rgba(106, 153, 78, 0.3) !important;
+}
+
+.btn-agregar-amigo:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 30px rgba(106, 153, 78, 0.5) !important;
+}
+
+.btn-enviar-mensaje {
+    background: rgba(255,255,255,0.2) !important;
+    color: white !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px solid rgba(255,255,255,0.4) !important;
+}
+
+.btn-enviar-mensaje:hover {
+    background: rgba(255,255,255,0.3) !important;
+    transform: translateY(-3px) !important;
+    border-color: rgba(255,255,255,0.6) !important;
+}
+
+.btn-valorar {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%) !important;
+    color: #1a1a1a !important;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3) !important;
+}
+
+.btn-valorar:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 30px rgba(255, 215, 0, 0.5) !important;
+}
+
+.btn-denunciar {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3) !important;
+}
+
+.btn-denunciar:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 30px rgba(220, 53, 69, 0.5) !important;
+}
+
+/* Estadísticas - tarjetas flotantes minimalistas */
+.perfil-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 30px !important;
+    padding: 50px 40px !important;
+    max-width: 1400px !important;
+    margin: -50px auto 0 !important;
+    position: relative !important;
+    z-index: 20 !important;
+}
+
+.stat-item {
+    background: white !important;
+    padding: 40px 30px !important;
+    border-radius: 20px !important;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-align: center !important;
+    border: 1px solid rgba(0,0,0,0.04) !important;
+}
+
+.stat-item:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
+}
+
+.stat-icon {
+    width: 70px !important;
+    height: 70px !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-radius: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto 20px !important;
+    font-size: 28px !important;
+    color: #1a1a1a !important;
+    transition: all 0.3s ease !important;
+}
+
+.stat-item:hover .stat-icon {
+    transform: scale(1.1) rotate(-5deg) !important;
+    background: linear-gradient(135deg, var(--perfil-color-principal) 0%, var(--perfil-color-secundario) 100%) !important;
+    color: white !important;
+}
+
+.stat-value {
+    font-size: 42px !important;
+    font-weight: 900 !important;
+    color: #1a1a1a !important;
+    margin: 0 0 8px 0 !important;
+    letter-spacing: -1px !important;
+}
+
+.stat-label {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #6c757d !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+}
+
+/* Contenido - secciones minimalistas */
+.perfil-contenido {
+    padding: 0 40px 80px !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+}
+
+.perfil-seccion {
+    background: white !important;
+    border-radius: 24px !important;
+    padding: 50px !important;
+    margin-bottom: 40px !important;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06) !important;
+    border: 1px solid rgba(0,0,0,0.04) !important;
+}
+
+.perfil-seccion h2 {
+    font-size: 2em !important;
+    font-weight: 900 !important;
+    color: #1a1a1a !important;
+    margin: 0 0 35px 0 !important;
+    letter-spacing: -0.5px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+}
+
+.perfil-seccion h2 i {
+    font-size: 28px !important;
+    color: #6c757d !important;
+}
+
+/* Grid de productos - estilo index.php */
+.productos-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
+}
+
+.producto-card {
+    background: white !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 2px solid transparent !important;
+    position: relative !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
+}
+
+.producto-card::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: linear-gradient(135deg, rgba(106, 153, 78, 0.05), rgba(106, 153, 78, 0.15)) !important;
+    opacity: 0 !important;
+    transition: opacity 0.4s ease !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+}
+
+.producto-card:hover::before {
+    opacity: 1 !important;
+}
+
+.producto-card:hover {
+    transform: translateY(-10px) !important;
+    box-shadow: 0 18px 35px rgba(106, 153, 78, 0.2) !important;
+    border-color: #6a994e !important;
+}
+
+.producto-imagen-wrapper {
+    position: relative !important;
+    overflow: hidden !important;
+    background: #f8f9fa !important;
+    height: 200px !important;
+}
+
+.producto-imagen {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.producto-card:hover .producto-imagen {
+    transform: scale(1.15) !important;
+}
+
+.producto-info {
+    padding: 16px !important;
+    background: white !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.producto-nombre {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: #1a1a1a !important;
+    margin: 0 0 10px 0 !important;
+    line-height: 1.4 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    min-height: 42px !important;
+}
+
+.producto-meta {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+}
+
+.producto-categoria {
+    display: inline-flex !important;
+    align-items: center !important;
+    font-size: 11px !important;
+    color: #6a994e !important;
+    background: rgba(106, 153, 78, 0.12) !important;
+    padding: 5px 12px !important;
+    border-radius: 16px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.producto-estado {
+    display: inline-flex !important;
+    align-items: center !important;
+    font-size: 11px !important;
+    padding: 5px 12px !important;
+    border-radius: 16px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.producto-estado.disponible {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15), rgba(40, 167, 69, 0.25)) !important;
+    color: #28a745 !important;
+    border: 1px solid rgba(40, 167, 69, 0.3) !important;
+}
+
+.producto-estado.intercambiado {
+    background: linear-gradient(135deg, rgba(108, 117, 125, 0.15), rgba(108, 117, 125, 0.25)) !important;
+    color: #6c757d !important;
+    border: 1px solid rgba(108, 117, 125, 0.3) !important;
+}
+
+.producto-estado.reservado {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 193, 7, 0.25)) !important;
+    color: #ffc107 !important;
+    border: 1px solid rgba(255, 193, 7, 0.3) !important;
+}
+
+.no-productos {
+    text-align: center !important;
+    padding: 80px 20px !important;
+    color: #95a5a6 !important;
+    font-size: 16px !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+    border-radius: 20px !important;
+    border: 2px dashed #e0e0e0 !important;
+}
+
+.no-productos i {
+    font-size: 4em !important;
+    color: #e0e0e0 !important;
+    margin-bottom: 20px !important;
+    display: block !important;
+}
+
+/* Scrollbar para modales */
+.modal-body {
+    overflow-y: auto !important;
+    max-height: 400px !important;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 8px !important;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f8f9fa !important;
+    border-radius: 10px !important;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--perfil-color-principal), var(--perfil-color-secundario)) !important;
+    border-radius: 10px !important;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--perfil-color-secundario), #4a7230) !important;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .perfil-info-principal,
+    .perfil-stats,
+    .perfil-contenido {
+        padding-left: 40px !important;
+        padding-right: 40px !important;
+    }
+    
+    .productos-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 18px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .perfil-nombre {
+        font-size: 2.5em !important;
+    }
+    
+    .perfil-avatar {
+        width: 140px !important;
+        height: 140px !important;
+    }
+    
+    .perfil-acciones {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .perfil-stats {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .productos-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px !important;
+    }
+    
+    .producto-imagen-wrapper {
+        height: 180px !important;
+    }
+    
+    .producto-nombre {
+        font-size: 14px !important;
+        min-height: 40px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .productos-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .producto-imagen-wrapper {
+        height: 220px !important;
+    }
+}
+</style>
 
 <div class="perfil-container">
     <!-- Header del perfil -->
@@ -120,7 +721,7 @@ include 'includes/header.php';
         <div class="perfil-cover"></div>
         <div class="perfil-info-principal">
             <div class="perfil-avatar-section">
-                <img src="<?php echo !empty($perfil_usuario['avatar_path']) ? htmlspecialchars($perfil_usuario['avatar_path']) : 'img/usuario.png'; ?>" 
+                <img src="<?php echo !empty($perfil_usuario['avatar_path']) ? htmlspecialchars($perfil_usuario['avatar_path']) : 'img/usuario.svg'; ?>" 
                      alt="<?php echo htmlspecialchars($perfil_usuario['fullname']); ?>" 
                      class="perfil-avatar">
             </div>
@@ -252,18 +853,31 @@ include 'includes/header.php';
             <div class="productos-grid">
                 <?php if (count($productos) > 0): ?>
                     <?php foreach ($productos as $producto): ?>
-                    <div class="producto-card">
-                        <img src="<?php echo htmlspecialchars($producto['imagen']); ?>" alt="<?php echo htmlspecialchars($producto['nombre']); ?>">
-                        <div class="producto-info">
-                            <h3><?php echo htmlspecialchars($producto['nombre']); ?></h3>
-                            <p class="producto-estado estado-<?php echo $producto['estado']; ?>">
-                                <?php echo ucfirst($producto['estado']); ?>
-                            </p>
+                    <a href="producto.php?id=<?php echo $producto['id']; ?>" class="producto-card" style="text-decoration: none;">
+                        <div class="producto-imagen-wrapper">
+                            <img src="<?php echo htmlspecialchars($producto['imagen']); ?>" 
+                                 alt="<?php echo htmlspecialchars($producto['nombre']); ?>" 
+                                 class="producto-imagen"
+                                 onerror="this.src='img/productos/default.jpg'">
                         </div>
-                    </div>
+                        <div class="producto-info">
+                            <h3 class="producto-nombre"><?php echo htmlspecialchars($producto['nombre']); ?></h3>
+                            <div class="producto-meta">
+                                <span class="producto-categoria">
+                                    <?php echo htmlspecialchars($producto['categoria'] ?? 'Sin categoría'); ?>
+                                </span>
+                                <span class="producto-estado <?php echo strtolower($producto['estado']); ?>">
+                                    <?php echo ucfirst($producto['estado']); ?>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <p class="no-productos">Este usuario aún no ha publicado productos.</p>
+                    <div class="no-productos">
+                        <i class="fas fa-box-open"></i>
+                        <p>Este usuario aún no ha publicado productos.</p>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -279,7 +893,7 @@ include 'includes/header.php';
                     <?php foreach ($valoraciones as $valoracion): ?>
                     <div class="valoracion-item" data-valoracion-id="<?php echo $valoracion['id']; ?>">
                         <div class="valoracion-header">
-                            <img src="<?php echo !empty($valoracion['valorador_avatar']) ? htmlspecialchars($valoracion['valorador_avatar']) : 'img/usuario.png'; ?>" 
+                            <img src="<?php echo !empty($valoracion['valorador_avatar']) ? htmlspecialchars($valoracion['valorador_avatar']) : 'img/usuario.svg'; ?>" 
                                  alt="<?php echo htmlspecialchars($valoracion['valorador_nombre']); ?>" 
                                  class="valoracion-avatar">
                             <div class="valoracion-info">

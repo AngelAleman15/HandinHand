@@ -54,7 +54,7 @@ try {
         $socketData = [
             'sender_id' => $current_user_id,
             'receiver_id' => $sender_id,
-            'mensaje' => $mensaje_auto,
+            'message' => $mensaje_auto,
             'is_perseo_auto' => 1,
             'timestamp' => date('Y-m-d H:i:s')
         ];
@@ -73,9 +73,9 @@ try {
             error_log('Error al emitir mensaje Perseo por Socket.IO. HTTP code: ' . $httpCode . ' Response: ' . $socketResponse);
         }
 
-        // Insertar mensaje automático de Perseo (usar campo 'mensaje')
+        // Insertar mensaje automático de Perseo (usar campo 'message')
         $stmt = $pdo->prepare("
-            INSERT INTO mensajes (sender_id, receiver_id, mensaje, is_perseo_auto, created_at)
+            INSERT INTO mensajes (sender_id, receiver_id, message, is_perseo_auto, created_at)
             VALUES (?, ?, ?, 1, NOW())
         ");
         $stmt->execute([$current_user_id, $sender_id, $mensaje_auto]);

@@ -37,8 +37,8 @@ function getConversaciones() {
         
         $stmt = $pdo->prepare("SELECT DISTINCT
                                     CASE 
-                                        WHEN m.remitente_id = ? THEN m.destinatario_id 
-                                        ELSE m.remitente_id 
+                                        WHEN m.sender_id = ? THEN m.receiver_id 
+                                        ELSE m.sender_id 
                                     END as contacto_id,
                                     u.username as contacto_username,
                                     u.fullname as contacto_name,
@@ -46,15 +46,15 @@ function getConversaciones() {
                                     p.nombre as producto_nombre,
                                     p.imagen as producto_imagen,
                                     MAX(m.created_at) as ultimo_mensaje_fecha,
-                                    (SELECT mensaje FROM mensajes m2 
-                                     WHERE (m2.remitente_id = ? AND m2.destinatario_id = contacto_id AND m2.producto_id = p.id)
-                                        OR (m2.destinatario_id = ? AND m2.remitente_id = contacto_id AND m2.producto_id = p.id)
+                                    (SELECT message FROM mensajes m2 
+                                     WHERE (m2.sender_id = ? AND m2.receiver_id = contacto_id AND m2.producto_id = p.id)
+                                        OR (m2.receiver_id = ? AND m2.sender_id = contacto_id AND m2.producto_id = p.id)
                                      ORDER BY m2.created_at DESC LIMIT 1) as ultimo_mensaje,
-                                    COUNT(CASE WHEN m.destinatario_id = ? AND m.leido = 0 THEN 1 END) as mensajes_no_leidos
+                                    COUNT(CASE WHEN m.receiver_id = ? AND m.is_read = 0 THEN 1 END) as mensajes_no_leidos
                                FROM mensajes m
-                               JOIN usuarios u ON (u.id = CASE WHEN m.remitente_id = ? THEN m.destinatario_id ELSE m.remitente_id END)
+                               JOIN usuarios u ON (u.id = CASE WHEN m.sender_id = ? THEN m.receiver_id ELSE m.sender_id END)
                                JOIN productos p ON m.producto_id = p.id
-                               WHERE m.remitente_id = ? OR m.destinatario_id = ?
+                               WHERE m.sender_id = ? OR m.receiver_id = ?
                                GROUP BY contacto_id, p.id
                                ORDER BY ultimo_mensaje_fecha DESC");
         
@@ -101,19 +101,19 @@ function getConversacion($productoId) {
                                       ud.username as destinatario_username,
                                       ud.fullname as destinatario_name
                                FROM mensajes m
-                               JOIN usuarios ur ON m.remitente_id = ur.id
-                               JOIN usuarios ud ON m.destinatario_id = ud.id
+                               JOIN usuarios ur ON m.sender_id = ur.id
+                               JOIN usuarios ud ON m.receiver_id = ud.id
                                WHERE m.producto_id = ? 
-                                 AND ((m.remitente_id = ? AND m.destinatario_id = ?) 
-                                   OR (m.remitente_id = ? AND m.destinatario_id = ?))
+                                 AND ((m.sender_id = ? AND m.receiver_id = ?) 
+                                   OR (m.sender_id = ? AND m.receiver_id = ?))
                                ORDER BY m.created_at ASC");
         
         $stmt->execute([$productoId, $userId, $contactoId, $contactoId, $userId]);
         $mensajes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Marcar mensajes como leídos
-        $stmt = $pdo->prepare("UPDATE mensajes SET leido = 1 
-                               WHERE producto_id = ? AND destinatario_id = ? AND remitente_id = ?");
+        $stmt = $pdo->prepare("UPDATE mensajes SET is_read = 1 
+                               WHERE producto_id = ? AND receiver_id = ? AND sender_id = ?");
         $stmt->execute([$productoId, $userId, $contactoId]);
         
         sendSuccess([
@@ -133,11 +133,11 @@ function enviarMensaje() {
     $userId = requireAuth();
     
     $data = getJsonInput();
-    validateRequired($data, ['producto_id', 'destinatario_id', 'mensaje']);
+    validateRequired($data, ['producto_id', 'receiver_id', 'message']);
     
     $productoId = (int)$data['producto_id'];
-    $destinatarioId = (int)$data['destinatario_id'];
-    $mensaje = sanitizeData($data['mensaje']);
+    $destinatarioId = (int)$data['receiver_id'];
+    $mensaje = sanitizeData($data['message']);
     
     if (strlen($mensaje) > 1000) {
         sendError('El mensaje no puede exceder 1000 caracteres', 400);
@@ -165,7 +165,7 @@ function enviarMensaje() {
         }
         
         // Insertar mensaje
-        $stmt = $pdo->prepare("INSERT INTO mensajes (producto_id, remitente_id, destinatario_id, mensaje, created_at) 
+        $stmt = $pdo->prepare("INSERT INTO mensajes (producto_id, sender_id, receiver_id, message, created_at) 
                                VALUES (?, ?, ?, ?, NOW())");
         
         $success = $stmt->execute([$productoId, $userId, $destinatarioId, $mensaje]);
@@ -192,7 +192,7 @@ function marcarComoLeido($productoId) {
     
     $userId = requireAuth();
     $data = getJsonInput();
-    $remitenteId = isset($data['remitente_id']) ? (int)$data['remitente_id'] : null;
+    $remitenteId = isset($data['sender_id']) ? (int)$data['sender_id'] : null;
     
     if (!$remitenteId) {
         sendError('ID de remitente requerido', 400);
@@ -201,8 +201,8 @@ function marcarComoLeido($productoId) {
     try {
         $pdo = getConnection();
         
-        $stmt = $pdo->prepare("UPDATE mensajes SET leido = 1 
-                               WHERE producto_id = ? AND destinatario_id = ? AND remitente_id = ?");
+        $stmt = $pdo->prepare("UPDATE mensajes SET is_read = 1 
+                               WHERE producto_id = ? AND receiver_id = ? AND sender_id = ?");
         
         $success = $stmt->execute([$productoId, $userId, $remitenteId]);
         

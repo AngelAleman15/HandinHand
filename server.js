@@ -169,11 +169,28 @@ app.post('/api/emit-message', (req, res) => {
     }
 
     const receiverSocket = connectedUsers.get(data.receiver_id.toString());
+    const senderSocket = data.sender_id ? connectedUsers.get(data.sender_id.toString()) : null;
+    
+    let emitted = false;
+    
+    // Emitir al receptor
     if (receiverSocket) {
         io.to(receiverSocket).emit('chat_message', data);
+        console.log('   ✅ Mensaje emitido al receptor:', data.receiver_id);
+        emitted = true;
+    }
+    
+    // Emitir también al emisor para que vea la actualización en su lista
+    if (senderSocket && data.sender_id !== data.receiver_id) {
+        io.to(senderSocket).emit('chat_message', data);
+        console.log('   ✅ Mensaje emitido al emisor:', data.sender_id);
+        emitted = true;
+    }
+    
+    if (emitted) {
         res.json({ success: true, message: 'Mensaje emitido por Socket.IO' });
     } else {
-        res.status(404).json({ success: false, message: 'Usuario no conectado' });
+        res.status(404).json({ success: false, message: 'Usuarios no conectados' });
     }
 });
 

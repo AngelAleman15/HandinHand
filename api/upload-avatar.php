@@ -355,7 +355,7 @@ try {
     $currentAvatar = $stmt->fetchColumn();
     
     // Si tiene avatar anterior y no es el por defecto, lo eliminamos
-    if ($currentAvatar && $currentAvatar !== 'img/usuario.png' && file_exists('../' . $currentAvatar)) {
+    if ($currentAvatar && $currentAvatar !== 'img/usuario.svg' && file_exists('../' . $currentAvatar)) {
         // unlink(): Elimina un archivo del sistema
         unlink('../' . $currentAvatar);
     }

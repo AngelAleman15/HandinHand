@@ -34,7 +34,7 @@ try {
     $productosIntercambiados = $stmt->fetch()['intercambiados'];
     
     // Contar mensajes recibidos
-    $stmt = $pdo->prepare("SELECT COUNT(*) as mensajes FROM mensajes WHERE destinatario_id = ?");
+    $stmt = $pdo->prepare("SELECT COUNT(*) as mensajes FROM mensajes WHERE receiver_id = ?");
     $stmt->execute([$user['id']]);
     $mensajesRecibidos = $stmt->fetch()['mensajes'];
     
@@ -100,9 +100,9 @@ body {
         <div class="profile-cover">
             <div class="profile-avatar-section">
                 <div class="profile-avatar">
-                    <img src="<?php echo isset($user['avatar_path']) && !empty($user['avatar_path']) ? htmlspecialchars($user['avatar_path']) : 'img/usuario.png'; ?>" 
+                    <img src="<?php echo isset($user['avatar_path']) && !empty($user['avatar_path']) ? htmlspecialchars($user['avatar_path']) : 'img/usuario.svg'; ?>" 
                          alt="Avatar de <?php echo htmlspecialchars($user['fullname']); ?>" 
-                         onerror="this.src='img/usuario.png'">
+                         onerror="this.src='img/usuario.svg'">
                     <button class="avatar-edit-btn" onclick="editAvatar()">
                         <i class="fas fa-camera"></i>
                     </button>
@@ -150,7 +150,7 @@ body {
                         } else {
                             // Perfil propio: mostrar botones de edición
                             echo '<button class="btn btn-primary" onclick="editPersonalInfo()"><i class="fas fa-edit"></i> Editar Perfil</button>';
-                            echo '<button class="btn btn-primary" onclick="showWipMessage(\'Mis Productos\')"><i class="fas fa-box"></i> Mis Productos <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></button>';
+                            echo '<a href="mis-productos.php" class="btn btn-primary"><i class="fas fa-box"></i> Mis Productos</a>';
                         }
                         ?>
                     </div>
@@ -290,7 +290,7 @@ body {
                             <?php $v =& $valoraciones_top[0]; // referencia para asegurar que tenga valorador_nombre ?>
                             <div style="background:#F8FFF2; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.07); padding:16px 24px 16px 24px; min-width:320px; max-width:700px; width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:8px; margin-bottom:6px; min-height:70px;">
                                 <div style="display:flex; align-items:center; gap:16px; margin-bottom:6px;">
-                                    <img src='img/usuario.png' style='width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid #C9F89B;'>
+                                    <img src='img/usuario.svg' style='width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid #C9F89B;'>
                                     <div>
                                         <div style="font-weight:700; color:#3A5D1A; font-size:1.18em; margin-bottom:2px;"> <?php echo htmlspecialchars(isset($v['valorador_nombre']) && $v['valorador_nombre'] ? $v['valorador_nombre'] : 'Usuario'); ?> </div>
                                         <div style="font-size:1em; color:#888;"> <?php echo date('d/m/Y', strtotime($v['created_at'])); ?> </div>
@@ -315,7 +315,7 @@ body {
                                     <?php for ($i=1; $i<count($valoraciones_top); $i++): $v = $valoraciones_top[$i]; ?>
                                         <div style="background:#F8FFF2; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.07); padding:16px 24px 16px 24px; min-width:320px; max-width:700px; width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:8px; margin-bottom:6px; min-height:70px;">
                                             <div style="display:flex; align-items:center; gap:16px; margin-bottom:6px;">
-                                                <img src='img/usuario.png' style='width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid #C9F89B;'>
+                                                <img src='img/usuario.svg' style='width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid #C9F89B;'>
                                                 <div>
                                                     <div style="font-weight:700; color:#3A5D1A; font-size:1.18em; margin-bottom:2px;"> <?php echo htmlspecialchars(isset($v['valorador_nombre']) && $v['valorador_nombre'] ? $v['valorador_nombre'] : 'Usuario'); ?> </div>
                                                     <div style="font-size:1em; color:#888;"> <?php echo date('d/m/Y', strtotime($v['created_at'])); ?> </div>
@@ -380,7 +380,7 @@ body {
             <div class="section-card">
                 <div class="section-header">
                     <h2><i class="fas fa-clock"></i> Productos Recientes</h2>
-                    <a href="#" onclick="showWipMessage('Mis Productos'); return false;" class="btn-view-all">Ver todos <span style="font-size: 0.8em; opacity: 0.7;">(WIP)</span></a>
+                    <a href="mis-productos.php" class="btn-view-all">Ver todos</a>
                 </div>
                 <div class="section-content">
                     <?php if (empty($productosRecientes)): ?>
@@ -526,7 +526,7 @@ function mostrarValoraciones() {
                     <div style='display:flex; flex-direction:column; gap:24px;'>
                         ${valoraciones.map(v => `
                             <div style="background:linear-gradient(90deg,#F8FFF2 80%,#F3F3F3 100%); border-radius:16px; box-shadow:0 2px 12px rgba(60,120,40,0.07); padding:22px 20px; display:flex; align-items:center; gap:22px; margin:0 8px; min-height:80px; border:1.5px solid #C9F89B; transition:box-shadow 0.2s;">
-                                <img src="${v.valorador_avatar || 'img/usuario.png'}" style="width:62px; height:62px; border-radius:50%; object-fit:cover; border:2.5px solid #C9F89B; box-shadow:0 2px 8px #C9F89B33;">
+                                <img src="${v.valorador_avatar || 'img/usuario.svg'}" style="width:62px; height:62px; border-radius:50%; object-fit:cover; border:2.5px solid #C9F89B; box-shadow:0 2px 8px #C9F89B33;">
                                 <div style="flex:1; min-width:0;">
                                     <div style="font-weight:600; color:#3A5D1A; font-size:1.15em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:Segoe UI;">${v.valorador_nombre || v.valorador_username || v.valorador_id || 'Usuario'}</div>
                                     <div style="font-size:14px; color:#888; margin-bottom:2px;">${v.created_at ? (new Date(v.created_at)).toLocaleDateString() : ''}</div>
@@ -770,12 +770,13 @@ function mostrarValoraciones() {
 }
 
 .section-header {
-    padding: 25px 30px;
+    padding: 20px 30px;
     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
     border-bottom: 1px solid rgba(0,0,0,0.05);
     display: flex;
-    justify-content: between;
+    justify-content: flex-start;
     align-items: center;
+    gap: 20px;
 }
 
 .section-header h2 {
@@ -802,6 +803,8 @@ function mostrarValoraciones() {
     font-size: 14px;
     text-decoration: none;
     transition: all 0.3s ease;
+    flex-shrink: 0;
+    margin: 0;
 }
 
 .btn-edit:hover, .btn-view-all:hover {
@@ -1077,22 +1080,69 @@ function mostrarValoraciones() {
 }
 
 .cropper-view-box {
-    outline: 3px solid #A2CB8D !important;
+    outline: 3px solid #6a994e !important;
     outline-opacity: 0.75;
 }
 
 .cropper-face {
-    background: rgba(162, 203, 141, 0.1) !important;
+    background: rgba(106, 153, 78, 0.1) !important;
 }
 
 .cropper-line, .cropper-point {
-    background: #A2CB8D !important;
+    background: #6a994e !important;
 }
 
 .cropper-point.point-se {
     background: #C9F89B !important;
-    width: 8px !important;
-    height: 8px !important;
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 50% !important;
+}
+
+/* Estilos personalizados para el modal de avatar */
+.avatar-crop-modal {
+    border-radius: 15px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+.avatar-crop-title {
+    color: #2c3e50 !important;
+    font-size: 22px !important;
+    padding: 20px 20px 10px !important;
+}
+
+.avatar-crop-container {
+    padding: 0 20px 20px !important;
+}
+
+.avatar-confirm-btn {
+    background: linear-gradient(135deg, #6a994e 0%, #5a8442 100%) !important;
+    border: none !important;
+    padding: 12px 30px !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(106, 153, 78, 0.3) !important;
+}
+
+.avatar-confirm-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(106, 153, 78, 0.4) !important;
+}
+
+.avatar-cancel-btn {
+    padding: 12px 30px !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+.avatar-cancel-btn:hover {
+    background: #c82333 !important;
+    transform: translateY(-2px) !important;
+}
 }
 
 /* Animaciones para el botón de avatar */
@@ -1224,9 +1274,14 @@ function mostrarValoraciones() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-<script src="js/test-functions.js"></script>
+<script src="js/perfil-usuario.js?v=<?php echo time(); ?>"></script>
 
 <script>
+// === VARIABLES GLOBALES ===
+window.IS_LOGGED_IN = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
+window.USER_ID = <?php echo isset($user['id']) ? intval($user['id']) : 'null'; ?>;
+window.CURRENT_USER_ID = <?php echo isset($_SESSION['user_id']) ? intval($_SESSION['user_id']) : 'null'; ?>;
+
 // === FUNCIONES DE INTERACCIÓN ===
 
 // Verificar si hay que resaltar el botón de cambiar contraseña

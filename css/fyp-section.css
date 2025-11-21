@@ -1,6 +1,7 @@
 /* ========================================
    ESTILOS PARA LA SECCIÓN FYP (FOR YOU PAGE)
-   DISEÑO: MINIMALISTA MODERNO
+   DISEÑO: INTEGRADO CON LA IDENTIDAD DE HANDINHAND
+   COLORES: Verde natural #6a994e + blancos limpios
    ======================================== */
 
 /* Sección principal FYP */
@@ -9,37 +10,44 @@
     padding: 0 20px;
     max-width: 1400px;
     position: relative;
+    background: #ffffff;
+    padding: 30px 20px;
+    border-radius: 12px;
 }
 
-/* Header de la sección - Minimalista */
+/* Header de la sección - Diseño limpio y moderno */
 .fyp-header {
     text-align: center;
-    margin-bottom: 40px;
-    background: #ffffff;
-    padding: 35px 30px;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 28px 40px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f0f0f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     position: relative;
+    border: 1px solid rgba(106, 153, 78, 0.15);
 }
 
 .fyp-title {
-    font-size: 1.8em;
-    font-weight: 600;
+    font-size: 1.5em;
+    font-weight: 700;
     color: #2c3e50;
     margin: 0 0 8px 0;
     letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 }
 
 .fyp-title i {
-    color: #fbbf24;
-    margin-right: 8px;
-    font-size: 0.9em;
+    color: #6a994e;
+    font-size: 1.1em;
+    filter: drop-shadow(0 2px 4px rgba(106, 153, 78, 0.2));
 }
 
 .fyp-subtitle {
     font-size: 0.95em;
-    color: #6b7280;
+    color: #6c757d;
     margin: 0;
     font-weight: 400;
     letter-spacing: 0.2px;
@@ -48,15 +56,20 @@
 /* Contenedor del carrusel */
 .fyp-carousel-wrapper {
     position: relative;
-    padding: 0 55px;
+    padding: 0 50px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding-top: 20px;
+    padding-bottom: 25px;
+    border: 1px solid #e9ecef;
 }
 
 /* Contenedor de cards (carrusel) */
 .fyp-container {
     display: flex;
-    gap: 20px;
+    gap: 16px;
     overflow: hidden;
-    padding: 15px 5px 25px;
+    padding: 10px 5px 20px;
     scroll-behavior: smooth;
     position: relative;
 }
@@ -66,39 +79,40 @@
     display: none; /* Ocultar scrollbar en carrusel */
 }
 
-/* Botones de navegación del carrusel - Minimalista */
+/* Botones de navegación del carrusel - Verde natural */
 .fyp-nav-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    color: #374151;
-    width: 45px;
-    height: 45px;
+    background: #6a994e;
+    border: 2px solid #5a8442;
+    color: #ffffff;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 10;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 8px rgba(106, 153, 78, 0.3);
 }
 
 .fyp-nav-btn:hover {
-    background: #f9fafb;
-    border-color: #d1d5db;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    transform: translateY(-50%) scale(1.05);
+    background: #5a8442;
+    box-shadow: 0 5px 15px rgba(106, 153, 78, 0.45);
+    transform: translateY(-50%) scale(1.1);
 }
 
 .fyp-nav-btn:active {
-    transform: translateY(-50%) scale(0.98);
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 2px 5px rgba(106, 153, 78, 0.3);
 }
 
 .fyp-nav-btn i {
-    font-size: 1.1em;
+    font-size: 1.2em;
+    font-weight: 600;
 }
 
 .fyp-nav-btn.prev {
@@ -110,17 +124,19 @@
 }
 
 .fyp-nav-btn:disabled {
-    opacity: 0.4;
+    opacity: 0.3;
     cursor: not-allowed;
-    background: #f9fafb;
+    background: #cccccc;
+    color: #999999;
+    border-color: #bbbbbb;
 }
 
 .fyp-nav-btn:disabled:hover {
     transform: translateY(-50%) scale(1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 8px rgba(106, 153, 78, 0.3);
 }
 
-/* Indicadores del carrusel - Minimalista */
+/* Indicadores del carrusel - Verde natural */
 .fyp-indicators {
     display: flex;
     justify-content: center;
@@ -129,45 +145,46 @@
 }
 
 .fyp-indicator {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: #d1d5db;
+    background: rgba(106, 153, 78, 0.25);
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.3s ease;
     border: none;
 }
 
 .fyp-indicator.active {
-    background: #6366f1;
-    transform: scale(1.4);
-    border-radius: 4px;
+    background: #6a994e;
+    width: 28px;
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(106, 153, 78, 0.4);
 }
 
 .fyp-indicator:hover {
-    background: #9ca3af;
+    background: rgba(106, 153, 78, 0.5);
     transform: scale(1.2);
 }
 
-/* Card individual FYP - Minimalista */
+/* Card individual FYP - Limpio y moderno */
 .fyp-card {
     min-width: 280px;
     max-width: 280px;
-    background: #ffffff;
+    background: #b5d0a6;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
     flex-shrink: 0;
-    border: 1px solid #f3f4f6;
+    border: 1px solid #f0f0f0;
 }
 
 .fyp-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    border-color: #e5e7eb;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(106, 153, 78, 0.25);
+    border-color: #6a994e;
 }
 
 /* Imagen del producto */
@@ -190,20 +207,34 @@
     transform: scale(1.1);
 }
 
-/* Badge Trending - Minimalista */
+/* Badge Trending - Diseño sutil y moderno */
 .badge-trending {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    background: linear-gradient(135deg, #6a994e 0%, #5a8442 100%);
     color: #ffffff;
-    padding: 5px 11px;
-    border-radius: 6px;
-    font-size: 0.75em;
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-size: 0.65em;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.25);
+    box-shadow: 0 2px 8px rgba(106, 153, 78, 0.25);
     z-index: 2;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    animation: badgePulse 2.5s ease-in-out infinite;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes badgePulse {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 3px 10px rgba(106, 153, 78, 0.4);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(106, 153, 78, 0.6);
+    }
 }
 
 /* Contenido de la card */
@@ -267,65 +298,59 @@
     color: #2ecc71;
 }
 
-/* Divider entre secciones - Minimalista */
+/* Divider entre secciones - Línea elegante */
 .section-divider {
-    margin: 60px auto 40px;
+    margin: 50px auto 35px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #6a994e 50%, transparent 100%);
+    border: none;
+    opacity: 0.4;
     text-align: center;
     position: relative;
+    overflow: visible;
 }
 
 .section-divider::before,
 .section-divider::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 40%;
-    height: 1px;
-    background: #e5e7eb;
-}
-
-.section-divider::before {
-    left: 0;
-}
-
-.section-divider::after {
-    right: 0;
+    display: none;
 }
 
 .section-title {
-    font-size: 1.3em;
-    font-weight: 600;
-    color: #374151;
-    background: white;
+    font-size: 1.4em;
+    font-weight: 700;
+    color: #333333;
     padding: 0 20px;
     position: relative;
     z-index: 1;
+    margin: -20px auto 0;
+    background: #ffffff;
+    display: inline-block;
+    white-space: nowrap;
 }
 
 .section-title i {
-    color: #6b7280;
-    margin-right: 8px;
+    color: #6a994e;
+    margin-right: 10px;
     font-size: 0.9em;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .fyp-section {
-        padding: 0 10px;
+        padding: 25px 15px;
         margin: 40px auto;
     }
     
     .fyp-header {
-        padding: 25px 20px;
-        border-radius: 10px;
+        padding: 18px 20px;
     }
     
     .fyp-title {
-        font-size: 1.5em;
+        font-size: 1.4em;
     }
     
     .fyp-subtitle {
-        font-size: 0.9em;
+        font-size: 0.85em;
     }
     
     .fyp-carousel-wrapper {
@@ -333,12 +358,12 @@
     }
     
     .fyp-nav-btn {
-        width: 38px;
-        height: 38px;
+        width: 42px;
+        height: 42px;
     }
     
     .fyp-nav-btn i {
-        font-size: 1em;
+        font-size: 1.1em;
     }
     
     .fyp-card {
@@ -347,22 +372,26 @@
     }
     
     .section-title {
-        font-size: 1.15em;
+        font-size: 1.2em;
     }
 }
 
 @media (max-width: 480px) {
+    .fyp-section {
+        padding: 20px 10px;
+    }
+    
     .fyp-carousel-wrapper {
         padding: 0 38px;
     }
     
     .fyp-nav-btn {
-        width: 34px;
-        height: 34px;
+        width: 36px;
+        height: 36px;
     }
     
     .fyp-nav-btn i {
-        font-size: 0.95em;
+        font-size: 1em;
     }
     
     .fyp-card {
@@ -380,12 +409,16 @@
     }
     
     .fyp-indicators {
-        gap: 6px;
+        gap: 5px;
         margin-top: 15px;
     }
     
     .fyp-indicator {
         width: 7px;
         height: 7px;
+    }
+    
+    .fyp-indicator.active {
+        width: 16px;
     }
 }

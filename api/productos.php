@@ -78,6 +78,19 @@ function getProductos() {
         $stmt->execute($params);
         $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        // Cargar imagen principal de cada producto desde producto_imagenes
+        foreach ($productos as &$producto) {
+            $stmt_img = $pdo->prepare("SELECT imagen FROM producto_imagenes WHERE producto_id = ? AND es_principal = 1 LIMIT 1");
+            $stmt_img->execute([$producto['id']]);
+            $imagen_principal = $stmt_img->fetchColumn();
+            
+            // Si hay imagen principal en producto_imagenes, usarla; sino usar la de productos.imagen
+            if ($imagen_principal) {
+                $producto['imagen'] = $imagen_principal;
+            }
+        }
+        unset($producto); // Romper referencia
+        
         // Contar total de productos para paginación
         $countSql = "SELECT COUNT(DISTINCT p.id) as total 
                      FROM productos p 
@@ -130,13 +143,17 @@ function getProducto($id) {
         $pdo = getConnection();
         
 
-        // Obtener producto principal
+        // Obtener producto principal con información de ubicación
         $stmt = $pdo->prepare("SELECT p.*, u.username, u.fullname as vendedor_name, u.avatar_path,
                                       u.phone as vendedor_phone, u.email as vendedor_email,
                                       COALESCE(p.promedio_estrellas, 0) as promedio_estrellas,
-                                      COALESCE(p.total_valoraciones, 0) as total_valoraciones
+                                      COALESCE(p.total_valoraciones, 0) as total_valoraciones,
+                                      d.nombre as departamento_nombre,
+                                      c.nombre as ciudad_nombre
                                FROM productos p 
                                JOIN usuarios u ON p.user_id = u.id 
+                               LEFT JOIN departamentos d ON p.departamento_id = d.id
+                               LEFT JOIN ciudades c ON p.ciudad_id = c.id
                                WHERE p.id = ?");
         $stmt->execute([$id]);
         $producto = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -150,22 +167,20 @@ function getProducto($id) {
         // Categoría: convertir de string a array para mantener compatibilidad
         $producto['categorias'] = $producto['categoria'] ? [['nombre' => $producto['categoria']]] : [];
         
-        // Imágenes: soportar múltiples imágenes
-        // Formato: imagen-1.jpg, imagen-2.jpg, imagen-3.jpg
+        // Imágenes: cargar desde tabla producto_imagenes
         $producto['imagenes'] = [];
-        if ($producto['imagen']) {
-            // Agregar la imagen principal
+        
+        // Consultar todas las imágenes del producto (ordenadas por principal primero)
+        $stmt_imgs = $pdo->prepare("SELECT imagen FROM producto_imagenes WHERE producto_id = ? ORDER BY es_principal DESC, id ASC");
+        $stmt_imgs->execute([$id]);
+        $imagenes_db = $stmt_imgs->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (!empty($imagenes_db)) {
+            // Usar imágenes de la tabla producto_imagenes
+            $producto['imagenes'] = $imagenes_db;
+        } elseif ($producto['imagen']) {
+            // Fallback: si no hay imágenes en producto_imagenes, usar la columna imagen de productos
             $producto['imagenes'][] = $producto['imagen'];
-            
-            // Buscar imágenes adicionales (imagen-1.jpg, imagen-2.jpg, imagen-3.jpg)
-            $imagenBase = preg_replace('/\.(jpg|jpeg|png|gif)$/i', '', $producto['imagen']);
-            for ($i = 2; $i <= 3; $i++) {
-                $extension = pathinfo($producto['imagen'], PATHINFO_EXTENSION);
-                $imagenAdicional = $imagenBase . '-' . $i . '.' . $extension;
-                if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $imagenAdicional)) {
-                    $producto['imagenes'][] = $imagenAdicional;
-                }
-            }
         }
         
         sendSuccess($producto, 'Producto obtenido exitosamente');

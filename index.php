@@ -7,11 +7,14 @@ require_once 'includes/functions.php';
 // Verificar si se cerró sesión
 $logout_success = isset($_GET['logout']) && $_GET['logout'] === 'success';
 
-// Obtener parámetros de búsqueda y filtros
+# Obtener parámetros de búsqueda y filtros
 $busqueda = isset($_GET['busqueda']) ? trim($_GET['busqueda']) : null;
 $tipo_busqueda = isset($_GET['tipo']) ? $_GET['tipo'] : 'productos'; // 'productos' o 'usuarios'
 $filtro_categoria = isset($_GET['categoria']) ? $_GET['categoria'] : null;
 $filtro_estado = isset($_GET['estado']) ? $_GET['estado'] : null;
+
+// Obtener todas las categorías únicas para el filtro
+$categorias_disponibles = getCategoriasUnicas();
 
 // Configuración de la página
 $page_title = "HandinHand - Inicio";
@@ -75,18 +78,20 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
                     <div class="filtros-panel" id="filtros-panel" style="display: <?php echo ($filtro_categoria || $filtro_estado) ? 'flex' : 'none'; ?>;">
                         <div class="filtro-grupo">
                             <label><i class="fas fa-tags"></i> Categoría:</label>
-                            <select name="categoria" class="filtro-select">
-                                <option value="">Todas</option>
-                                <option value="Electrónicos" <?php echo $filtro_categoria === 'Electrónicos' ? 'selected' : ''; ?>>Electrónicos</option>
-                                <option value="Ropa" <?php echo $filtro_categoria === 'Ropa' ? 'selected' : ''; ?>>Ropa</option>
-                                <option value="Calzado" <?php echo $filtro_categoria === 'Calzado' ? 'selected' : ''; ?>>Calzado</option>
-                                <option value="Libros" <?php echo $filtro_categoria === 'Libros' ? 'selected' : ''; ?>>Libros</option>
-                                <option value="Deportes" <?php echo $filtro_categoria === 'Deportes' ? 'selected' : ''; ?>>Deportes</option>
-                                <option value="Música" <?php echo $filtro_categoria === 'Música' ? 'selected' : ''; ?>>Música</option>
-                                <option value="Hogar" <?php echo $filtro_categoria === 'Hogar' ? 'selected' : ''; ?>>Hogar</option>
-                                <option value="Juguetes" <?php echo $filtro_categoria === 'Juguetes' ? 'selected' : ''; ?>>Juguetes</option>
-                                <option value="Otros" <?php echo $filtro_categoria === 'Otros' ? 'selected' : ''; ?>>Otros</option>
-                            </select>
+                            <input 
+                                type="text" 
+                                name="categoria" 
+                                class="filtro-input-autocomplete" 
+                                id="categoria-input"
+                                list="categorias-list" 
+                                placeholder="Todas las categorías..."
+                                value="<?php echo htmlspecialchars($filtro_categoria ?? ''); ?>"
+                                autocomplete="off">
+                            <datalist id="categorias-list">
+                                <?php foreach ($categorias_disponibles as $cat): ?>
+                                    <option value="<?php echo htmlspecialchars($cat); ?>">
+                                <?php endforeach; ?>
+                            </datalist>
                         </div>
                         <div class="filtro-grupo">
                             <label><i class="fas fa-check-circle"></i> Estado:</label>
@@ -143,6 +148,16 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
                                         </span>
                                     <?php endif; ?>
                                 </div>
+                                <?php if ($producto['total_vistas'] > 0 || $producto['total_guardados'] > 0): ?>
+                                <div class="card-stats">
+                                    <?php if ($producto['total_vistas'] > 0): ?>
+                                        <span><i class="fas fa-eye"></i> <?php echo $producto['total_vistas']; ?></span>
+                                    <?php endif; ?>
+                                    <?php if ($producto['total_guardados'] > 0): ?>
+                                        <span><i class="fas fa-heart"></i> <?php echo $producto['total_guardados']; ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endif; ?>
                                 <div class="card-seller">
                                     <div class="contact-avatar-small">
                                         <?php if (!empty($producto['avatar_path'])): ?>
@@ -159,21 +174,11 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
                                         </div>
                                     </div>
                                 </div>
-                                <?php if ($producto['total_vistas'] > 0 || $producto['total_guardados'] > 0): ?>
-                                <div class="card-stats">
-                                    <?php if ($producto['total_vistas'] > 0): ?>
-                                        <span><i class="fas fa-eye"></i> <?php echo $producto['total_vistas']; ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($producto['total_guardados'] > 0): ?>
-                                        <span><i class="fas fa-heart"></i> <?php echo $producto['total_guardados']; ?></span>
-                                    <?php endif; ?>
-                                </div>
-                                <?php endif; ?>
                             </div>
                         </a>
                         <div class="card-actions">
                         <?php if (isLoggedIn() && $_SESSION['user_id'] == $producto['user_id']): ?>
-                            <a href="editar-producto.php?id=<?php echo $producto['id']; ?>" class="btn-card btn-edit-card" onclick="event.stopPropagation();">
+                            <a href="<?php echo url('editar-producto.php?id=' . $producto['id']); ?>" class="btn-card btn-edit-card" onclick="event.stopPropagation();">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
                         <?php else: ?>
@@ -214,9 +219,9 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
                     <a href="ver-perfil.php?id=<?php echo $usuario['id']; ?>" style="text-decoration:none;color:inherit;display:block;">
                         <div class="usuario-header">
                             <div class="usuario-avatar-grande">
-                                <img src="<?php echo !empty($usuario['avatar_path']) ? htmlspecialchars($usuario['avatar_path']) : 'img/usuario.png'; ?>"
+                                <img src="<?php echo !empty($usuario['avatar_path']) ? htmlspecialchars($usuario['avatar_path']) : 'img/usuario.svg'; ?>"
                                      alt="<?php echo htmlspecialchars($usuario['fullname']); ?>"
-                                     onerror="this.src='img/usuario.png'">
+                                     onerror="this.src='img/usuario.svg'">
                             </div>
                         </div>
                         <div class="card-body">
@@ -283,7 +288,7 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
                     <div class="card-actions">
                         <?php if (isLoggedIn() && $_SESSION['user_id'] == $producto['user_id']): ?>
                             <!-- Botón para productos propios -->
-                            <a href="editar-producto.php?id=<?php echo $producto['id']; ?>" class="btn-card btn-edit-card" onclick="event.stopPropagation();">
+                            <a href="<?php echo url('editar-producto.php?id=' . $producto['id']); ?>" class="btn-card btn-edit-card" onclick="event.stopPropagation();">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
                         <?php else: ?>
@@ -336,10 +341,20 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
         // Actualizar placeholder
         const input = document.querySelector('input[name="busqueda"]');
         input.placeholder = tipo === 'usuarios' ? '¿A quién buscás?' : '¿Qué te interesa?';
-        // Ocultar filtros si se selecciona usuarios
+        
+        // Ocultar/mostrar botón y panel de filtros según el tipo
+        const btnFiltros = document.querySelector('.btn-filtros');
+        const filtrosPanel = document.getElementById('filtros-panel');
+        
         if (tipo === 'usuarios') {
-            document.getElementById('filtros-panel').style.display = 'none';
+            // Ocultar botón y panel de filtros para usuarios
+            if (btnFiltros) btnFiltros.style.display = 'none';
+            if (filtrosPanel) filtrosPanel.style.display = 'none';
+        } else {
+            // Mostrar botón de filtros para productos
+            if (btnFiltros) btnFiltros.style.display = 'flex';
         }
+        
         // Aplicar tema de colores
         aplicarTema(tipo);
     }
@@ -401,7 +416,7 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
     // Funciones para gestionar productos propios
     function editProduct(productoId) {
         // Redirigir a página de edición de producto
-        window.location.href = 'editar-producto.php?id=' + productoId;
+        window.location.href = '<?php echo $base_url; ?>/editar-producto.php?id=' + productoId;
     }
 
     function deleteProduct(productoId) {
@@ -467,6 +482,9 @@ window.IS_LOGGED_IN = <?php echo isLoggedIn() ? 'true' : 'false'; ?>;
         });
     }
     </script>
+    
+    <!-- Script de autocompletado para filtro de categorías -->
+    <script src="js/autocomplete-filtro.js"></script>
 
 <?php
 // Incluir footer

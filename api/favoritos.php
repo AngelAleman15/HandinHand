@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     } else {
         // Listar todos los favoritos
-        $sql = "SELECT p.*, u.nombre as vendedor_name, u.avatar_url, 
+        $sql = "SELECT p.*, u.fullname as vendedor_name, u.avatar_path as avatar_url, 
                 (SELECT ROUND(AVG(puntuacion), 1) FROM valoraciones WHERE usuario_id = p.user_id) as promedio_estrellas
                 FROM productos p
                 JOIN productos_favoritos pf ON p.id = pf.producto_id

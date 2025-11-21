@@ -28,7 +28,7 @@ try {
                   WHEN m.sender_id = :currentUser1 THEN true 
                   ELSE false 
               END as is_own_message,
-              reply_msg.mensaje as reply_to_message,
+              reply_msg.message as reply_to_message,
               reply_sender.username as reply_to_username
               FROM mensajes m 
               LEFT JOIN mensajes reply_msg ON m.reply_to_message_id = reply_msg.id
@@ -60,20 +60,44 @@ try {
     
     $messages = [];
     while ($row = $stmt->fetch()) {
-        $messages[] = [
+        // Intentar decodificar el mensaje como JSON
+        $messageContent = $row['message'];
+        $messageData = json_decode($messageContent, true);
+        
+        // Si es JSON válido, agregarlo como objeto; sino, como string
+        $messageToSend = [
             'id' => $row['id'],
-            'message' => $row['mensaje'],
+            'message' => $messageContent,
             'timestamp' => $row['created_at'],
             'sender_id' => $row['sender_id'],
             'receiver_id' => $row['receiver_id'],
             'is_own_message' => (bool)$row['is_own_message'],
             'is_read' => (bool)($row['is_read'] ?? false),
             'is_perseo_auto' => isset($row['is_perseo_auto']) ? (bool)$row['is_perseo_auto'] : false,
+            'tipo_mensaje' => $row['tipo_mensaje'] ?? 'normal',
+            'producto_id' => $row['producto_id'] ?? null,
+            'producto_relacionado_id' => $row['producto_relacionado_id'] ?? null,
             'reply_to_message_id' => $row['reply_to_message_id'],
             'reply_to_message' => $row['reply_to_message'],
             'reply_to_username' => $row['reply_to_username'],
             'edited_at' => $row['edited_at'] ?? null
         ];
+        
+        // Si el mensaje es JSON válido y contiene propuesta_id, agregarlo al nivel superior
+        if (is_array($messageData)) {
+            if (isset($messageData['propuesta_id'])) {
+                $messageToSend['propuesta_id'] = $messageData['propuesta_id'];
+            }
+            if (isset($messageData['estado'])) {
+                $messageToSend['estado'] = $messageData['estado'];
+            }
+            // Agregar otros campos relevantes del JSON
+            if (isset($messageData['tipo'])) {
+                $messageToSend['tipo'] = $messageData['tipo'];
+            }
+        }
+        
+        $messages[] = $messageToSend;
     }
     
     echo json_encode(['status' => 'success', 'messages' => $messages]);

@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO productos (user_id, nombre, descripcion, categoria, condicion, ubicacion, estado, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
             $stmt->execute([$user['id'], $nombre, $descripcion, $categoria, $condicion, $ubicacion, $estado]);
             $producto_id = $pdo->lastInsertId();
-            header('Location: editar-producto.php?id=' . $producto_id);
+            header('Location: ' . url('editar-producto.php?id=' . $producto_id));
             exit();
         } catch (Exception $e) {
             $error = 'Error al publicar el producto: ' . $e->getMessage();

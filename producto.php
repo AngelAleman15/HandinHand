@@ -176,6 +176,35 @@ require_once 'includes/header.php';
             </div>
         </div>
 
+        <!-- Ubicación del Producto -->
+        <?php if (!empty($producto['departamento_nombre']) || !empty($producto['ciudad_nombre'])): ?>
+        <div class="ubicacion-producto-section">
+            <h2 class="section-title"><i class="fas fa-map-marker-alt"></i> Ubicación del producto</h2>
+            <div class="ubicacion-info-card">
+                <?php if (!empty($producto['departamento_nombre'])): ?>
+                    <div class="ubicacion-item">
+                        <i class="fas fa-map"></i>
+                        <span><strong>Departamento:</strong> <?php echo htmlspecialchars($producto['departamento_nombre']); ?></span>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($producto['ciudad_nombre'])): ?>
+                    <div class="ubicacion-item">
+                        <i class="fas fa-city"></i>
+                        <span><strong>Ciudad:</strong> <?php echo htmlspecialchars($producto['ciudad_nombre']); ?></span>
+                    </div>
+                <?php endif; ?>
+            </div>
+            
+            <!-- Mapa de la ubicación -->
+            <div id="mapaUbicacionProducto" class="mapa-ubicacion-producto" style="display: none;">
+                <div id="mapaUbicacion" style="width: 100%; height: 300px; border-radius: 8px; margin-top: 15px;"></div>
+            </div>
+            <button class="btn-ver-mapa-ubicacion" onclick="mostrarMapaUbicacion()">
+                <i class="fas fa-map-marked-alt"></i> Ver en el mapa
+            </button>
+        </div>
+        <?php endif; ?>
+
         <!-- Puntos de Encuentro (movido aquí desde columna derecha) -->
         <div class="puntos-encuentro-section">
             <h2 class="section-title"><i class="fas fa-map-marker-alt"></i> Puntos de encuentro sugeridos</h2>
@@ -217,7 +246,7 @@ require_once 'includes/header.php';
         <div class="acciones-card">
             <div class="acciones-title">Acciones disponibles</div>
             
-            <button class="btn-accion btn-accion-primary" disabled style="opacity: 0.5; cursor: not-allowed;">
+            <button class="btn-accion btn-accion-primary" onclick="abrirModalIntercambio(<?php echo $producto['id']; ?>, <?php echo $producto['user_id']; ?>, '<?php echo htmlspecialchars($producto['nombre'], ENT_QUOTES); ?>')">
                 <i class="fas fa-exchange-alt"></i>
                 Proponer intercambio
             </button>
@@ -228,7 +257,7 @@ require_once 'includes/header.php';
             </button>
             
             <div class="acciones-extras">
-                <button class="btn-accion-icon" id="btnFavorito" title="Guardar producto" onclick="toggleFavorito(<?php echo $id; ?>)">
+                <button class="btn-accion-icon" id="btnFavorito" title="Guardar producto" data-producto-id="<?php echo $id; ?>">
                     <i class="far fa-bookmark"></i>
                 </button>
                 <button class="btn-accion-icon" title="Compartir producto" onclick="compartirProducto()">
@@ -313,7 +342,73 @@ let puntosEncuentro = [];
 // Inicializar cuando cargue la página
 document.addEventListener('DOMContentLoaded', function() {
     cargarPuntosEncuentro(<?php echo $producto['id']; ?>);
+    
+    // Inicializar botón de guardar con FYP tracking
+    inicializarBotonGuardar();
+    
+    // Registrar tracking de vista
+    if (window.FYPTracking) {
+        window.FYPTracking.trackearTiempoVista(<?php echo $producto['id']; ?>);
+    }
 });
+
+// Inicializar botón de guardar
+async function inicializarBotonGuardar() {
+    const productoId = <?php echo $id; ?>;
+    const btnFavorito = document.getElementById('btnFavorito');
+    const icon = btnFavorito.querySelector('i');
+    
+    // Verificar si el producto ya está guardado
+    <?php if (isset($_SESSION['user_id'])): ?>
+    try {
+        const response = await fetch('<?php echo $base_url; ?>/api/fyp.php?accion=guardados');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.guardados) {
+                const estaGuardado = data.guardados.some(p => p.id == productoId);
+                if (estaGuardado) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    btnFavorito.classList.add('guardado');
+                    btnFavorito.style.backgroundColor = '#4CAF50';
+                    btnFavorito.style.color = 'white';
+                }
+            }
+        }
+    } catch (error) {
+        console.warn('No se pudo verificar estado de guardado:', error);
+    }
+    <?php endif; ?>
+    
+    // Agregar evento de click
+    btnFavorito.addEventListener('click', function() {
+        if (!window.FYPTracking) {
+            console.error('FYPTracking no está disponible');
+            return;
+        }
+        
+        const estaGuardado = btnFavorito.classList.contains('guardado');
+        
+        if (estaGuardado) {
+            // Quitar de guardados
+            window.FYPTracking.quitarGuardado(productoId, btnFavorito);
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            btnFavorito.classList.remove('guardado');
+            btnFavorito.style.backgroundColor = '';
+            btnFavorito.style.color = '';
+        } else {
+            // Guardar producto
+            window.FYPTracking.guardarProducto(productoId, btnFavorito);
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            btnFavorito.classList.add('guardado');
+            btnFavorito.style.backgroundColor = '#4CAF50';
+            btnFavorito.style.color = 'white';
+        }
+    });
+}
+
 
 
 // Seleccionar estrella
@@ -469,33 +564,11 @@ function cargarValoraciones(productoId) {
 // Contactar vendedor
 // Contactar vendedor (sin confirmación)
 function contactarVendedor(userId, userName) {
-    window.location.href = `mensajeria.php?user=${userId}`;
-}
-
-// Toggle guardar producto (favorito)
-let esGuardado = false;
-function toggleFavorito(productoId) {
-    const btn = document.getElementById('btnFavorito');
-    const icon = btn.querySelector('i');
-    
-    esGuardado = !esGuardado;
-    
-    if (esGuardado) {
-        icon.classList.remove('far');
-        icon.classList.add('fas');
-        btn.style.backgroundColor = '#4CAF50';
-        btn.style.color = 'white';
-        
-        // Mostrar notificación
-        mostrarNotificacion('✓ Producto guardado', 'success');
-    } else {
-        icon.classList.remove('fas');
-        icon.classList.add('far');
-        btn.style.backgroundColor = '';
-        btn.style.color = '';
-        
-        mostrarNotificacion('Producto eliminado de guardados', 'info');
+    // Registrar que se inició un chat desde este producto
+    if (window.FYPTracking) {
+        window.FYPTracking.registrarChat(<?php echo $producto['id']; ?>, userId);
     }
+    window.location.href = `mensajeria.php?user=${userId}`;
 }
 
 // Compartir producto
@@ -609,7 +682,7 @@ function enviarReporte(productoId) {
         return;
     }
     
-    const motivo = motivoSeleccionado.value + (detalles ? ': ' + detalles : '');
+    const motivoCompleto = motivoSeleccionado.value + (detalles ? ': ' + detalles : '');
     
     fetch('api/denuncias.php', {
         method: 'POST',
@@ -617,9 +690,9 @@ function enviarReporte(productoId) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            tipo: 'producto',
-            elemento_id: productoId,
-            motivo: motivo
+            action: 'reportar_producto',
+            producto_id: productoId,
+            motivo: motivoCompleto
         })
     })
     .then(response => response.json())
@@ -656,7 +729,7 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
         padding: 16px 24px;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 999;
+        z-index: 9500;
         animation: slideIn 0.3s ease;
         font-weight: 500;
         max-width: 350px;
@@ -884,6 +957,419 @@ function centrarMarcador(index) {
         block: 'center' 
     });
 }
+
+// ============ SISTEMA DE INTERCAMBIO ============
+
+// Abrir modal de intercambio
+async function abrirModalIntercambio(productoId, vendedorId, nombreProducto) {
+    try {
+        // Obtener productos disponibles del usuario actual
+        const response = await fetch('api/get-mis-productos-disponibles.php');
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Error al obtener tus productos');
+        }
+        
+        if (data.productos.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'No tienes productos disponibles',
+                html: `
+                    <p>Para proponer un intercambio necesitas tener al menos un producto publicado.</p>
+                    <p>¿Deseas crear un producto ahora?</p>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Crear producto',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#6a994e'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'crear-producto.php';
+                }
+            });
+            return;
+        }
+        
+        // Crear HTML de productos
+        let productosHTML = data.productos.map(p => `
+            <div class="producto-intercambio-card" onclick="seleccionarProductoIntercambio(${p.id}, this)">
+                <div class="producto-intercambio-imagen">
+                    <img src="${p.imagen}" alt="${p.nombre}" onerror="this.src='img/productos/default.jpg'">
+                    <span class="producto-estado-badge ${p.estado}">${p.estado.toUpperCase()}</span>
+                </div>
+                <div class="producto-intercambio-info">
+                    <h4>${p.nombre}</h4>
+                    <p class="categoria">${p.categoria || 'Sin categoría'}</p>
+                </div>
+                <div class="producto-intercambio-check">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        `).join('');
+        
+        Swal.fire({
+            title: 'Proponer Intercambio',
+            html: `
+                <div class="modal-intercambio-content">
+                    <div class="intercambio-header">
+                        <p>Selecciona el producto que deseas ofrecer por:</p>
+                        <div class="producto-objetivo">
+                            <i class="fas fa-box"></i>
+                            <strong>${nombreProducto}</strong>
+                        </div>
+                    </div>
+                    <div class="productos-lista-intercambio">
+                        ${productosHTML}
+                    </div>
+                    <input type="hidden" id="productoSeleccionadoId" value="">
+                    <textarea id="mensajeIntercambio" class="mensaje-intercambio" placeholder="Mensaje para el vendedor (opcional)..." maxlength="500"></textarea>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-paper-plane"></i> Enviar propuesta',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#6a994e',
+            cancelButtonColor: '#6c757d',
+            width: '700px',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                const productoOfrecidoId = document.getElementById('productoSeleccionadoId').value;
+                const mensaje = document.getElementById('mensajeIntercambio').value;
+                
+                if (!productoOfrecidoId) {
+                    Swal.showValidationMessage('Debes seleccionar un producto para ofrecer');
+                    return false;
+                }
+                
+                return enviarPropuestaIntercambio(productoId, productoOfrecidoId, vendedorId, mensaje);
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        });
+        
+        // Añadir estilos del modal
+        agregarEstilosModalIntercambio();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'No se pudo abrir el modal de intercambio',
+            confirmButtonColor: '#6a994e'
+        });
+    }
+}
+
+// Seleccionar producto para intercambio
+function seleccionarProductoIntercambio(productoId, elemento) {
+    // Remover selección previa
+    document.querySelectorAll('.producto-intercambio-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Seleccionar nuevo
+    elemento.classList.add('selected');
+    document.getElementById('productoSeleccionadoId').value = productoId;
+}
+
+// Enviar propuesta de intercambio
+async function enviarPropuestaIntercambio(productoSolicitadoId, productoOfrecidoId, vendedorId, mensaje) {
+    try {
+        const response = await fetch('api/proponer-intercambio.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                producto_solicitado_id: productoSolicitadoId,
+                producto_ofrecido_id: productoOfrecidoId,
+                vendedor_id: vendedorId,
+                message: mensaje
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Error al enviar la propuesta');
+        }
+        
+        // Mostrar éxito y redirigir al chat
+        await Swal.fire({
+            icon: 'success',
+            title: '¡Propuesta enviada!',
+            html: `
+                <p>Tu propuesta de intercambio ha sido enviada exitosamente.</p>
+                <p>El producto ofrecido ha sido marcado como <strong>reservado</strong>.</p>
+                <p>Serás redirigido al chat para continuar la conversación...</p>
+            `,
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            confirmButtonColor: '#6a994e'
+        });
+        
+        // Redirigir al chat
+        window.location.href = `mensajeria.php?user_id=${vendedorId}`;
+        
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+// Añadir estilos del modal de intercambio
+function agregarEstilosModalIntercambio() {
+    if (document.getElementById('estilos-modal-intercambio')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'estilos-modal-intercambio';
+    style.textContent = `
+        .modal-intercambio-content {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .intercambio-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .intercambio-header p {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .producto-objetivo {
+            background: linear-gradient(135deg, #6a994e 0%, #5a8840 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        
+        .productos-lista-intercambio {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .producto-intercambio-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: white;
+        }
+        
+        .producto-intercambio-card:hover {
+            border-color: #6a994e;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(106, 153, 78, 0.2);
+        }
+        
+        .producto-intercambio-card.selected {
+            border-color: #6a994e;
+            background: #f0f8ed;
+            box-shadow: 0 4px 12px rgba(106, 153, 78, 0.3);
+        }
+        
+        .producto-intercambio-imagen {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .producto-intercambio-imagen img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .producto-estado-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .producto-estado-badge.disponible {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .producto-estado-badge.reservado {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .producto-intercambio-info h4 {
+            font-size: 14px;
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .producto-intercambio-info .categoria {
+            font-size: 11px;
+            color: #6c757d;
+            margin: 0;
+        }
+        
+        .producto-intercambio-check {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #6a994e;
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .producto-intercambio-card.selected .producto-intercambio-check {
+            opacity: 1;
+        }
+        
+        .mensaje-intercambio {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        .mensaje-intercambio:focus {
+            outline: none;
+            border-color: #6a994e;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// ========== MAPA DE UBICACIÓN DEL PRODUCTO ==========
+let mapaUbicacionProducto = null;
+
+function mostrarMapaUbicacion() {
+    const mapaContainer = document.getElementById('mapaUbicacionProducto');
+    const btn = document.querySelector('.btn-ver-mapa-ubicacion');
+    
+    if (mapaContainer.style.display === 'none') {
+        mapaContainer.style.display = 'block';
+        btn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar mapa';
+        
+        if (!mapaUbicacionProducto) {
+            inicializarMapaUbicacion();
+        }
+    } else {
+        mapaContainer.style.display = 'none';
+        btn.innerHTML = '<i class="fas fa-map-marked-alt"></i> Ver en el mapa';
+    }
+}
+
+function inicializarMapaUbicacion() {
+    <?php if (!empty($producto['ciudad_nombre'])): ?>
+    const ciudad = "<?php echo htmlspecialchars($producto['ciudad_nombre']); ?>";
+    const departamento = "<?php echo htmlspecialchars($producto['departamento_nombre']); ?>";
+    
+    // Coordenadas aproximadas de ciudades principales de Uruguay
+    const coordenadasCiudades = {
+        'Montevideo': [-34.9011, -56.1645],
+        'Salto': [-31.3833, -57.9667],
+        'Paysandú': [-32.3214, -58.0756],
+        'Rivera': [-30.9050, -55.5508],
+        'Maldonado': [-34.9000, -54.9500],
+        'Tacuarembó': [-31.7167, -55.9833],
+        'Melo': [-32.3703, -54.1672],
+        'Mercedes': [-33.2524, -58.0305],
+        'Artigas': [-30.4000, -56.4667],
+        'Minas': [-34.3758, -55.2381],
+        'San José de Mayo': [-34.3378, -56.7136],
+        'Durazno': [-33.3806, -56.5236],
+        'Florida': [-34.0992, -56.2147],
+        'Treinta y Tres': [-33.2333, -54.3833],
+        'Rocha': [-34.4833, -54.3333],
+        'Colonia del Sacramento': [-34.4631, -57.8400],
+        'Canelones': [-34.5386, -56.2839],
+        'Fray Bentos': [-33.1167, -58.3000],
+        'Trinidad': [-33.5167, -56.9000],
+        'Bella Unión': [-30.2558, -57.6042]
+    };
+    
+    // Buscar coordenadas de la ciudad
+    let coordenadas = coordenadasCiudades[ciudad] || coordenadasCiudades[departamento] || [-34.9011, -56.1645]; // Default: Montevideo
+    
+    try {
+        // Crear mapa centrado en la ciudad
+        mapaUbicacionProducto = L.map('mapaUbicacion').setView(coordenadas, 12);
+        
+        // Agregar capa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(mapaUbicacionProducto);
+        
+        // Agregar marcador de la ciudad
+        const iconoUbicacion = L.divIcon({
+            className: 'custom-marker-ubicacion',
+            html: '<div style="background: #6a994e; width: 40px; height: 40px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.3);"><i class="fas fa-home" style="color: white; font-size: 18px; transform: rotate(45deg);"></i></div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 40]
+        });
+        
+        const marcador = L.marker(coordenadas, {
+            icon: iconoUbicacion,
+            title: ciudad + ', ' + departamento
+        }).addTo(mapaUbicacionProducto);
+        
+        // Popup con información
+        marcador.bindPopup(`
+            <div style="text-align: center; padding: 8px;">
+                <strong style="color: #6a994e; font-size: 15px;">${ciudad}</strong><br>
+                <span style="color: #666; font-size: 13px;">${departamento}, Uruguay</span><br>
+                <small style="color: #999; font-size: 11px;">Ubicación aproximada del producto</small>
+            </div>
+        `).openPopup();
+        
+        // Ajustar el mapa después de un pequeño delay
+        setTimeout(() => {
+            mapaUbicacionProducto.invalidateSize();
+        }, 100);
+        
+    } catch (error) {
+        console.error('Error al crear mapa de ubicación:', error);
+        document.getElementById('mapaUbicacionProducto').innerHTML = `
+            <div style="padding: 20px; text-align: center; color: #999;">
+                <i class="fas fa-exclamation-triangle"></i> No se pudo cargar el mapa
+            </div>
+        `;
+    }
+    <?php endif; ?>
+}
+
 </script>
 
 <script src="js/producto.js"></script>

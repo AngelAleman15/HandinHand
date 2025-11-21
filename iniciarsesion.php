@@ -89,48 +89,381 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 include 'includes/header.php';
 ?>
 
-    <div class="main-content">
-        <div class="cardquote">
-            <img src="img/Hand(sinfondo).png" alt="H&H">
-            <p>"Unite, Creá, Transformá"</p>
+<style>
+/* === ESTILOS MODERNOS PARA LOGIN === */
+body.body-lr {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+}
+
+.page-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px; /* Reducido de 20px */
+    padding-top: 70px; /* Reducido de 80px */
+    width: 100%;
+}
+
+.login-container {
+    max-width: 900px; /* Reducido de 1000px */
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.6s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Columna izquierda - Quote */
+.quote-section {
+    background: transparent;
+    padding: 30px 25px; /* Reducido de 40px 30px */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #2d3748;
+    position: relative;
+    overflow: hidden;
+}
+
+.quote-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(106, 153, 78, 0.05) 0%, transparent 70%);
+    animation: pulse 15s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.quote-logo {
+    width: 120px; /* Reducido de 140px */
+    height: auto;
+    margin-bottom: 15px; /* Reducido de 20px */
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+    position: relative;
+    z-index: 1;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.quote-text {
+    font-size: 19px; /* Reducido de 22px */
+    font-weight: 600;
+    text-align: center;
+    font-style: italic;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 1;
+    line-height: 1.4;
+}
+
+.quote-text::before {
+    content: '"';
+    font-size: 60px;
+    position: absolute;
+    top: -20px;
+    left: -10px;
+    opacity: 0.3;
+}
+
+/* Columna derecha - Formulario */
+.form-section {
+    padding: 35px 35px; /* Reducido de 40px 40px */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-header {
+    margin-bottom: 25px; /* Reducido de 30px */
+}
+
+.form-title {
+    font-size: 24px; /* Reducido de 26px */
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 6px; /* Reducido de 8px */
+}
+
+.form-subtitle {
+    color: #718096;
+    font-size: 13px; /* Reducido de 14px */
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px; /* Reducido de 16px */
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px; /* Reducido de 8px */
+    color: #4a5568;
+    font-weight: 500;
+    font-size: 13px; /* Reducido de 14px */
+}
+
+.form-group label i {
+    margin-right: 6px;
+    color: #6a994e;
+}
+
+.form-input {
+    width: 100%;
+    padding: 9px 11px; /* Reducido de 10px 12px */
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 13px; /* Reducido de 14px */
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #6a994e;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(106, 153, 78, 0.1);
+}
+
+.form-input.error {
+    border-color: #e53e3e;
+    background: #fff5f5;
+}
+
+.error-message {
+    color: #e53e3e;
+    font-size: 13px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 20px;
+}
+
+.error-message i {
+    font-size: 14px;
+}
+
+.btn-login {
+    background: linear-gradient(135deg, #6a994e 0%, #5a8840 100%);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    box-shadow: 0 4px 12px rgba(106, 153, 78, 0.3);
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(106, 153, 78, 0.4);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.form-footer a {
+    color: #6a994e;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.form-footer a:hover {
+    color: #5a8840;
+    text-decoration: underline;
+}
+
+/* Estilos del footer para login/registro */
+body.body-lr .footer {
+    background-color: #ffffff;
+    position: relative;
+    margin: 0;
+    padding: 30px 0;
+    width: 100%;
+    border-top: 1px solid #e0e0e0;
+}
+
+body.body-lr .footer .socialcontainer,
+body.body-lr .footer .footerinfo {
+    position: relative;
+    z-index: 1;
+    color: #333;
+}
+
+body.body-lr .footer .socialinfo {
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    body.body-lr {
+        padding: 0;
+    }
+    
+    .page-wrapper {
+        padding: 20px;
+    }
+    
+    .login-container {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+    }
+    
+    .quote-section {
+        padding: 40px 30px;
+    }
+    
+    .quote-logo {
+        width: 120px;
+        margin-bottom: 20px;
+    }
+    
+    .quote-text {
+        font-size: 20px;
+    }
+    
+    .form-section {
+        padding: 40px 30px;
+    }
+    
+    .form-title {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-wrapper {
+        padding: 10px;
+    }
+    
+    .login-container {
+        border-radius: 16px;
+    }
+    
+    .form-section {
+        padding: 30px 20px;
+    }
+    
+    .quote-section {
+        padding: 30px 20px;
+    }
+}
+</style>
+
+<div class="page-wrapper">
+<div class="login-container">
+    <!-- Sección de Quote -->
+    <div class="quote-section">
+        <img src="img/Hand(sinfondo).png" alt="HandinHand Logo" class="quote-logo">
+        <p class="quote-text">Unite, Creá, Transformá</p>
+    </div>
+    
+    <!-- Sección de Formulario -->
+    <div class="form-section">
+        <div class="form-header">
+            <h1 class="form-title">¡Bienvenido!</h1>
+            <p class="form-subtitle">Inicia sesión para continuar</p>
         </div>
-        <div class="login">
-            <div class="login-title">Iniciar Sesión</div>
-            <!-- Formulario de login que se envía a iniciarsesion.php mediante POST -->
-            <form class="login-form" id="login-form" action="iniciarsesion.php" method="post" novalidate>
-                <div class="fieldscontainer">
-                    <!-- Campo de nombre de usuario con validación visual de errores -->
-                    <!-- Sintaxis de PHP para ejecutar código dentro de HTML -->
-                    <!-- !empty($error_message): Verifica si hay un mensaje de error -->
-                    <!-- ? ' error' : '': Operador ternario - si hay error añade clase 'error', si no añade cadena vacía -->
-                    <div><input class="field namefield<?php echo !empty($error_message) ? ' error' : ''; ?>" type="text" name="username" id="name" placeholder="Nombre de usuario" required value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>"></div>
-                    <!-- isset($_POST['username']): Verifica si la variable existe y no es null -->
-                    <!-- htmlspecialchars(): Función que convierte caracteres especiales a entidades HTML para prevenir XSS -->
-                    <!-- value="...": Preserva el valor ingresado si hubo un error para que el usuario no tenga que reescribirlo -->
-                    
-                    <!-- Campo de contraseña con la misma validación visual de errores -->
-                    <div><input class="field passwordfield<?php echo !empty($error_message) ? ' error' : ''; ?>" type="password" name="password" id="password" placeholder="Contraseña" required></div>
-                    
-                    <!-- Área de mensajes de error que se muestra condicionalmente -->
-                    <!-- style="...": CSS inline que cambia según si hay error o no -->
-                    <!-- 'color: red;': Muestra el texto en rojo si hay error -->
-                    <!-- 'color: transparent;': Oculta el texto si no hay error (pero mantiene el espacio) -->
-                    <p class="error-message" id="error" style="<?php echo !empty($error_message) ? 'color: red;' : 'color: transparent;'; ?>"><?php echo htmlspecialchars($error_message); ?><?php echo empty($error_message) ? 'p' : ''; ?></p>
-                    <!-- htmlspecialchars($error_message): Sanitiza el mensaje de error para prevenir inyección de código -->
-                    <!-- empty($error_message) ? 'p' : '': Si no hay error, muestra una 'p' invisible para mantener la altura del elemento -->
-                     
-                </div>
-                <!-- Botón de envío del formulario -->
-                <button class="btnlogin" type="submit" id="login-button">Iniciar Sesión</button>
-            </form>
-            <div class="login-footer">
-                <!-- Enlace para usuarios que no tienen cuenta -->
-                <a href="registrar.php" class="text">¿No tienes una cuenta? Regístrate.</a>
+        
+        <form class="login-form" method="POST" action="iniciarsesion.php">
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-user"></i>
+                    Nombre de usuario
+                </label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-input<?php echo !empty($error_message) ? ' error' : ''; ?>" 
+                    placeholder="Ingresa tu usuario"
+                    value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>"
+                    required>
             </div>
+            
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                    Contraseña
+                </label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input<?php echo !empty($error_message) ? ' error' : ''; ?>" 
+                    placeholder="Ingresa tu contraseña"
+                    required>
+            </div>
+            
+            <?php if (!empty($error_message)): ?>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <?php echo htmlspecialchars($error_message); ?>
+                </div>
+            <?php endif; ?>
+            
+            <button type="submit" class="btn-login">
+                <i class="fas fa-sign-in-alt"></i>
+                Iniciar Sesión
+            </button>
+        </form>
+        
+        <div class="form-footer">
+            ¿No tienes una cuenta? 
+            <a href="registrar.php">Regístrate aquí</a>
         </div>
     </div>
+</div>
+</div>
 
-<?php
-// Incluye el archivo footer.php que contiene el cierre de la estructura HTML y scripts finales
-include 'includes/footer.php';
-?>
+<?php include 'includes/footer.php'; ?>

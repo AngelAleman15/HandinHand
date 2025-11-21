@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar']) && isset($
                 $stmt->execute([$userId]);
                 $oldAvatar = $stmt->fetchColumn();
                 
-                if ($oldAvatar && $oldAvatar !== 'img/usuario.png' && file_exists($oldAvatar)) {
+                if ($oldAvatar && $oldAvatar !== 'img/usuario.svg' && file_exists($oldAvatar)) {
                     unlink($oldAvatar);
                 }
                 
@@ -240,7 +240,7 @@ try {
             <?php foreach ($users as $user): ?>
                 <div class="user-card">
                     <img 
-                        src="<?= $user['avatar_path'] ?: 'img/usuario.png' ?>" 
+                        src="<?= $user['avatar_path'] ?: 'img/usuario.svg' ?>" 
                         alt="Avatar" 
                         class="avatar-preview"
                     >

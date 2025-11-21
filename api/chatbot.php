@@ -55,6 +55,12 @@ try {
     
     include_once $configPath;
     
+    // Incluir diálogos adicionales
+    $dialogosPath = __DIR__ . '/perseo-dialogos.php';
+    if (file_exists($dialogosPath)) {
+        include_once $dialogosPath;
+    }
+    
     try {
         $pdo = getConnection();
     } catch (Exception $e) {
@@ -107,6 +113,17 @@ try {
 function procesarMensajeConPLN($mensaje, $userId, $pdo, $memoria) {
     // Normalizar texto
     $mensajeNormalizado = normalizarTexto($mensaje);
+    
+    // Verificar primero si es un diálogo específico (nuevos diálogos)
+    if (function_exists('detectarIntencionDialogo')) {
+        $dialogoEspecifico = detectarIntencionDialogo($mensaje, $userId);
+        if ($dialogoEspecifico !== null) {
+            return [
+                'texto' => $dialogoEspecifico,
+                'contexto' => 'dialogo_especifico'
+            ];
+        }
+    }
     
     // Obtener contexto del usuario
     $contextoUsuario = obtenerContextoUsuario($userId, $pdo);
@@ -528,7 +545,7 @@ function obtenerContextoUsuario($userId, $pdo) {
             SELECT COUNT(DISTINCT m.id) as total 
             FROM mensajes m 
             JOIN productos p ON (m.producto_id = p.id) 
-            WHERE p.user_id = ? OR m.remitente_id = ? OR m.destinatario_id = ?
+            WHERE p.user_id = ? OR m.sender_id = ? OR m.receiver_id = ?
         ");
         $stmt->execute([$userId, $userId, $userId]);
         $totalIntercambios = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
@@ -663,10 +680,10 @@ function consultarMisIntercambios($userId, $pdo, $contexto) {
     
     try {
         $stmt = $pdo->prepare("
-            SELECT p.nombre as titulo, u.fullname as interesado, m.mensaje, m.created_at as fecha, p.imagen
+            SELECT p.nombre as titulo, u.fullname as interesado, m.message, m.created_at as fecha, p.imagen
             FROM mensajes m
             JOIN productos p ON m.producto_id = p.id
-            JOIN usuarios u ON m.remitente_id = u.id
+            JOIN usuarios u ON m.sender_id = u.id
             WHERE p.user_id = ?
             ORDER BY m.created_at DESC
             LIMIT 5
@@ -691,7 +708,7 @@ function consultarMisIntercambios($userId, $pdo, $contexto) {
             }
             
             $respuesta .= "👤 " . $intercambio['interesado'] . " (hace " . $hace . ")\n";
-            $respuesta .= "💬 \"" . substr($intercambio['mensaje'], 0, 50) . "...\"\n\n";
+            $respuesta .= "💬 \"" . substr($intercambio['message'], 0, 50) . "...\"\n\n";
         }
         
         $respuesta .= "📱 Ve a 'Mensajes' para responder y coordinar encuentros.";

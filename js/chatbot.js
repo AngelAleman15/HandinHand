@@ -5,12 +5,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const sendBtn = document.getElementById("send-btn");
   const chatbotInput = document.getElementById("chatbot-input");
   const chatbotMessages = document.getElementById("chatbot-messages");
+  const chatbotBody = document.getElementById("chatbot-body");
 
   // Mensajes de bienvenida de Perseo
   const mensajesBienvenida = [
-    "¡Hola! 👋 Soy Perseo, tu asistente inteligente de HandinHand.",
-    "Estoy aquí para ayudarte con intercambios, productos y cualquier duda que tengas.",
-    "¿En qué puedo ayudarte hoy? 🤖"
+    "¡Hola! 👋 Soy **Perseo**, tu asistente inteligente de HandinHand.",
+    "Puedo ayudarte con:\n• 📦 Tus productos e intercambios\n• 🔍 Buscar productos específicos\n• 📊 Ver tus estadísticas\n• ❓ Responder cualquier duda",
+    "¿En qué puedo ayudarte hoy? 😊"
   ];
 
   let chatAbierto = false;
@@ -60,6 +61,21 @@ document.addEventListener("DOMContentLoaded", function () {
       chatAbierto = false;
     }
   });
+
+  // Función auxiliar para scroll automático
+  function scrollToBottom(delay = 150) {
+    setTimeout(() => {
+      if (chatbotBody) {
+        chatbotBody.scrollTo({
+          top: chatbotBody.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, delay);
+  }
+
+  // Hacer disponible globalmente para el onload de imágenes
+  window.scrollChatbotToBottom = scrollToBottom;
 
   // Mostrar mensajes de bienvenida
   function mostrarMensajesBienvenida() {
@@ -214,8 +230,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 100);
     }
 
-    // Scroll automático
-    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    // Scroll automático al final
+    scrollToBottom();
   }
 
   // Crear elementos visuales para acciones
@@ -305,7 +321,7 @@ document.addEventListener("DOMContentLoaded", function () {
     mensajeFormateado = mensajeFormateado.replace(regexImagen, (match, url) => {
       // Limpiar la URL
       const urlLimpia = url.trim();
-      return `<br><div class="product-image"><img src="${urlLimpia}" alt="Imagen del producto" style="max-width: 200px; max-height: 150px; border-radius: 8px; margin: 5px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onload="this.parentElement.parentElement.parentElement.parentElement.scrollTop = this.parentElement.parentElement.parentElement.parentElement.scrollHeight" onerror="this.style.display='none'; this.parentElement.innerHTML='🖼️ [Imagen no disponible]';"></div>`;
+      return `<br><div class="product-image"><img src="${urlLimpia}" alt="Imagen del producto" style="max-width: 200px; max-height: 150px; border-radius: 8px; margin: 5px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onload="if(window.scrollChatbotToBottom) window.scrollChatbotToBottom(100);" onerror="this.style.display='none'; this.parentElement.innerHTML='🖼️ [Imagen no disponible]';"></div>`;
     });
 
     // Detectar y estilizar links WIP
@@ -333,7 +349,9 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
 
     chatbotMessages.appendChild(indicador);
-    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    
+    // Scroll automático al mostrar indicador
+    scrollToBottom(50);
   }
 
   // Remover indicador de escritura

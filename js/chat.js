@@ -11,6 +11,7 @@ window.contactarVendedor = function(userId) {
 // Detectar si el usuario está logueado (variable generada en index.php)
 window.IS_LOGGED_IN = window.IS_LOGGED_IN || false;
 let currentChatUserId = null;
+window.currentChatUserId = null; // Exponer globalmente
 let socket = null;
 let onlineUsers = new Set();
 let replyingToMessage = null; // Para almacenar el mensaje al que se está respondiendo
@@ -213,11 +214,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Usar el socket global para mantener online en toda la web
     if (window.globalSocket) {
         socket = window.globalSocket;
+        console.log('✅ Usando socket global existente');
     }
     // Si no existe, inicializar solo en mensajería
     if (!socket && window.io && window.CHAT_SERVER_URL) {
+        console.log('🔌 Inicializando Socket.IO en:', window.CHAT_SERVER_URL);
         socket = io(window.CHAT_SERVER_URL, { transports: ['websocket', 'polling'] });
-        socket.emit('user_connected', window.CURRENT_USER_ID);
+        
+        // Eventos de conexión
+        socket.on('connect', () => {
+            console.log('✅ Socket.IO conectado exitosamente. Socket ID:', socket.id);
+            socket.emit('user_connected', window.CURRENT_USER_ID);
+        });
+        
+        socket.on('disconnect', (reason) => {
+            console.warn('⚠️ Socket.IO desconectado. Razón:', reason);
+        });
+        
+        socket.on('connect_error', (error) => {
+            console.error('❌ Error de conexión Socket.IO:', error);
+        });
+        
+        socket.on('reconnect', (attemptNumber) => {
+            console.log('🔄 Socket.IO reconectado después de', attemptNumber, 'intentos');
+            socket.emit('user_connected', window.CURRENT_USER_ID);
+        });
     }
 
     // --- INDICADOR DE ESCRIBIENDO ---
@@ -240,31 +261,87 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mostrar animación de escribiendo y recibir mensajes en tiempo real
     if (socket) {
+        console.log('📡 Configurando listeners de Socket.IO...');
+        
         socket.on('typing', ({ from }) => {
+            console.log('⌨️ Evento typing recibido de usuario:', from);
             // Comparar como string para evitar errores de tipo
             if (currentChatUserId && String(from) === String(currentChatUserId)) {
                 typingFromUserId = from;
                 showTypingIndicator();
             }
         });
+        
         socket.on('stop_typing', ({ from }) => {
+            console.log('⏸️ Evento stop_typing recibido de usuario:', from);
             if (currentChatUserId && String(from) === String(currentChatUserId)) {
                 typingFromUserId = null;
                 hideTypingIndicator();
             }
         });
-        // Restaurar recepción de mensajes en tiempo real
+        
+        // Recepción de mensajes en tiempo real
         socket.on('chat_message', (data) => {
+            console.log('📨 Evento chat_message recibido:', data);
             handleIncomingMessage(data);
-            // Refrescar lista de usuarios para reordenar chats
+            // Refrescar lista de usuarios para reordenar chats y actualizar vistas previas
             loadUsers();
             // Si el usuario estaba escribiendo, volver a mostrar el indicador
             if (typingFromUserId && currentChatUserId && typingFromUserId == currentChatUserId) {
                 showTypingIndicator();
             }
         });
+        
         // Actualizar estado online en tiempo real
-        socket.on('users_online', updateOnlineStatus);
+        socket.on('users_online', (users) => {
+            console.log('👥 Evento users_online recibido:', users);
+            updateOnlineStatus(users);
+        });
+        
+        // Listener para mensajes editados
+        socket.on('message_edited', (data) => {
+            console.log('✏️ Evento message_edited recibido:', data);
+            // Actualizar el mensaje en el DOM
+            const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
+            if (messageElement) {
+                const messageTextElement = messageElement.querySelector('.message-text');
+                if (messageTextElement) {
+                    messageTextElement.textContent = data.new_message;
+                    // Agregar indicador de editado si no existe
+                    if (!messageElement.querySelector('.edited-indicator')) {
+                        const editedIndicator = document.createElement('span');
+                        editedIndicator.className = 'edited-indicator';
+                        editedIndicator.textContent = '(editado)';
+                        editedIndicator.style.fontSize = '0.75em';
+                        editedIndicator.style.color = '#999';
+                        editedIndicator.style.marginLeft = '5px';
+                        messageTextElement.appendChild(editedIndicator);
+                    }
+                }
+            }
+        });
+        
+        // Listener para mensajes eliminados
+        socket.on('message_deleted', (data) => {
+            console.log('🗑️ Evento message_deleted recibido:', data);
+            // Actualizar el mensaje en el DOM
+            const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
+            if (messageElement) {
+                const messageTextElement = messageElement.querySelector('.message-text');
+                if (messageTextElement) {
+                    messageTextElement.innerHTML = '<em style="color: #999;">Este mensaje fue eliminado</em>';
+                    // Eliminar botones de acción si existen
+                    const actionsMenu = messageElement.querySelector('.message-actions');
+                    if (actionsMenu) {
+                        actionsMenu.remove();
+                    }
+                }
+            }
+        });
+        
+        console.log('✅ Listeners de Socket.IO configurados correctamente');
+    } else {
+        console.error('❌ Socket no está disponible para configurar listeners');
     }
 
     // Funciones para mostrar/ocultar el indicador de escribiendo
@@ -447,7 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="solicitud-item" style="display:flex;align-items:center;gap:12px;padding:14px 0 14px 0;border-bottom:1px solid #f0f0f0;background:rgba(162,203,141,0.06);border-radius:10px;flex-wrap:wrap;">
                         <div style="flex-shrink:0;">
                             <a href="ver-perfil.php?id=${s.solicitante_id}" target="_blank" tabindex="-1">
-                                <img src="${s.solicitante_avatar || 'img/usuario.png'}" alt="${s.solicitante_username}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px rgba(162,203,141,0.10);border:2px solid #e9ecef;cursor:pointer;">
+                                <img src="${s.solicitante_avatar || 'img/usuario.svg'}" alt="${s.solicitante_username}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px rgba(162,203,141,0.10);border:2px solid #e9ecef;cursor:pointer;">
                             </a>
                         </div>
                         <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;">
@@ -506,7 +583,39 @@ document.addEventListener('DOMContentLoaded', () => {
             let lastMessagePreview = 'Haz clic para chatear';
             if (user.last_message) {
                 const sender = user.last_message_sender || '';
-                lastMessagePreview = `${sender}: ${user.last_message}`;
+                let messageText = user.last_message;
+                
+                // Verificar si es un mensaje de propuesta de intercambio (JSON)
+                if (typeof messageText === 'string' && messageText.trim().startsWith('{')) {
+                    try {
+                        const data = JSON.parse(messageText);
+                        if (data.tipo === 'propuesta_intercambio') {
+                            messageText = '🔄 Propuesta de intercambio';
+                        } else if (data.tipo === 'intercambio_aceptado') {
+                            messageText = '✅ Intercambio aceptado';
+                        } else if (data.tipo === 'intercambio_rechazado') {
+                            messageText = '❌ Intercambio rechazado';
+                        } else if (data.tipo === 'contraoferta') {
+                            messageText = '🔄 Contraoferta de intercambio';
+                        }
+                    } catch (e) {
+                        // Si no es JSON válido, usar el texto tal cual
+                    }
+                }
+                
+                // Acortar mensajes largos de seguimiento
+                if (messageText.includes('Intercambio confirmado') || 
+                    messageText.includes('Lugar de encuentro') ||
+                    messageText.includes('Fecha de encuentro')) {
+                    messageText = '📍 Detalles del intercambio';
+                }
+                
+                // Truncar mensajes muy largos
+                if (messageText.length > 50) {
+                    messageText = messageText.substring(0, 47) + '...';
+                }
+                
+                lastMessagePreview = `${sender}: ${messageText}`;
             }
             
             // Formatear la hora del último mensaje
@@ -545,11 +654,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </span>
             ` : '';
             
-            const avatarSrc = user.avatar && user.avatar !== '' ? user.avatar : 'img/usuario.png';
+            const avatarSrc = user.avatar && user.avatar !== '' ? user.avatar : 'img/usuario.svg';
             return `
                 <div class="contact-item ${!user.es_amigo ? 'no-amigo' : ''}" data-user-id="${user.id}" data-username="${user.username}">
                     <div class="contact-avatar">
-                        <img src="${avatarSrc}" alt="${user.username}" onerror="this.onerror=null;this.src='img/usuario.png';">
+                        <img src="${avatarSrc}" alt="${user.username}" onerror="this.onerror=null;this.src='img/usuario.svg';">
                         <div class="status-indicator offline" data-user-id="${user.id}"></div>
                         <span class="unread-badge" data-user-id="${user.id}">0</span>
                     </div>
@@ -592,8 +701,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeElement = contactItem.querySelector('.contact-time');
         
         if (preview) {
-            // Truncar mensaje si es muy largo
             let displayText = messageText;
+            
+            // Verificar si es un mensaje de propuesta de intercambio (JSON)
+            if (typeof messageText === 'string' && messageText.trim().startsWith('{')) {
+                try {
+                    const data = JSON.parse(messageText);
+                    if (data.tipo === 'propuesta_intercambio') {
+                        displayText = '🔄 Propuesta de intercambio';
+                    } else if (data.tipo === 'intercambio_aceptado') {
+                        displayText = '✅ Intercambio aceptado';
+                    } else if (data.tipo === 'intercambio_rechazado') {
+                        displayText = '❌ Intercambio rechazado';
+                    } else if (data.tipo === 'contraoferta') {
+                        displayText = '🔄 Contraoferta de intercambio';
+                    }
+                } catch (e) {
+                    // Si no es JSON válido, usar el texto tal cual
+                }
+            }
+            
+            // Truncar mensaje si es muy largo
             if (displayText.length > 40) {
                 displayText = displayText.substring(0, 40) + '...';
             }
@@ -685,6 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('👤 Seleccionando usuario:', userId, username);
 
         currentChatUserId = userId;
+        window.currentChatUserId = userId; // Actualizar variable global
 
         // Mostrar panel de chat y ocultar bienvenida
         if (welcomeScreen) welcomeScreen.classList.add('hidden');
@@ -708,6 +837,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Cargar mensajes
         await loadMessages(userId);
+
+        // Cargar propuestas pendientes
+        if (typeof loadPropuestasPendientes === 'function') {
+            await loadPropuestasPendientes(userId);
+        }
 
         // Marcar mensajes como leídos
         markMessagesAsRead(userId);
@@ -801,7 +935,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageDiv.className = `message ${isOwnMessage ? 'own' : ''}`;
         messageDiv.dataset.messageId = messageData.id || '';
 
-        const avatarSrc = isOwnMessage ? CURRENT_USER_AVATAR : document.getElementById('chat-user-avatar')?.src || 'img/usuario.png';
+        const avatarSrc = isOwnMessage ? CURRENT_USER_AVATAR : document.getElementById('chat-user-avatar')?.src || 'img/usuario.svg';
         const senderName = isOwnMessage ? 'Tú' : (document.getElementById('chat-user-name')?.textContent || 'Usuario');
 
         // HTML para la respuesta si existe
@@ -853,15 +987,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const isPerseoAuto = messageData.is_perseo_auto == 1 || messageData.is_perseo_auto === true;
+
+        // Detectar mensajes que llevan JSON en el campo 'message' (retrocompatibilidad)
+        let parsedMessage = null;
+        try {
+            if (typeof messageData.message === 'string') {
+                const maybe = messageData.message.trim();
+                if ((maybe.startsWith('{') && maybe.endsWith('}')) || (maybe.startsWith('[') && maybe.endsWith(']'))) {
+                    parsedMessage = JSON.parse(maybe);
+                }
+            }
+        } catch (e) {
+            console.warn('No se pudo parsear message como JSON:', e);
+            parsedMessage = null;
+        }
+
+        // Considerar tipo de propuesta si viene en distintos formatos
+        const tipoMensajeFormal = messageData.tipo_mensaje || messageData.tipo || (parsedMessage && parsedMessage.tipo) || null;
+
+        // Renderizar contenido del mensaje según el tipo (soporta 'propuesta_intercambio' y 'coordinacion_propuesta')
+        let messageContent;
+        const isPropuestaIntercambio = tipoMensajeFormal === 'propuesta_intercambio' || (parsedMessage && (parsedMessage.tipo === 'propuesta_intercambio' || parsedMessage.tipo === 'coordinacion_propuesta'));
+        
+        if (isPropuestaIntercambio) {
+            // Pasar tanto messageData como parsedMessage para que la función render pueda usar campos donde estén
+            messageContent = renderPropuestaIntercambio(parsedMessage || messageData, isOwnMessage, messageData);
+        } else {
+            messageContent = `<span class="message-text">${escapeHtml(messageData.message || messageData.mensaje)}</span>`;
+        }
+        
         messageDiv.innerHTML = `
             <div class="message-avatar">
                 <img src="${avatarSrc}" alt="Avatar">
             </div>
             <div class="message-content">
-                <div class="message-bubble perseo-bubble" data-message-id="${messageData.id || 0}">
+                <div class="message-bubble ${isPropuestaIntercambio ? 'propuesta-bubble' : 'perseo-bubble'}" data-message-id="${messageData.id || 0}">
                     ${isPerseoAuto ? '<span class="perseo-badge">🤖</span>' : ''}
                     ${replyHTML}
-                    <span class="message-text">${escapeHtml(messageData.message || messageData.mensaje)}</span>
+                    ${messageContent}
                     ${editedLabel}
                 </div>
                 <div class="message-time">${time}</div>
@@ -910,11 +1073,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Emitir a través de Socket.io inmediatamente
         if (socket && socket.connected) {
-            console.log('� Emitiendo mensaje a Socket.IO...');
+            console.log('🚀 Emitiendo mensaje a Socket.IO...');
             socket.emit('chat_message', messageData);
             console.log('✅ Mensaje emitido - Esperando respuesta del servidor');
         } else {
-            // ...debug removido...
+            console.warn('⚠️ Socket no conectado, mostrando mensaje localmente');
             appendMessage(messageData);
             scrollToBottom();
         }

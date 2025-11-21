@@ -20,13 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 validateMethod(['POST']);
-requireLogin();
 
-
-$user = getCurrentUser();
-if (!$user || !isset($user['id'])) {
+// Verificar sesión y usuario
+if (!isset($_SESSION['user_id'])) {
     sendError('No estás logueado o la sesión expiró', 401);
 }
+
+$userId = $_SESSION['user_id'];
 $data = getJsonInput();
 
 try {
@@ -62,7 +62,7 @@ try {
         sendError('Mensaje no encontrado', 404);
     }
     
-    if ($message['sender_id'] != $user['id']) {
+    if ($message['sender_id'] != $userId) {
         sendError('No tienes permiso para editar este mensaje', 403);
     }
     

@@ -46,6 +46,12 @@
                     await getUnreadSenders();
                     perseoNotificationShown = false; // Permitir notificación
                     window.perseoNotificationBlocked = false; // Permitir notificación de nuevo
+                    
+                    // Limpiar localStorage para que Perseo vuelva a preguntar con los nuevos mensajes
+                    localStorage.removeItem('perseoLastAskedTimestamp');
+                    localStorage.removeItem('perseoLastAskedCount');
+                    localStorage.removeItem('perseoUserDeclined');
+                    
                     notifyPerseoAboutUnreadMessages(currentUnread); // Lanzar notificación inmediatamente
                 }
                 // Si no hay mensajes sin leer, resetear la bandera y el bloqueo
@@ -212,6 +218,10 @@
             // Desactivar notificación hasta que haya nuevos mensajes
             window.perseoNotificationBlocked = true;
             window.perseoLastUnreadCount = lastUnreadCount;
+            
+            // Actualizar localStorage para que no vuelva a preguntar hasta nuevos mensajes
+            localStorage.setItem('perseoUserDeclined', 'true');
+            
             buttonsDiv.remove();
             // Asegurar que el chat esté abierto antes de mostrar los mensajes
             const chatbotContainer = document.getElementById('chatbot-container');
@@ -237,10 +247,28 @@
 
     // Modificar notificación para respetar bloqueo
     function notifyPerseoAboutUnreadMessages(count) {
+        // Verificar si el usuario rechazó la notificación
+        const userDeclined = localStorage.getItem('perseoUserDeclined');
+        if (userDeclined === 'true') {
+            console.log('[Perseo] Usuario rechazó auto-reply, no vuelvo a preguntar hasta nuevos mensajes');
+            return;
+        }
+        
+        // Obtener el timestamp del último mensaje desde localStorage
+        const lastAskedTimestamp = localStorage.getItem('perseoLastAskedTimestamp');
+        const lastAskedCount = localStorage.getItem('perseoLastAskedCount');
+        
+        // Si el usuario ya respondió a la pregunta para esta cantidad de mensajes, no preguntar de nuevo
+        if (lastAskedTimestamp && lastAskedCount === count.toString()) {
+            console.log('[Perseo] Ya pregunté sobre estos mensajes, no vuelvo a preguntar hasta que lleguen nuevos');
+            return;
+        }
+        
         // Si el usuario bloqueó la notificación y no hay nuevos mensajes, no notificar
         if (window.perseoNotificationBlocked && window.perseoLastUnreadCount === count) {
             return;
         }
+        
         // Esperar un poco antes de que Perseo notifique (para no ser intrusivo)
         setTimeout(() => {
             // Abrir automáticamente el chat de Perseo si está disponible
@@ -274,6 +302,10 @@
     // Mostrar notificación de Perseo sobre mensajes no leídos
     function showPerseoUnreadNotification(count) {
         const mensaje = `Tienes ${count} mensaje${count > 1 ? 's' : ''} sin leer!\n\n¿Quieres que responda automaticamente por ti indicando que no estas disponible?`;
+        
+        // Guardar que ya preguntamos sobre estos mensajes
+        localStorage.setItem('perseoLastAskedTimestamp', Date.now().toString());
+        localStorage.setItem('perseoLastAskedCount', count.toString());
         
         // Agregar mensaje de Perseo al chat
         if (window.agregarMensajePerseo) {
@@ -330,6 +362,10 @@
                     // Resetear banderas
                     perseoNotificationShown = false;
                     unreadSenderIds = [];
+                    
+                    // Limpiar localStorage - ya respondió
+                    localStorage.removeItem('perseoLastAskedTimestamp');
+                    localStorage.removeItem('perseoLastAskedCount');
                     
                 } else {
                     if (window.agregarMensajePerseo) {

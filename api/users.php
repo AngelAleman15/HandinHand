@@ -92,7 +92,7 @@ try {
     while ($row = $stmt->fetch()) {
     error_log("API users.php - Fila usuario: " . print_r($row, true));
         // Verificar si el avatar existe, sino usar imagen por defecto
-        $avatarPath = 'img/usuario.png'; // Imagen por defecto
+        $avatarPath = 'img/usuario.svg'; // Imagen por defecto
         
         if (!empty($row['avatar'])) {
             // Verificar si el archivo existe
@@ -104,7 +104,7 @@ try {
         
         // Obtener el último mensaje de la conversación con este usuario
         $lastMessageQuery = "
-            SELECT m.mensaje, m.sender_id, m.created_at, u.username as sender_name
+            SELECT m.message, m.sender_id, m.created_at, u.username as sender_name
             FROM mensajes m
             LEFT JOIN usuarios u ON m.sender_id = u.id
             WHERE 
@@ -133,7 +133,7 @@ try {
         
         if ($lastMessage) {
             // Truncar mensaje si es muy largo
-            $messageText = $lastMessage['mensaje'];
+            $messageText = $lastMessage['message'];
             if (strlen($messageText) > 40) {
                 $messageText = substr($messageText, 0, 40) . '...';
             }

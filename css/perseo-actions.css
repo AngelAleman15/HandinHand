@@ -4,9 +4,9 @@
 /* ===== NOTIFICACIONES ===== */
 .perseo-notifications-container {
     position: fixed;
-    top: 20px;
+    top: 80px; /* Debajo del header */
     right: 20px;
-    z-index: 10000;
+    z-index: 100000;
     max-width: 400px;
     pointer-events: none;
 }
@@ -102,11 +102,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 20000;
+    z-index: 100000;
     display: flex;
     align-items: center;
     justify-content: center;
     animation: modalAppear 0.3s ease-out;
+    padding-top: 80px; /* Espacio para el header */
 }
 
 .modal-backdrop {
@@ -306,10 +307,9 @@
     background: rgba(162,203,141,0.2);
 }
 
-/* ===== RESULTADOS DE BÚSQUEDA ===== */
 .search-results-overlay {
     position: fixed;
-    top: 80px;
+    top: 80px; /* Debajo del header */
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
@@ -320,9 +320,10 @@
     border: 2px solid rgba(162,203,141,0.3);
     border-radius: 15px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    z-index: 15000;
+    z-index: 100000;
     max-height: 70vh;
     overflow-y: auto;
+}   overflow-y: auto;
 }
 
 .search-results-header {

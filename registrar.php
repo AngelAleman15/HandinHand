@@ -195,71 +195,479 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 include 'includes/header.php';
 ?>
 
-    <div class="main-content">
-        <div class="cardquote">
-            <img src="img/Hand(sinfondo).png" alt="H&H">
-            <p>"Unite, Creá, Transformá"</p>
-        </div>
-        <div class="login">
-            <div class="login-title">Registrarse</div>
-            <!-- Formulario de registro que se envía a sí mismo (registrar.php) mediante POST -->
-            <!-- novalidate: Atributo que desactiva la validación HTML5 del navegador para usar validación PHP personalizada -->
-            <form class="registration-form" id="registration-form" action="registrar.php" method="post" novalidate>
-                <div class="fieldscontainer">
-                    <!-- CAMPO DE NOMBRE COMPLETO -->
-                    <!-- Sintaxis de PHP para ejecutar código dentro de HTML -->
-                    <!-- isset($field_errors['fullname']): Verifica si existe error específico para este campo -->
-                    <!-- ? ' error' : '': Operador ternario - si hay error añade clase 'error', si no añade cadena vacía -->
-                    <div><input class="field namefield<?php echo isset($field_errors['fullname']) ? ' error' : ''; ?>" type="text" name="firstname" placeholder="Nombre completo" id="fullname" required value="<?php echo isset($_POST['firstname']) ? htmlspecialchars($_POST['firstname']) : ''; ?>"></div>
-                    
-                    <!-- CAMPO DE NOMBRE DE USUARIO -->
-                    <!-- value="...": Preserva el valor ingresado si hubo un error para que el usuario no tenga que reescribirlo -->
-                    <!-- htmlspecialchars(): Función que convierte caracteres especiales a entidades HTML para prevenir XSS -->
-                    <div><input class="field namefield<?php echo isset($field_errors['username']) ? ' error' : ''; ?>" type="text" name="lastname" placeholder="Nombre de usuario" id="username" required value="<?php echo isset($_POST['lastname']) ? htmlspecialchars($_POST['lastname']) : ''; ?>"></div>
-                    
-                    <!-- CAMPO DE EMAIL -->
-                    <!-- type="email": Tipo de input HTML5 que proporciona validación básica de formato de email en el navegador -->
-                    <div><input class="field namefield<?php echo isset($field_errors['email']) ? ' error' : ''; ?>" type="email" name="email" placeholder="Correo electrónico" id="email" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"></div>
-                    
-                    <!-- CAMPO DE TELÉFONO -->
-                    <!-- type="tel": Tipo de input HTML5 optimizado para números de teléfono -->
-                    <div><input class="field namefield<?php echo isset($field_errors['phone']) ? ' error' : ''; ?>" type="tel" name="phone" placeholder="Número de teléfono" id="phone" required value="<?php echo isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>"></div>
-                    
-                    <!-- CAMPO DE CONTRASEÑA -->
-                    <!-- type="password": Oculta los caracteres ingresados por seguridad -->
-                    <!-- value preservado para debugging (en producción se podría omitir por seguridad) -->
-                    <div><input class="field passwordfield<?php echo isset($field_errors['password']) ? ' error' : ''; ?>" type="password" name="password" placeholder="Contraseña" id="password" required value="<?php echo isset($_POST['password']) ? htmlspecialchars($_POST['password']) : ''; ?>"></div>
-                    
-                    <!-- CAMPO DE CONFIRMACIÓN DE CONTRASEÑA -->
-                    <!-- Validación adicional para asegurar que el usuario escribió la contraseña correctamente -->
-                    <div><input class="field passwordfield<?php echo isset($field_errors['confirm_password']) ? ' error' : ''; ?>" type="password" name="confirm_password" placeholder="Confirmar contraseña" id="confirm_password" required value="<?php echo isset($_POST['confirm_password']) ? htmlspecialchars($_POST['confirm_password']) : ''; ?>"></div>
-                    
-                    <!-- CAMPO DE FECHA DE NACIMIENTO -->
-                    <!-- type="date": Tipo de input HTML5 que proporciona un selector de fecha -->
-                    <div><input class="field namefield<?php echo isset($field_errors['birthdate']) ? ' error' : ''; ?>" type="date" name="birthdate" placeholder="Fecha de nacimiento" id="birthdate" required value="<?php echo isset($_POST['birthdate']) ? htmlspecialchars($_POST['birthdate']) : ''; ?>"></div>
-                    
-                    <!-- ÁREA DE MENSAJES DE ERROR -->
-                    <!-- style="...": CSS inline que cambia según si hay error o no -->
-                    <!-- 'color: red;': Muestra el texto en rojo si hay error -->
-                    <!-- 'color: transparent;': Oculta el texto si no hay error (pero mantiene el espacio) -->
-                    <p class="error-message" id="error" style="<?php echo !empty($error_message) ? 'color: red;' : 'color: transparent;'; ?>">
-                        <!-- htmlspecialchars($error_message): Sanitiza el mensaje de error para prevenir inyección de código -->
-                        <?php echo htmlspecialchars($error_message); ?><?php echo empty($error_message) ? 'p' : ''; ?>
-                    </p>
-                    <!-- empty($error_message) ? 'p' : '': Si no hay error, muestra una 'p' invisible para mantener la altura del elemento -->
-                </div>
-                <!-- Botón de envío del formulario -->
-                <!-- type="submit": Especifica que este botón enviará el formulario -->
-                <button class="btnlogin" type="submit" id="btn-register">Registrarse</button>
-            </form>
-            <div class="login-footer">
-                <!-- Enlace para usuarios que ya tienen cuenta -->
-                <a href="iniciarsesion.php" class="text">¿Ya tienes cuenta? Inicia Sesión.</a>
-            </div>
-        </div>
-    </div>
+<style>
+/* === ESTILOS MODERNOS PARA REGISTRO === */
+body.body-lr {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+}
 
-<?php
-// Incluye el archivo footer.php que contiene el cierre de la estructura HTML y scripts finales
-include 'includes/footer.php';
-?>
+.page-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px; /* Reducido de 20px */
+    padding-top: 70px; /* Reducido de 80px */
+    width: 100%;
+}
+
+.register-container {
+    max-width: 900px; /* Reducido de 1000px */
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 0;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.6s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Columna izquierda - Quote */
+.quote-section {
+    background: transparent;
+    padding: 30px 25px; /* Reducido de 40px 30px */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #2d3748;
+    position: relative;
+    overflow: hidden;
+}
+
+.quote-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(106, 153, 78, 0.05) 0%, transparent 70%);
+    animation: pulse 15s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.quote-logo {
+    width: 120px; /* Reducido de 140px */
+    height: auto;
+    margin-bottom: 15px; /* Reducido de 20px */
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+    position: relative;
+    z-index: 1;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.quote-text {
+    font-size: 19px; /* Reducido de 22px */
+    font-weight: 600;
+    text-align: center;
+    font-style: italic;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 1;
+    line-height: 1.4;
+}
+
+.quote-text::before {
+    content: '"';
+    font-size: 60px;
+    position: absolute;
+    top: -20px;
+    left: -10px;
+    opacity: 0.3;
+}
+
+/* Columna derecha - Formulario */
+.form-section {
+    padding: 30px 35px; /* Reducido de 35px 40px */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.form-section::-webkit-scrollbar {
+    width: 6px;
+}
+
+.form-section::-webkit-scrollbar-thumb {
+    background: #6a994e;
+    border-radius: 10px;
+}
+
+.form-header {
+    margin-bottom: 16px; /* Reducido de 20px */
+}
+
+.form-title {
+    font-size: 24px; /* Reducido de 26px */
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 6px; /* Reducido de 8px */
+}
+
+.form-subtitle {
+    color: #718096;
+    font-size: 13px; /* Reducido de 14px */
+}
+
+.registration-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px; /* Reducido de 12px */
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px; /* Reducido de 6px */
+    color: #4a5568;
+    font-weight: 500;
+    font-size: 12px; /* Reducido de 13px */
+}
+
+.form-group label i {
+    margin-right: 6px;
+    color: #6a994e;
+}
+
+.form-input {
+    width: 100%;
+    padding: 9px 11px; /* Reducido de 10px 12px */
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 13px; /* Reducido de 14px */
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #6a994e;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(106, 153, 78, 0.1);
+}
+
+.form-input.error {
+    border-color: #e53e3e;
+    background: #fff5f5;
+}
+
+.error-message-global {
+    grid-column: 1 / -1;
+    color: #e53e3e;
+    font-size: 13px;
+    padding: 12px;
+    background: #fff5f5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-left: 3px solid #e53e3e;
+}
+
+.error-message-global i {
+    font-size: 16px;
+}
+
+.btn-register {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #6a994e 0%, #5a8840 100%);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    box-shadow: 0 4px 12px rgba(106, 153, 78, 0.3);
+}
+
+.btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(106, 153, 78, 0.4);
+}
+
+.btn-register:active {
+    transform: translateY(0);
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid #e2e8f0;
+    grid-column: 1 / -1;
+}
+
+.form-footer a {
+    color: #6a994e;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.form-footer a:hover {
+    color: #5a8840;
+    text-decoration: underline;
+}
+
+/* Estilos del footer para login/registro */
+body.body-lr .footer {
+    background-color: #ffffff;
+    position: relative;
+    margin: 0;
+    padding: 30px 0;
+    width: 100%;
+    border-top: 1px solid #e0e0e0;
+}
+
+body.body-lr .footer .socialcontainer,
+body.body-lr .footer .footerinfo {
+    position: relative;
+    z-index: 1;
+    color: #333;
+}
+
+body.body-lr .footer .socialinfo {
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    body.body-lr {
+        padding: 0;
+    }
+    
+    .page-wrapper {
+        padding: 20px;
+    }
+    
+    .register-container {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+    }
+    
+    .quote-section {
+        padding: 40px 30px;
+    }
+    
+    .quote-logo {
+        width: 120px;
+        margin-bottom: 20px;
+    }
+    
+    .quote-text {
+        font-size: 20px;
+    }
+    
+    .form-section {
+        padding: 40px 35px;
+        max-height: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-wrapper {
+        padding: 10px;
+    }
+    
+    .register-container {
+        border-radius: 16px;
+    }
+    
+    .registration-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-section {
+        padding: 30px 20px;
+    }
+    
+    .quote-section {
+        padding: 30px 20px;
+    }
+    
+    .form-title {
+        font-size: 26px;
+    }
+}
+</style>
+
+<div class="page-wrapper">
+<div class="register-container">
+    <!-- Sección de Quote -->
+    <div class="quote-section">
+        <img src="img/Hand(sinfondo).png" alt="HandinHand Logo" class="quote-logo">
+        <p class="quote-text">Unite, Creá, Transformá</p>
+    </div>
+    
+    <!-- Sección de Formulario -->
+    <div class="form-section">
+        <div class="form-header">
+            <h1 class="form-title">Crear Cuenta</h1>
+            <p class="form-subtitle">Únete a HandinHand hoy</p>
+        </div>
+        
+        <form class="registration-form" method="POST" action="registrar.php">
+            <div class="form-group">
+                <label for="fullname">
+                    <i class="fas fa-user"></i>
+                    Nombre completo
+                </label>
+                <input 
+                    type="text" 
+                    id="fullname" 
+                    name="firstname" 
+                    class="form-input<?php echo isset($field_errors['fullname']) ? ' error' : ''; ?>" 
+                    placeholder="Tu nombre completo"
+                    value="<?php echo isset($_POST['firstname']) ? htmlspecialchars($_POST['firstname']) : ''; ?>"
+                    required>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-at"></i>
+                    Nombre de usuario
+                </label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="lastname" 
+                    class="form-input<?php echo isset($field_errors['username']) ? ' error' : ''; ?>" 
+                    placeholder="Tu usuario único"
+                    value="<?php echo isset($_POST['lastname']) ? htmlspecialchars($_POST['lastname']) : ''; ?>"
+                    required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i>
+                    Correo electrónico
+                </label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input<?php echo isset($field_errors['email']) ? ' error' : ''; ?>" 
+                    placeholder="correo@ejemplo.com"
+                    value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"
+                    required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">
+                    <i class="fas fa-phone"></i>
+                    Teléfono
+                </label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    class="form-input<?php echo isset($field_errors['phone']) ? ' error' : ''; ?>" 
+                    placeholder="Tu número de teléfono"
+                    value="<?php echo isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>"
+                    required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                    Contraseña
+                </label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input<?php echo isset($field_errors['password']) ? ' error' : ''; ?>" 
+                    placeholder="Mínimo 6 caracteres"
+                    required>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">
+                    <i class="fas fa-lock"></i>
+                    Confirmar contraseña
+                </label>
+                <input 
+                    type="password" 
+                    id="confirm_password" 
+                    name="confirm_password" 
+                    class="form-input<?php echo isset($field_errors['confirm_password']) ? ' error' : ''; ?>" 
+                    placeholder="Repite tu contraseña"
+                    required>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="birthdate">
+                    <i class="fas fa-calendar"></i>
+                    Fecha de nacimiento (debes ser mayor de 18 años)
+                </label>
+                <input 
+                    type="date" 
+                    id="birthdate" 
+                    name="birthdate" 
+                    class="form-input<?php echo isset($field_errors['birthdate']) ? ' error' : ''; ?>" 
+                    value="<?php echo isset($_POST['birthdate']) ? htmlspecialchars($_POST['birthdate']) : ''; ?>"
+                    required>
+            </div>
+            
+            <?php if (!empty($error_message)): ?>
+                <div class="error-message-global">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <?php echo htmlspecialchars($error_message); ?>
+                </div>
+            <?php endif; ?>
+            
+            <button type="submit" class="btn-register">
+                <i class="fas fa-user-plus"></i>
+                Crear Cuenta
+            </button>
+            
+            <div class="form-footer">
+                ¿Ya tienes cuenta? 
+                <a href="iniciarsesion.php">Inicia sesión aquí</a>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+<?php include 'includes/footer.php'; ?>

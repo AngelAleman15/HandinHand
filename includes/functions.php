@@ -127,6 +127,37 @@ function generateStars($rating, $max = 5) {
 }
 
 /**
+ * Función para obtener todas las categorías únicas de productos
+ */
+function getCategoriasUnicas() {
+    require_once __DIR__ . '/../config/database.php';
+    $pdo = getConnection();
+    
+    // Obtener todas las categorías de productos disponibles
+    $stmt = $pdo->prepare("
+        SELECT DISTINCT 
+            TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(p.categoria, ',', numbers.n), ',', -1)) as categoria
+        FROM productos p
+        CROSS JOIN (
+            SELECT 1 n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL 
+            SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL 
+            SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10
+        ) numbers
+        WHERE p.categoria IS NOT NULL 
+        AND p.categoria != ''
+        AND CHAR_LENGTH(p.categoria) - CHAR_LENGTH(REPLACE(p.categoria, ',', '')) >= numbers.n - 1
+        ORDER BY categoria ASC
+    ");
+    $stmt->execute();
+    $categorias = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    // Filtrar categorías vacías y devolver
+    return array_filter($categorias, function($cat) {
+        return !empty(trim($cat));
+    });
+}
+
+/**
  * Función para obtener productos con filtros avanzados
  */
 function getProductosFiltrados($limit = null, $busqueda = null, $categoria = null, $estado = null) {
@@ -151,8 +182,22 @@ function getProductosFiltrados($limit = null, $busqueda = null, $categoria = nul
     
     // Filtro de categoría
     if ($categoria) {
-        $sql .= " AND p.categoria = ?";
-        $params[] = $categoria;
+        // Buscar en categorías que pueden estar separadas por comas
+        // Eliminamos espacios extras y usamos múltiples métodos de búsqueda
+        $sql .= " AND (
+            TRIM(p.categoria) = ? 
+            OR TRIM(p.categoria) LIKE ? 
+            OR TRIM(p.categoria) LIKE ? 
+            OR TRIM(p.categoria) LIKE ?
+            OR p.categoria LIKE ?
+            OR FIND_IN_SET(?, REPLACE(TRIM(p.categoria), ', ', ',')) > 0
+        )";
+        $params[] = $categoria; // Categoría exacta (sin espacios)
+        $params[] = $categoria . ",%"; // Al inicio con coma
+        $params[] = "%," . $categoria; // Al final con coma antes
+        $params[] = "%," . $categoria . ",%"; // En medio con comas
+        $params[] = "%" . $categoria . "%"; // Búsqueda flexible
+        $params[] = $categoria; // Para FIND_IN_SET
     }
     
     // Filtro de estado
@@ -269,11 +314,10 @@ function getProductosRecomendados($limit = 8) {
                 LEFT JOIN producto_scores ps ON p.id = ps.producto_id
                 WHERE p.estado = 'disponible'
                 AND p.user_id != ?
-                AND (p.categoria IN ($placeholders) OR ps.score_total > 10)
                 AND p.id NOT IN (
                     SELECT producto_id FROM producto_vistas 
                     WHERE usuario_id = ? 
-                    AND fecha_vista >= DATE_SUB(NOW(), INTERVAL 1 DAY)
+                    AND fecha_vista >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
                 )
                 ORDER BY 
                     CASE WHEN p.categoria IN ($placeholders) THEN 1 ELSE 2 END,
@@ -284,7 +328,6 @@ function getProductosRecomendados($limit = 8) {
             
             $params = array_merge(
                 [$usuario_id],
-                $categorias_favoritas,
                 [$usuario_id],
                 $categorias_favoritas,
                 [$limit]

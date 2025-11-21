@@ -26,7 +26,7 @@ try {
     $replyToMessageId = isset($data['reply_to_message_id']) ? intval($data['reply_to_message_id']) : null;
 
     // Insertar el mensaje
-    $query = "INSERT INTO mensajes (sender_id, receiver_id, mensaje, reply_to_message_id, is_read, created_at) 
+    $query = "INSERT INTO mensajes (sender_id, receiver_id, message, reply_to_message_id, is_read, created_at) 
               VALUES (:sender_id, :receiver_id, :message, :reply_to, 0, NOW())";
               
     $stmt = $conn->prepare($query);

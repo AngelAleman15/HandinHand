@@ -1,6 +1,240 @@
 // Perfil de Usuario - JavaScript
 
 let selectedRating = 0;
+let cropperInstance = null;
+
+// ==== SISTEMA DE AVATAR ====
+function editAvatar() {
+    if (!IS_LOGGED_IN) {
+        alert('Debes iniciar sesión para editar tu avatar');
+        return;
+    }
+    
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpeg,image/jpg,image/png,image/webp';
+    
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Validar tipo de archivo
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Formato no válido',
+                    html: `
+                        <p>Solo se permiten imágenes en los siguientes formatos:</p>
+                        <p style="font-weight: bold; color: #6a994e;">JPG, PNG, WEBP</p>
+                    `,
+                    confirmButtonColor: '#A2CB8D'
+                });
+            } else {
+                alert('Solo se permiten imágenes JPG, PNG o WEBP');
+            }
+            return;
+        }
+        
+        // Validar tamaño (máx 5MB)
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Archivo muy grande',
+                    html: `
+                        <p>Tu archivo pesa <strong>${sizeMB} MB</strong></p>
+                        <p>El tamaño máximo permitido es <strong style="color: #6a994e;">5 MB</strong></p>
+                    `,
+                    confirmButtonColor: '#A2CB8D'
+                });
+            } else {
+                alert(`El archivo debe ser menor a 5MB. Tu archivo: ${sizeMB}MB`);
+            }
+            return;
+        }
+        
+        // Leer la imagen
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const imageDataUrl = event.target.result;
+            
+            // Mostrar modal con cropper usando SweetAlert2
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '<i class="fas fa-cut"></i> Recortar Imagen',
+                    html: `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                                <i class="fas fa-info-circle" style="color: #6a994e; font-size: 20px;"></i>
+                                <h4 style="margin: 0; color: #2c3e50; font-size: 16px;">Especificaciones de Imagen</h4>
+                            </div>
+                            <div style="text-align: left; background: white; padding: 12px; border-radius: 6px; border-left: 4px solid #6a994e;">
+                                <p style="margin: 5px 0; font-size: 13px;">
+                                    <i class="fas fa-check-circle" style="color: #6a994e;"></i> 
+                                    <strong>Formatos:</strong> JPG, PNG, WEBP
+                                </p>
+                                <p style="margin: 5px 0; font-size: 13px;">
+                                    <i class="fas fa-check-circle" style="color: #6a994e;"></i> 
+                                    <strong>Tamaño máximo:</strong> 5 MB
+                                </p>
+                                <p style="margin: 5px 0; font-size: 13px;">
+                                    <i class="fas fa-check-circle" style="color: #6a994e;"></i> 
+                                    <strong>Dimensiones recomendadas:</strong> 300x300 px
+                                </p>
+                                <p style="margin: 5px 0; font-size: 13px;">
+                                    <i class="fas fa-check-circle" style="color: #6a994e;"></i> 
+                                    <strong>Relación de aspecto:</strong> 1:1 (cuadrado)
+                                </p>
+                            </div>
+                        </div>
+                        <div style="background: #fff; padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <p style="margin: 10px 0; color: #555; font-size: 13px;">
+                                <i class="fas fa-arrows-alt" style="color: #6a994e;"></i> 
+                                Arrastra y ajusta el área de recorte
+                            </p>
+                            <div style="max-width: 100%; overflow: hidden;">
+                                <img id="crop-image" src="${imageDataUrl}" style="max-width: 100%; display: block;">
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-save"></i> Guardar Avatar',
+                    cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+                    confirmButtonColor: '#6a994e',
+                    cancelButtonColor: '#dc3545',
+                    width: 700,
+                    customClass: {
+                        popup: 'avatar-crop-modal',
+                        title: 'avatar-crop-title',
+                        htmlContainer: 'avatar-crop-container',
+                        confirmButton: 'avatar-confirm-btn',
+                        cancelButton: 'avatar-cancel-btn'
+                    },
+                    didOpen: () => {
+                        const image = document.getElementById('crop-image');
+                        cropperInstance = new Cropper(image, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 0.8,
+                            responsive: true,
+                            background: true,
+                            guides: true,
+                            center: true,
+                            highlight: true,
+                            cropBoxMovable: true,
+                            cropBoxResizable: true,
+                            toggleDragModeOnDblclick: false,
+                            minCropBoxWidth: 100,
+                            minCropBoxHeight: 100
+                        });
+                    },
+                    willClose: () => {
+                        if (cropperInstance) {
+                            cropperInstance.destroy();
+                            cropperInstance = null;
+                        }
+                    },
+                    preConfirm: () => {
+                        if (!cropperInstance) return false;
+                        
+                        return new Promise((resolve) => {
+                            cropperInstance.getCroppedCanvas({
+                                width: 300,
+                                height: 300,
+                                imageSmoothingQuality: 'high'
+                            }).toBlob((blob) => {
+                                resolve(blob);
+                            }, 'image/jpeg', 0.9);
+                        });
+                    }
+                }).then(async (result) => {
+                    if (result.isConfirmed && result.value) {
+                        await uploadAvatar(result.value);
+                    }
+                });
+            } else {
+                // Fallback sin cropper
+                alert('Se requiere SweetAlert2 para usar el editor de imágenes');
+            }
+        };
+        
+        reader.readAsDataURL(file);
+    };
+    
+    input.click();
+}
+
+async function uploadAvatar(blob) {
+    const formData = new FormData();
+    formData.append('avatar', blob, 'avatar.jpg');
+    
+    try {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Subiendo...',
+                text: 'Por favor espera',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+        
+        const response = await fetch('api/upload-avatar.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Avatar actualizado!',
+                    text: 'Tu foto de perfil ha sido actualizada correctamente',
+                    confirmButtonColor: '#A2CB8D',
+                    timer: 2000,
+                    timerProgressBar: true
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                alert('Avatar actualizado correctamente');
+                location.reload();
+            }
+        } else {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Error al subir el avatar',
+                    confirmButtonColor: '#A2CB8D'
+                });
+            } else {
+                alert('Error: ' + (data.message || 'Error al subir el avatar'));
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo conectar con el servidor',
+                confirmButtonColor: '#A2CB8D'
+            });
+        } else {
+            alert('Error al subir el avatar');
+        }
+    }
+}
 
 // ==== SISTEMA DE VALORACIÓN ====
 function mostrarModalValorar() {
@@ -23,53 +257,68 @@ function cerrarModalValorar() {
 }
 
 // Sistema de estrellas con medios valores
-document.querySelectorAll('.stars-input i').forEach((star, index) => {
-    star.addEventListener('click', function() {
-        const value = parseFloat(this.dataset.value);
-        selectedRating = value;
-        document.getElementById('rating-display').textContent = value.toFixed(1);
-        
-        // Actualizar estrellas visuales
-        document.querySelectorAll('.stars-input i').forEach((s, i) => {
-            const starValue = parseFloat(s.dataset.value);
-            if (starValue <= value) {
-                s.classList.remove('far');
-                s.classList.add('fas', 'active');
-            } else {
-                s.classList.remove('fas', 'active');
-                s.classList.add('far');
+const starsInputElements = document.querySelectorAll('.stars-input i');
+if (starsInputElements.length > 0) {
+    starsInputElements.forEach((star, index) => {
+        star.addEventListener('click', function() {
+            const value = parseFloat(this.dataset.value);
+            selectedRating = value;
+            const ratingDisplay = document.getElementById('rating-display');
+            if (ratingDisplay) {
+                ratingDisplay.textContent = value.toFixed(1);
             }
+            
+            // Actualizar estrellas visuales
+            document.querySelectorAll('.stars-input i').forEach((s, i) => {
+                const starValue = parseFloat(s.dataset.value);
+                if (starValue <= value) {
+                    s.classList.remove('far');
+                    s.classList.add('fas', 'active');
+                } else {
+                    s.classList.remove('fas', 'active');
+                    s.classList.add('far');
+                }
+            });
+        });
+        
+        star.addEventListener('mouseover', function() {
+            const value = parseFloat(this.dataset.value);
+            document.querySelectorAll('.stars-input i').forEach(s => {
+                const starValue = parseFloat(s.dataset.value);
+                if (starValue <= value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
         });
     });
-    
-    star.addEventListener('mouseover', function() {
-        const value = parseFloat(this.dataset.value);
-        document.querySelectorAll('.stars-input i').forEach(s => {
+}
+
+const starsInputContainer = document.querySelector('.stars-input');
+if (starsInputContainer) {
+    starsInputContainer.addEventListener('mouseleave', function() {
+        document.querySelectorAll('.stars-input i').forEach((s, i) => {
             const starValue = parseFloat(s.dataset.value);
-            if (starValue <= value) {
+            if (starValue <= selectedRating) {
                 s.classList.add('active');
             } else {
                 s.classList.remove('active');
             }
         });
     });
-});
-
-document.querySelector('.stars-input').addEventListener('mouseleave', function() {
-    document.querySelectorAll('.stars-input i').forEach((s, i) => {
-        const starValue = parseFloat(s.dataset.value);
-        if (starValue <= selectedRating) {
-            s.classList.add('active');
-        } else {
-            s.classList.remove('active');
-        }
-    });
-});
+}
 
 // Contador de caracteres para comentario
-document.getElementById('comentario-valoracion').addEventListener('input', function() {
-    document.getElementById('char-count').textContent = this.value.length;
-});
+const comentarioValoración = document.getElementById('comentario-valoracion');
+if (comentarioValoración) {
+    comentarioValoración.addEventListener('input', function() {
+        const charCount = document.getElementById('char-count');
+        if (charCount) {
+            charCount.textContent = this.value.length;
+        }
+    });
+}
 
 async function enviarValoracion() {
     if (selectedRating === 0) {
@@ -192,9 +441,15 @@ function cerrarModalDenunciar() {
     document.getElementById('descripcion-denuncia').value = '';
 }
 
-document.getElementById('descripcion-denuncia').addEventListener('input', function() {
-    document.getElementById('denuncia-char-count').textContent = this.value.length;
-});
+const descripcionDenuncia = document.getElementById('descripcion-denuncia');
+if (descripcionDenuncia) {
+    descripcionDenuncia.addEventListener('input', function() {
+        const denunciaCharCount = document.getElementById('denuncia-char-count');
+        if (denunciaCharCount) {
+            denunciaCharCount.textContent = this.value.length;
+        }
+    });
+}
 
 async function enviarDenuncia() {
     const motivo = document.getElementById('motivo-denuncia').value;
@@ -211,28 +466,53 @@ async function enviarDenuncia() {
     }
     
     try {
-        const response = await fetch('api/denuncias.php', {
+        const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+        const apiUrl = baseUrl + 'api/denuncias.php';
+        
+        const payload = {
+            action: 'crear',
+            denunciado_id: USER_ID,
+            motivo: motivo,
+            descripcion: descripcion
+        };
+        
+        console.log('🚨 URL completa:', apiUrl);
+        console.log('🚨 Payload a enviar:', payload);
+        console.log('🚨 Payload JSON:', JSON.stringify(payload));
+        
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'crear',
-                denunciado_id: USER_ID,
-                motivo: motivo,
-                descripcion: descripcion
-            })
+            body: JSON.stringify(payload)
         });
         
-        const data = await response.json();
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response headers:', response.headers);
+        
+        const responseText = await response.text();
+        console.log('📡 Response text RAW:', responseText);
+        
+        let data;
+        try {
+            data = JSON.parse(responseText);
+            console.log('� Response data PARSED:', data);
+        } catch (e) {
+            console.error('❌ Error parseando JSON:', e);
+            console.error('❌ Respuesta que falló:', responseText);
+            alert('Error: Respuesta inválida del servidor');
+            return;
+        }
         
         if (data.success) {
             alert('Denuncia enviada correctamente. Será revisada por nuestro equipo.');
             cerrarModalDenunciar();
         } else {
-            alert('Error: ' + data.message);
+            console.error('❌ Error en denuncia:', data);
+            alert('Error: ' + (data.message || 'Error desconocido'));
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('Error al enviar la denuncia');
+        console.error('💥 Error completo:', error);
+        alert('Error al enviar la denuncia: ' + error.message);
     }
 }
 

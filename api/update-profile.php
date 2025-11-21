@@ -233,6 +233,9 @@ function handlePersonalInfoUpdate($pdo, $user, &$errors) {
         }
         
         // Actualizar la sesión con los nuevos datos
+        if (!isset($_SESSION['user'])) {
+            $_SESSION['user'] = [];
+        }
         $_SESSION['user'] = array_merge($_SESSION['user'], $updatedUser);
         
         // Preparar respuesta
